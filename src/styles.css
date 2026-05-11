@@ -1,0 +1,171 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #15171a;
+  color: #f8f5ed;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#factory-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #90d5ff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 700px;
+  margin: 0;
+  font-size: clamp(34px, 7vw, 76px);
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-wrap: balance;
+  text-shadow: 0 3px 18px rgb(0 0 0 / 0.45);
+}
+
+.status {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 210px;
+}
+
+.status span,
+.controls {
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(19 22 24 / 0.72);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.25);
+  backdrop-filter: blur(12px);
+}
+
+.status span {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.controls {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(760px, calc(100% - 48px));
+  padding: 12px;
+  border-radius: 8px;
+}
+
+button,
+label {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+}
+
+button {
+  padding: 0 16px;
+  background: #f6c453;
+  color: #141414;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #ffdf7a;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  color: #f8f5ed;
+  background: rgb(255 255 255 / 0.08);
+  white-space: nowrap;
+}
+
+input[type="range"] {
+  width: 150px;
+  accent-color: #5fd0a5;
+}
+
+@media (max-width: 760px) {
+  .hud {
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .status {
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  .controls {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: calc(100% - 24px);
+    flex-wrap: wrap;
+  }
+
+  button {
+    flex: 1 1 92px;
+    padding: 0 10px;
+  }
+
+  label {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  input[type="range"] {
+    width: min(190px, 55vw);
+  }
+}

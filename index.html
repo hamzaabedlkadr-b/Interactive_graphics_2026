@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robot Factory Assembly Line</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="app">
+      <section class="viewport" aria-label="Interactive 3D robot factory">
+        <canvas id="factory-canvas"></canvas>
+        <div class="hud">
+          <div>
+            <p class="eyebrow">Interactive Graphics Project</p>
+            <h1>Robot Factory Assembly Line</h1>
+          </div>
+          <div class="status">
+            <span id="mode-label">Automatic cycle</span>
+            <span id="speed-label">1.0x</span>
+          </div>
+        </div>
+        <div class="controls" aria-label="Scene controls">
+          <button id="toggle-animation" type="button">Pause</button>
+          <button id="toggle-night" type="button">Night</button>
+          <button id="toggle-lamp" type="button">Lamp Off</button>
+          <button id="camera-view" type="button">Camera B</button>
+          <label>
+            Speed
+            <input id="speed-control" type="range" min="0.2" max="2.4" step="0.1" value="1" />
+          </label>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
