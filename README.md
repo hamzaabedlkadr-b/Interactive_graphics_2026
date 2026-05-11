@@ -1,17 +1,18 @@
 # Robot Factory Assembly Line
 
-Interactive Graphics course project prototype.
+Interactive Graphics course project starter.
 
 ## Theme
 
-The project is an interactive robot factory where a hierarchical robot arm works on an animated conveyor belt. The scene is designed to satisfy the course requirements with hierarchical models, lights, textures, user interaction, and JavaScript-authored animations.
+The project is an interactive robot factory where hierarchical robot arms work around an animated conveyor belt. The scene is designed to satisfy the course requirements with complex hierarchical models, multiple lights, procedural textures, user interaction, and JavaScript-authored animations.
 
 ## Current Features
 
-- Hierarchical robot arm with base, rotating waist, shoulder, elbow, wrist, and claw.
-- Animated conveyor belt, moving crates, robot arm cycle, and inspection drone.
-- Directional light, hemisphere light, and toggleable factory lamp.
-- Procedural color and stripe textures generated in JavaScript.
+- Two hierarchical robot arms with base, rotating waist, shoulder, elbow, wrist, and claw.
+- Animated conveyor belt, moving crates, robot arm cycles, inspection drone, scanner gate, and press machine.
+- Enclosed factory floor with walls, wall panels, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
+- Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
+- Procedural floor, wall, conveyor, and hazard textures generated in JavaScript.
 - User controls for pause/resume, day/night mode, lamp toggle, camera views, and animation speed.
 
 ## Suggested Team Split
