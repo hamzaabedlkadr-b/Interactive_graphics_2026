@@ -17,10 +17,10 @@ The project is an interactive robot factory where hierarchical robot arms work a
 
 ## Suggested Team Split
 
-- Person 1: factory environment, floor/walls, extra machines, textures.
-- Person 2: robot arm hierarchy and additional robot animations.
-- Person 3: conveyor belt, crates, drone, production objects.
-- Person 4: interactions, camera controls, UI, README, and final report.
+- Hamza: factory environment, floor/walls, extra machines, textures.
+- Marco: robot arm hierarchy and additional robot animations.
+- Leo: conveyor belt, crates, drone, production objects.
+- Edo: interactions, camera controls, UI, lighting controls, day/night mode, animation speed controls, scene polish, GitHub Pages setup, README, and final report.
 
 ## Run Locally
 
