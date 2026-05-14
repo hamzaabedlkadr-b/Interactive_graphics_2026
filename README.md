@@ -15,6 +15,24 @@ The project is an interactive robot factory where hierarchical robot arms work a
 - Procedural floor, wall, conveyor, and hazard textures generated in JavaScript.
 - User controls for pause/resume, day/night mode, lamp toggle, camera views, and animation speed.
 
+## Course Requirements Checklist
+
+Every teammate should check their work against this list before pushing changes.
+
+- Hierarchical models: the project must include at least one complex hierarchical model. Our main examples are the robot arms, built from parent-child parts: base, waist, shoulder, elbow, wrist, and claw.
+- Lights and textures: the scene must include lights and different texture/material types. We currently use hemisphere, directional, point, and spot lights, plus procedural floor, wall, belt, hazard, label, metal, glass, emissive, and rough/metal materials.
+- User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, camera presets, orbit controls, and animation speed.
+- Animations: most objects should be animated, especially hierarchical models. Current animations include robot arm motion, conveyor movement, crates, press machine, scanner beam, drone, propellers, and light pulsing.
+- Important rule: animations must be implemented by us in JavaScript. Do not import premade animations from online models.
+
+## Team Contribution Rules
+
+- When adding a model, add a short comment or README note explaining which requirement it supports.
+- When adding animation, implement it in JavaScript and make sure it is visible during normal playback.
+- When adding textures/materials, prefer meaningful differences such as metal, glass, rubber, emissive, floor, wall, hazard, label, or procedural canvas texture.
+- Before pushing, run `node --check src/main.js` and open the scene locally.
+- If tween.js is added later for smoother motion, document where it is used. It is suggested by the professor, but not required.
+
 ## Suggested Team Split
 
 - Hamza: factory environment, floor/walls, extra machines, textures.
