@@ -138,6 +138,27 @@ function makeHazardTexture() {
   return texture;
 }
 
+function makeLabelTexture(text, background = "#f6c453", foreground = "#151515") {
+  const canvasTexture = document.createElement("canvas");
+  canvasTexture.width = 512;
+  canvasTexture.height = 160;
+  const context = canvasTexture.getContext("2d");
+  context.fillStyle = background;
+  context.fillRect(0, 0, 512, 160);
+  context.strokeStyle = foreground;
+  context.lineWidth = 14;
+  context.strokeRect(16, 16, 480, 128);
+  context.fillStyle = foreground;
+  context.font = "700 52px Arial, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, 256, 82);
+
+  const texture = new THREE.CanvasTexture(canvasTexture);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 const floorTexture = makeCheckerTexture("#505d5d", "#465252", 192, 12);
 floorTexture.repeat.set(8, 8);
 const beltTexture = makeStripeTexture("#202326", "#3d464b");
@@ -154,6 +175,15 @@ const materials = {
   yellow: new THREE.MeshStandardMaterial({ color: 0xf6c453, metalness: 0.22, roughness: 0.36 }),
   orange: new THREE.MeshStandardMaterial({ color: 0xe9853f, metalness: 0.18, roughness: 0.42 }),
   mutedOrange: new THREE.MeshStandardMaterial({ color: 0xb86538, metalness: 0.12, roughness: 0.56 }),
+  palletWood: new THREE.MeshStandardMaterial({ color: 0x9a6b42, metalness: 0.03, roughness: 0.82 }),
+  rubberMat: new THREE.MeshStandardMaterial({ color: 0x15191a, metalness: 0.02, roughness: 0.9 }),
+  oil: new THREE.MeshStandardMaterial({
+    color: 0x0b0f10,
+    metalness: 0.15,
+    roughness: 0.18,
+    transparent: true,
+    opacity: 0.42,
+  }),
   teal: new THREE.MeshStandardMaterial({ color: 0x42c6a3, metalness: 0.25, roughness: 0.34 }),
   red: new THREE.MeshStandardMaterial({ color: 0xff5a4f, metalness: 0.18, roughness: 0.38 }),
   pipeRed: new THREE.MeshStandardMaterial({ color: 0xb33e36, metalness: 0.45, roughness: 0.36 }),
@@ -293,6 +323,89 @@ function createStorageRack(parent, position, rotationY = 0) {
   return rack;
 }
 
+function createPallet(parent, position, rotationY = 0) {
+  const pallet = new THREE.Group();
+  pallet.position.set(...position);
+  pallet.rotation.y = rotationY;
+  parent.add(pallet);
+
+  [-0.42, 0, 0.42].forEach((z) => {
+    addBox(pallet, [1.25, 0.08, 0.12], [0, 0.2, z], materials.palletWood);
+    addBox(pallet, [1.25, 0.08, 0.12], [0, 0.48, z], materials.palletWood);
+  });
+  [-0.45, 0.45].forEach((x) => {
+    addBox(pallet, [0.14, 0.28, 1.05], [x, 0.34, 0], materials.palletWood);
+  });
+  addBox(pallet, [0.64, 0.42, 0.5], [-0.24, 0.85, -0.1], materials.crate);
+  addBox(pallet, [0.5, 0.34, 0.42], [0.34, 0.78, 0.18], materials.mutedOrange);
+
+  return pallet;
+}
+
+function createToolCart(parent, position, rotationY = 0) {
+  const cart = new THREE.Group();
+  cart.position.set(...position);
+  cart.rotation.y = rotationY;
+  parent.add(cart);
+
+  addBox(cart, [1.1, 0.12, 0.62], [0, 0.48, 0], materials.red);
+  addBox(cart, [1.1, 0.12, 0.62], [0, 0.88, 0], materials.darkSteel);
+  addBox(cart, [0.08, 0.62, 0.62], [-0.52, 0.68, 0], materials.red);
+  addBox(cart, [0.08, 0.62, 0.62], [0.52, 0.68, 0], materials.red);
+  addBox(cart, [1.0, 0.08, 0.08], [0, 1.12, -0.24], materials.brushed);
+  [-0.38, 0.38].forEach((x) => {
+    [-0.22, 0.22].forEach((z) => {
+      const wheel = addCylinder(cart, 0.09, 0.09, 0.08, [x, 0.12, z], materials.rubber, 16);
+      wheel.rotation.z = Math.PI / 2;
+    });
+  });
+  addBox(cart, [0.42, 0.045, 0.08], [-0.22, 1.0, 0.04], materials.brushed);
+  addBox(cart, [0.34, 0.045, 0.08], [0.28, 1.0, 0.04], materials.brushed);
+
+  return cart;
+}
+
+function createElectricalCabinet(parent, position, rotationY = 0) {
+  const cabinet = new THREE.Group();
+  cabinet.position.set(...position);
+  cabinet.rotation.y = rotationY;
+  parent.add(cabinet);
+
+  addBox(cabinet, [0.85, 1.45, 0.22], [0, 0.72, 0], materials.brushed);
+  addBox(cabinet, [0.68, 0.42, 0.04], [0, 1.0, 0.13], materials.darkSteel);
+  addSphere(cabinet, 0.055, [-0.22, 1.05, 0.17], materials.glowGreen, 12);
+  addSphere(cabinet, 0.055, [0, 1.05, 0.17], materials.glowBlue, 12);
+  addSphere(cabinet, 0.055, [0.22, 1.05, 0.17], materials.glowRed, 12);
+  addBox(cabinet, [0.08, 0.52, 0.045], [0.33, 0.5, 0.15], materials.warningBlack);
+
+  return cabinet;
+}
+
+function createFloorLabel(parent, text, position, size, rotationY = 0, background = "#f6c453") {
+  const material = new THREE.MeshStandardMaterial({
+    map: makeLabelTexture(text, background),
+    roughness: 0.55,
+    metalness: 0.02,
+  });
+  const label = shadow(new THREE.Mesh(new THREE.PlaneGeometry(size[0], size[1]), material));
+  label.position.set(...position);
+  label.rotation.x = -Math.PI / 2;
+  label.rotation.z = rotationY;
+  parent.add(label);
+  return label;
+}
+
+function createOilStain(parent, position, scale = [0.8, 0.45], rotationZ = 0) {
+  const stain = new THREE.Mesh(new THREE.CircleGeometry(0.5, 36), materials.oil);
+  stain.position.set(...position);
+  stain.scale.set(scale[0], scale[1], 1);
+  stain.rotation.x = -Math.PI / 2;
+  stain.rotation.z = rotationZ;
+  stain.receiveShadow = true;
+  parent.add(stain);
+  return stain;
+}
+
 const factory = new THREE.Group();
 scene.add(factory);
 
@@ -360,6 +473,42 @@ createBarrel(factory, [-9.7, 0, 2.65], materials.pipeBlue);
 createBarrel(factory, [-9.05, 0, 2.8], materials.pipeRed);
 createBarrel(factory, [7.9, 0, -4.8], materials.pipeGreen);
 createBarrel(factory, [8.55, 0, -4.6], materials.mutedOrange);
+createPallet(factory, [-8.35, 0, -4.25], 0.2);
+createPallet(factory, [-6.7, 0, -4.35], -0.12);
+createPallet(factory, [5.15, 0, 4.7], Math.PI / 2);
+createToolCart(factory, [7.25, 0, 4.05], -0.35);
+createToolCart(factory, [-9.4, 0, -0.7], Math.PI / 2);
+createElectricalCabinet(factory, [8.95, 0, -5.88], 0);
+createElectricalCabinet(factory, [-10.78, 0, 0.7], Math.PI / 2);
+createFloorLabel(factory, "ASSEMBLY", [-1.5, 0.055, 2.92], [2.2, 0.7], 0, "#2f6984");
+createFloorLabel(factory, "SERVICE", [6.15, 0.056, 1.1], [1.75, 0.62], 0, "#3a725f");
+createFloorLabel(factory, "KEEP CLEAR", [-5.1, 0.057, -3.55], [2.0, 0.58], 0, "#f6c453");
+createOilStain(factory, [-3.6, 0.06, -3.25], [0.95, 0.42], 0.25);
+createOilStain(factory, [3.65, 0.061, 3.55], [0.72, 0.36], -0.45);
+createOilStain(factory, [8.25, 0.062, -2.4], [0.55, 0.28], 0.1);
+
+[
+  [-4.2, 0.05, 3.5],
+  [-3.05, 0.05, 3.5],
+  [-1.9, 0.05, 3.5],
+  [-0.75, 0.05, 3.5],
+  [0.4, 0.05, 3.5],
+  [1.55, 0.05, 3.5],
+].forEach(([x, y, z]) => {
+  addBox(factory, [0.72, 0.035, 0.08], [x, y, z], materials.yellow);
+});
+
+[
+  [-8.3, 0.5, -5.9],
+  [-8.0, 0.5, -5.9],
+  [-7.7, 0.5, -5.9],
+  [8.0, 0.5, -5.9],
+  [8.3, 0.5, -5.9],
+  [8.6, 0.5, -5.9],
+].forEach(([x, y, z], index) => {
+  const material = index % 2 === 0 ? materials.glowGreen : materials.glowBlue;
+  addSphere(factory, 0.065, [x, y, z], material, 12);
+});
 
 const ambientLight = new THREE.HemisphereLight(0xc7f1ff, 0x1e2225, 0.55);
 scene.add(ambientLight);

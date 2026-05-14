@@ -10,7 +10,7 @@ The project is an interactive robot factory where hierarchical robot arms work a
 
 - Two hierarchical robot arms with base, rotating waist, shoulder, elbow, wrist, and claw.
 - Animated conveyor belt, moving crates, robot arm cycles, inspection drone, scanner gate, and press machine.
-- Enclosed factory floor with walls, wall panels, ceiling beams, pipes, vents, storage racks, barrels, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
+- Enclosed factory floor with walls, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, oil stains, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
 - Procedural floor, wall, conveyor, and hazard textures generated in JavaScript.
 - User controls for pause/resume, day/night mode, lamp toggle, camera views, and animation speed.
@@ -32,7 +32,7 @@ The project is an interactive robot factory where hierarchical robot arms work a
 - Milestone 4: polish lighting placement and shadows so the scene feels like an enclosed industrial factory.
 - Final check: make sure the environment supports the other teammates' models without blocking camera views or interactions.
 
-Progress: factory zones, wall pipes, ceiling beams, vents, warning panels, storage racks, barrels, service markings, and extra safety details have been added.
+Progress: Hamza's main environment pass is complete. Factory zones, wall pipes, ceiling beams, vents, warning panels, storage racks, pallets, barrels, tool carts, electrical cabinets, service markings, oil stains, and extra safety details have been added. Final lighting polish should happen after the other teammates finish their objects and interactions.
 
 ### Marco - Robot Arms and Hierarchical Animation
 
