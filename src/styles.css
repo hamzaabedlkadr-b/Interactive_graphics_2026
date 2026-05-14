@@ -30,8 +30,8 @@ body {
   pointer-events: none;
   content: "";
   background:
-    radial-gradient(circle at 55% 38%, transparent 0 42%, rgb(0 0 0 / 0.22) 80%),
-    linear-gradient(180deg, rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.22));
+    radial-gradient(circle at 55% 38%, transparent 0 48%, rgb(0 0 0 / 0.14) 84%),
+    linear-gradient(180deg, rgb(0 0 0 / 0.03), rgb(0 0 0 / 0.12));
 }
 
 #factory-canvas {
@@ -53,23 +53,27 @@ body {
   z-index: 2;
 }
 
+.hud > div:first-child {
+  animation: compact-title 1s ease 4s forwards;
+}
+
 .eyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: #81dbff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
 h1 {
-  max-width: 560px;
+  max-width: 380px;
   margin: 0;
-  font-size: clamp(30px, 5vw, 58px);
+  font-size: clamp(24px, 3.4vw, 44px);
   line-height: 1;
   letter-spacing: 0;
   text-wrap: balance;
-  text-shadow: 0 4px 22px rgb(0 0 0 / 0.68);
+  text-shadow: 0 4px 18px rgb(0 0 0 / 0.66);
 }
 
 .status {
@@ -143,6 +147,14 @@ label {
 input[type="range"] {
   width: 150px;
   accent-color: #5fd0a5;
+}
+
+@keyframes compact-title {
+  to {
+    opacity: 0.72;
+    transform: scale(0.82);
+    transform-origin: top left;
+  }
 }
 
 @media (max-width: 760px) {

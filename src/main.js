@@ -7,21 +7,21 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMappingExposure = 1.28;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x182027);
-scene.fog = new THREE.Fog(0x182027, 18, 40);
+scene.background = new THREE.Color(0x202b32);
+scene.fog = new THREE.Fog(0x202b32, 22, 46);
 
-const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(7.2, 4.4, 7.6);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(8.8, 5.1, 9.2);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0.4, 1.6, 0);
+controls.target.set(0.1, 1.35, 0.05);
 controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.48;
 controls.minDistance = 4;
-controls.maxDistance = 18;
+controls.maxDistance = 22;
 
 const clock = new THREE.Clock();
 
@@ -34,10 +34,11 @@ const state = {
 };
 
 const cameraViews = [
-  { position: new THREE.Vector3(7.2, 4.4, 7.6), target: new THREE.Vector3(0.4, 1.6, 0) },
+  { position: new THREE.Vector3(8.8, 5.1, 9.2), target: new THREE.Vector3(0.1, 1.35, 0.05) },
   { position: new THREE.Vector3(-6.6, 3.3, 4.2), target: new THREE.Vector3(-1.5, 1.4, -0.2) },
   { position: new THREE.Vector3(1.5, 7.2, 6.3), target: new THREE.Vector3(0, 0.75, 0) },
   { position: new THREE.Vector3(4.3, 2.2, -4.7), target: new THREE.Vector3(1.2, 1.4, 0.2) },
+  { position: new THREE.Vector3(11.5, 7.2, 11.4), target: new THREE.Vector3(0, 1.1, -0.15) },
 ];
 
 function makeCheckerTexture(colorA, colorB, size = 192, cells = 12) {
@@ -510,13 +511,15 @@ createOilStain(factory, [8.25, 0.062, -2.4], [0.55, 0.28], 0.1);
   addSphere(factory, 0.065, [x, y, z], material, 12);
 });
 
-const ambientLight = new THREE.HemisphereLight(0xc7f1ff, 0x1e2225, 0.55);
+const ambientLight = new THREE.HemisphereLight(0xdaf6ff, 0x2d3230, 0.82);
 scene.add(ambientLight);
 
-const sun = new THREE.DirectionalLight(0xffffff, 1.25);
+const sun = new THREE.DirectionalLight(0xffffff, 1.45);
 sun.position.set(5, 8, 6);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.bias = -0.00018;
+sun.shadow.radius = 4;
 sun.shadow.camera.near = 1;
 sun.shadow.camera.far = 28;
 sun.shadow.camera.left = -12;
@@ -535,17 +538,21 @@ const ceilingLights = [];
   [4.8, 5.6, 2.7],
 ].forEach(([x, y, z]) => {
   addBox(factory, [1.7, 0.08, 0.28], [x, y, z], materials.lampGlow);
-  const light = new THREE.PointLight(0xfff1cb, 6.5, 9.5, 1.8);
+  const light = new THREE.PointLight(0xfff1cb, 8.2, 11, 1.65);
   light.position.set(x, y - 0.15, z);
   light.castShadow = true;
+  light.shadow.bias = -0.00012;
+  light.shadow.radius = 3;
   ceilingLights.push(light);
   scene.add(light);
 });
 
-const lampLight = new THREE.SpotLight(0xffc875, 32, 13, Math.PI / 5.5, 0.55, 1.2);
+const lampLight = new THREE.SpotLight(0xffc875, 38, 15, Math.PI / 5.5, 0.62, 1.1);
 lampLight.position.set(-4.7, 4.6, 1.7);
 lampLight.target.position.set(-0.6, 0.8, 0);
 lampLight.castShadow = true;
+lampLight.shadow.bias = -0.00012;
+lampLight.shadow.radius = 3;
 scene.add(lampLight, lampLight.target);
 
 const belt = new THREE.Group();
@@ -736,11 +743,11 @@ toggleAnimation.addEventListener("click", () => {
 toggleNight.addEventListener("click", () => {
   state.night = !state.night;
   toggleNight.textContent = state.night ? "Day" : "Night";
-  scene.background.set(state.night ? 0x080d12 : 0x182027);
-  scene.fog.color.set(state.night ? 0x080d12 : 0x182027);
-  ambientLight.intensity = state.night ? 0.22 : 0.55;
-  sun.intensity = state.night ? 0.05 : 1.25;
-  renderer.toneMappingExposure = state.night ? 0.95 : 1.1;
+  scene.background.set(state.night ? 0x080d12 : 0x202b32);
+  scene.fog.color.set(state.night ? 0x080d12 : 0x202b32);
+  ambientLight.intensity = state.night ? 0.32 : 0.82;
+  sun.intensity = state.night ? 0.08 : 1.45;
+  renderer.toneMappingExposure = state.night ? 1.02 : 1.28;
 });
 
 toggleLamp.addEventListener("click", () => {
@@ -748,7 +755,7 @@ toggleLamp.addEventListener("click", () => {
   toggleLamp.textContent = state.lampOn ? "Lamp Off" : "Lamp On";
   lampLight.visible = state.lampOn;
   ceilingLights.forEach((light, index) => {
-    light.intensity = state.lampOn ? 6.5 : index % 2 === 0 ? 1.1 : 0;
+    light.intensity = state.lampOn ? 8.2 : index % 2 === 0 ? 1.5 : 0;
   });
 });
 
@@ -823,7 +830,7 @@ function animate() {
 
   ceilingLights.forEach((light, index) => {
     const pulse = 1 + Math.sin(elapsed * 1.8 + index) * 0.05;
-    light.intensity = state.lampOn ? 6.5 * pulse : index % 2 === 0 ? 1.1 : 0;
+    light.intensity = state.lampOn ? 8.2 * pulse : index % 2 === 0 ? 1.5 : 0;
   });
 
   controls.update();
