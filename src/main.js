@@ -153,9 +153,17 @@ const materials = {
   rubber: new THREE.MeshStandardMaterial({ color: 0x101315, metalness: 0.12, roughness: 0.68 }),
   yellow: new THREE.MeshStandardMaterial({ color: 0xf6c453, metalness: 0.22, roughness: 0.36 }),
   orange: new THREE.MeshStandardMaterial({ color: 0xe9853f, metalness: 0.18, roughness: 0.42 }),
+  mutedOrange: new THREE.MeshStandardMaterial({ color: 0xb86538, metalness: 0.12, roughness: 0.56 }),
   teal: new THREE.MeshStandardMaterial({ color: 0x42c6a3, metalness: 0.25, roughness: 0.34 }),
   red: new THREE.MeshStandardMaterial({ color: 0xff5a4f, metalness: 0.18, roughness: 0.38 }),
+  pipeRed: new THREE.MeshStandardMaterial({ color: 0xb33e36, metalness: 0.45, roughness: 0.36 }),
+  pipeBlue: new THREE.MeshStandardMaterial({ color: 0x3d77a6, metalness: 0.45, roughness: 0.34 }),
+  pipeGreen: new THREE.MeshStandardMaterial({ color: 0x3d8f68, metalness: 0.42, roughness: 0.38 }),
   blue: new THREE.MeshStandardMaterial({ color: 0x4287f5, metalness: 0.18, roughness: 0.35 }),
+  safetyWhite: new THREE.MeshStandardMaterial({ color: 0xdbe2df, metalness: 0.12, roughness: 0.48 }),
+  warningBlack: new THREE.MeshStandardMaterial({ color: 0x111417, metalness: 0.18, roughness: 0.44 }),
+  zoneBlue: new THREE.MeshStandardMaterial({ color: 0x2f6984, metalness: 0.05, roughness: 0.72 }),
+  zoneGreen: new THREE.MeshStandardMaterial({ color: 0x3a725f, metalness: 0.05, roughness: 0.72 }),
   belt: new THREE.MeshStandardMaterial({ map: beltTexture, roughness: 0.74, metalness: 0.05 }),
   glass: new THREE.MeshPhysicalMaterial({
     color: 0x9ad9ff,
@@ -209,6 +217,82 @@ function addCable(points, radius = 0.025) {
   return mesh;
 }
 
+function addPipe(parent, start, end, radius, material) {
+  const startVector = new THREE.Vector3(...start);
+  const endVector = new THREE.Vector3(...end);
+  const direction = new THREE.Vector3().subVectors(endVector, startVector);
+  const length = direction.length();
+  const mesh = shadow(new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 20), material));
+  mesh.position.copy(startVector).add(endVector).multiplyScalar(0.5);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+  parent.add(mesh);
+  return mesh;
+}
+
+function createVent(parent, position, rotationY = 0) {
+  const vent = new THREE.Group();
+  vent.position.set(...position);
+  vent.rotation.y = rotationY;
+  parent.add(vent);
+
+  addBox(vent, [1.35, 0.72, 0.08], [0, 0, 0], materials.darkSteel);
+  for (let y = -0.24; y <= 0.24; y += 0.16) {
+    addBox(vent, [1.12, 0.035, 0.06], [0, y, 0.055], materials.brushed);
+  }
+
+  return vent;
+}
+
+function createWarningPanel(parent, position, rotationY = 0) {
+  const sign = new THREE.Group();
+  sign.position.set(...position);
+  sign.rotation.y = rotationY;
+  parent.add(sign);
+
+  addBox(sign, [1.05, 0.72, 0.06], [0, 0, 0], materials.yellow);
+  addBox(sign, [0.82, 0.08, 0.065], [0, 0.18, 0.04], materials.warningBlack);
+  addBox(sign, [0.82, 0.08, 0.065], [0, -0.18, 0.04], materials.warningBlack);
+  addBox(sign, [0.08, 0.46, 0.065], [-0.38, 0, 0.04], materials.warningBlack);
+  addBox(sign, [0.08, 0.46, 0.065], [0.38, 0, 0.04], materials.warningBlack);
+
+  return sign;
+}
+
+function createBarrel(parent, position, material = materials.pipeBlue) {
+  const barrel = new THREE.Group();
+  barrel.position.set(...position);
+  parent.add(barrel);
+
+  const body = addCylinder(barrel, 0.28, 0.28, 0.72, [0, 0.36, 0], material, 28);
+  addCylinder(barrel, 0.3, 0.3, 0.06, [0, 0.72, 0], materials.darkSteel, 28);
+  addCylinder(barrel, 0.3, 0.3, 0.06, [0, 0.04, 0], materials.darkSteel, 28);
+  addCylinder(barrel, 0.292, 0.292, 0.045, [0, 0.5, 0], materials.brushed, 28);
+  body.rotation.y = Math.random() * Math.PI;
+
+  return barrel;
+}
+
+function createStorageRack(parent, position, rotationY = 0) {
+  const rack = new THREE.Group();
+  rack.position.set(...position);
+  rack.rotation.y = rotationY;
+  parent.add(rack);
+
+  [-0.88, 0.88].forEach((x) => {
+    [-0.36, 0.36].forEach((z) => {
+      addBox(rack, [0.08, 1.8, 0.08], [x, 0.9, z], materials.darkSteel);
+    });
+  });
+  [0.35, 0.95, 1.55].forEach((y) => {
+    addBox(rack, [1.95, 0.08, 0.85], [0, y, 0], materials.brushed);
+  });
+  addBox(rack, [0.58, 0.42, 0.46], [-0.48, 0.62, 0], materials.crate);
+  addBox(rack, [0.52, 0.36, 0.42], [0.48, 1.22, 0], materials.mutedOrange);
+  createBarrel(rack, [-0.52, 1.55, 0.02], materials.pipeGreen);
+
+  return rack;
+}
+
 const factory = new THREE.Group();
 scene.add(factory);
 
@@ -229,6 +313,53 @@ for (let x = -9; x <= 9; x += 3) {
 for (let z = -5; z <= 5; z += 2.5) {
   addBox(factory, [0.18, 5.4, 0.12], [-10.72, 2.75, z], materials.darkSteel);
 }
+
+for (let x = -9.5; x <= 9.5; x += 3.8) {
+  addBox(factory, [0.18, 0.22, 15.2], [x, 5.72, -0.15], materials.darkSteel);
+}
+for (let z = -5.1; z <= 5.1; z += 2.55) {
+  addBox(factory, [20.4, 0.16, 0.18], [-0.25, 5.78, z], materials.brushed);
+}
+
+const assemblyZone = addBox(factory, [7.4, 0.03, 2.65], [-1.4, 0.018, 0.2], materials.zoneBlue);
+assemblyZone.material.transparent = true;
+assemblyZone.material.opacity = 0.32;
+const serviceZone = addBox(factory, [4.2, 0.032, 2.35], [6.1, 0.019, 2.55], materials.zoneGreen);
+serviceZone.material.transparent = true;
+serviceZone.material.opacity = 0.28;
+
+for (let x = -6.4; x <= 6.4; x += 1.6) {
+  addBox(factory, [0.75, 0.035, 0.08], [x, 0.04, 2.03], materials.safetyWhite);
+  addBox(factory, [0.75, 0.035, 0.08], [x, 0.04, -1.63], materials.safetyWhite);
+}
+for (let z = -5.4; z <= 4.4; z += 1.3) {
+  addBox(factory, [0.08, 0.035, 0.62], [-7.75, 0.041, z], materials.safetyWhite);
+}
+
+addPipe(factory, [-9.9, 4.6, -5.78], [9.2, 4.6, -5.78], 0.055, materials.pipeRed);
+addPipe(factory, [-9.9, 4.32, -5.72], [8.1, 4.32, -5.72], 0.045, materials.pipeBlue);
+addPipe(factory, [-10.72, 4.1, -4.8], [-10.72, 4.1, 5.1], 0.05, materials.pipeGreen);
+addPipe(factory, [-10.72, 3.76, -4.8], [-10.72, 3.76, 5.1], 0.04, materials.pipeRed);
+for (let x = -7.4; x <= 6.4; x += 3.45) {
+  addPipe(factory, [x, 4.6, -5.78], [x, 3.7, -5.78], 0.04, materials.pipeRed);
+}
+for (let z = -3.4; z <= 3.8; z += 2.4) {
+  addPipe(factory, [-10.72, 4.1, z], [-9.85, 4.1, z], 0.038, materials.pipeGreen);
+}
+
+createVent(factory, [-6.8, 3.2, -5.91], 0);
+createVent(factory, [4.7, 3.45, -5.91], 0);
+createVent(factory, [-10.82, 3.1, 3.1], Math.PI / 2);
+createWarningPanel(factory, [-2.1, 2.3, -5.92], 0);
+createWarningPanel(factory, [-10.83, 2.35, -2.7], Math.PI / 2);
+
+createStorageRack(factory, [-8.8, 0, 4.8], Math.PI / 2);
+createStorageRack(factory, [-7.2, 0, 4.8], Math.PI / 2);
+createStorageRack(factory, [8.7, 0, -4.6], -Math.PI / 2);
+createBarrel(factory, [-9.7, 0, 2.65], materials.pipeBlue);
+createBarrel(factory, [-9.05, 0, 2.8], materials.pipeRed);
+createBarrel(factory, [7.9, 0, -4.8], materials.pipeGreen);
+createBarrel(factory, [8.55, 0, -4.6], materials.mutedOrange);
 
 const ambientLight = new THREE.HemisphereLight(0xc7f1ff, 0x1e2225, 0.55);
 scene.add(ambientLight);
