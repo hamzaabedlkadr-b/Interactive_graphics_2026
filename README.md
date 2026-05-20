@@ -12,9 +12,10 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 - Animated conveyor belt, moving crates, robot arm cycles, inspection drone, scanner gate, and press machine.
 - Multi-room factory layout with assembly floor, storage room, glass control room, and inspection/service room.
 - Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, oil stains, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
+- Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving between rooms.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
 - Procedural floor, wall, conveyor, and hazard textures generated in JavaScript.
-- User controls for pause/resume, day/night mode, lamp toggle, camera views, room navigation, orbit controls, and animation speed.
+- User controls for pause/resume, day/night mode, lamp toggle, camera views, room navigation, minimap navigation, orbit controls, and animation speed.
 
 ## Course Requirements Checklist
 
@@ -22,8 +23,8 @@ Every teammate should check their work against this list before pushing changes.
 
 - Hierarchical models: the project must include at least one complex hierarchical model. Our main examples are the robot arms, built from parent-child parts: base, waist, shoulder, elbow, wrist, and claw.
 - Lights and textures: the scene must include lights and different texture/material types. We currently use hemisphere, directional, point, and spot lights, plus procedural floor, wall, belt, hazard, label, metal, glass, emissive, and rough/metal materials.
-- User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, camera presets, room navigation, orbit controls, and animation speed.
-- Animations: most objects should be animated, especially hierarchical models. Current animations include robot arm motion, conveyor movement, crates, press machine, scanner beam, drone, propellers, and light pulsing.
+- User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, camera presets, room navigation, minimap navigation, orbit controls, and animation speed.
+- Animations: most objects should be animated, especially hierarchical models. Current animations include robot arm motion, conveyor movement, crates, press machine, scanner beam, drone, propellers, sliding doors, autonomous transport cart, and light pulsing.
 - Important rule: animations must be implemented by us in JavaScript. Do not import premade animations from online models.
 
 ## Team Contribution Rules

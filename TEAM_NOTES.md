@@ -15,8 +15,8 @@ Please read this before adding project work.
 - Hierarchical models: two robot arms.
 - Lights: hemisphere, directional, ceiling point lights, spot lamp, emissive indicators.
 - Textures/materials: procedural floor, wall, belt, hazard, labels, metal, glass, rubber, emissive materials.
-- Interactions: pause/resume, day/night, lamp toggle, room navigation, camera presets, speed slider, orbit camera.
-- Animations: robot arms, conveyor, crates, press machine, scanner beam, drone, propellers, light pulsing.
+- Interactions: pause/resume, day/night, lamp toggle, room navigation, minimap navigation, camera presets, speed slider, orbit camera.
+- Animations: robot arms, conveyor, crates, press machine, scanner beam, drone, propellers, sliding doors, autonomous transport cart, light pulsing.
 
 ## Responsibilities
 

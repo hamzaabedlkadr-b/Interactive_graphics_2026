@@ -33,6 +33,8 @@ const state = {
   cameraIndex: 0,
   roomKey: "assembly",
   cameraTransition: null,
+  activeDoorKey: null,
+  doorTimer: 0,
 };
 
 const cameraViews = [
@@ -454,11 +456,55 @@ function createDoorFrame(parent, position, rotationY = 0, width = 1.55, height =
   return frame;
 }
 
+function createSlidingDoor(parent, position, rotationY = 0, width = 1.45, roomKey = "assembly") {
+  const door = new THREE.Group();
+  door.position.set(...position);
+  door.rotation.y = rotationY;
+  parent.add(door);
+
+  const panelWidth = width / 2;
+  const left = addBox(door, [panelWidth, 1.6, 0.065], [-panelWidth / 2, 1.05, 0.055], materials.glassWall);
+  const right = addBox(door, [panelWidth, 1.6, 0.065], [panelWidth / 2, 1.05, 0.055], materials.glassWall);
+  addBox(door, [width + 0.22, 0.08, 0.1], [0, 1.92, 0.08], materials.darkSteel);
+  addSphere(door, 0.055, [-width / 2 - 0.16, 1.82, 0.1], materials.glowGreen, 10);
+  addSphere(door, 0.055, [width / 2 + 0.16, 1.82, 0.1], materials.glowRed, 10);
+
+  return {
+    roomKey,
+    width,
+    left,
+    right,
+    closedLeftX: -panelWidth / 2,
+    closedRightX: panelWidth / 2,
+    openOffset: 0.62,
+  };
+}
+
 function createPartitionWall(parent, size, position, hasGlass = false) {
   const lower = addBox(parent, [size[0], 1.1, size[2]], [position[0], 0.55, position[2]], materials.wall);
   const upperMaterial = hasGlass ? materials.glassWall : materials.wall;
   const upper = addBox(parent, [size[0], size[1] - 1.1, size[2]], [position[0], 1.1 + (size[1] - 1.1) / 2, position[2]], upperMaterial);
   return [lower, upper];
+}
+
+function createAgv(parent) {
+  const agv = new THREE.Group();
+  parent.add(agv);
+
+  addBox(agv, [0.92, 0.22, 0.62], [0, 0.28, 0], materials.darkSteel);
+  addBox(agv, [0.72, 0.18, 0.48], [0, 0.48, 0], materials.yellow);
+  addBox(agv, [0.5, 0.22, 0.36], [0.06, 0.7, 0], materials.crate);
+  addSphere(agv, 0.075, [-0.34, 0.64, 0.22], materials.glowBlue, 12);
+  addSphere(agv, 0.055, [0.34, 0.62, -0.22], materials.glowGreen, 12);
+
+  [-0.32, 0.32].forEach((x) => {
+    [-0.24, 0.24].forEach((z) => {
+      const wheel = addCylinder(agv, 0.105, 0.105, 0.09, [x, 0.13, z], materials.rubber, 18);
+      wheel.rotation.z = Math.PI / 2;
+    });
+  });
+
+  return agv;
 }
 
 const factory = new THREE.Group();
@@ -567,11 +613,13 @@ createOilStain(factory, [8.25, 0.062, -2.4], [0.55, 0.28], 0.1);
 
 const roomGroup = new THREE.Group();
 factory.add(roomGroup);
+const slidingDoors = [];
 
 // Storage room: separated from the assembly floor by partial walls and a door.
 createPartitionWall(roomGroup, [0.18, 3.0, 4.0], [-5.95, 0, 4.0], false);
 createPartitionWall(roomGroup, [3.1, 3.0, 0.18], [-8.4, 0, 2.18], false);
 createDoorFrame(roomGroup, [-6.85, 0, 2.2], 0, 1.6, 2.15);
+slidingDoors.push(createSlidingDoor(roomGroup, [-6.85, 0, 2.2], 0, 1.42, "storage"));
 createFloorLabel(roomGroup, "STORAGE", [-8.6, 0.065, 6.0], [2.05, 0.62], 0, "#b86538");
 createPallet(roomGroup, [-9.3, 0, 6.1], Math.PI / 2);
 createPallet(roomGroup, [-7.5, 0, 6.15], Math.PI / 2);
@@ -583,6 +631,7 @@ createPartitionWall(roomGroup, [4.2, 2.8, 0.16], [7.25, 0, 1.65], true);
 createPartitionWall(roomGroup, [0.16, 2.8, 3.55], [5.2, 0, 3.35], true);
 createPartitionWall(roomGroup, [0.16, 2.8, 3.55], [9.3, 0, 3.35], true);
 createDoorFrame(roomGroup, [5.2, 0, 2.35], Math.PI / 2, 1.35, 2.1);
+slidingDoors.push(createSlidingDoor(roomGroup, [5.2, 0, 2.35], Math.PI / 2, 1.22, "control"));
 createFloorLabel(roomGroup, "CONTROL", [7.25, 0.067, 5.32], [2.0, 0.62], 0, "#3a725f");
 addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 1.52, 1.78], materials.brushed);
 addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 2.28, 1.78], materials.brushed);
@@ -591,6 +640,7 @@ addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 2.28, 1.78], materials.brushed);
 createPartitionWall(roomGroup, [3.35, 2.65, 0.16], [-4.35, 0, -1.55], true);
 createPartitionWall(roomGroup, [0.16, 2.65, 2.2], [-6.0, 0, -2.65], true);
 createDoorFrame(roomGroup, [-4.35, 0, -1.55], 0, 1.45, 2.05);
+slidingDoors.push(createSlidingDoor(roomGroup, [-4.35, 0, -1.55], 0, 1.28, "inspection"));
 createFloorLabel(roomGroup, "INSPECT", [-4.35, 0.068, -4.68], [1.85, 0.56], 0, "#f6c453");
 
 addPipe(roomGroup, [-5.92, 2.85, -1.65], [-5.92, 2.85, -3.85], 0.035, materials.pipeBlue);
@@ -601,6 +651,23 @@ addCable([
   [7.5, 2.9, 1.82],
   [9.0, 2.65, 1.7],
 ]);
+
+const agv = createAgv(scene);
+const agvPath = [
+  new THREE.Vector3(-8.6, 0, 5.55),
+  new THREE.Vector3(-6.8, 0, 3.0),
+  new THREE.Vector3(-3.8, 0, 2.25),
+  new THREE.Vector3(2.8, 0, 2.15),
+  new THREE.Vector3(6.9, 0, 3.25),
+  new THREE.Vector3(4.2, 0, 0.85),
+  new THREE.Vector3(-2.8, 0, -0.45),
+  new THREE.Vector3(-4.7, 0, -3.4),
+];
+const agvSegments = agvPath.map((point, index) => {
+  const next = agvPath[(index + 1) % agvPath.length];
+  return point.distanceTo(next);
+});
+const agvRouteLength = agvSegments.reduce((total, length) => total + length, 0);
 
 const ambientLight = new THREE.HemisphereLight(0xdaf6ff, 0x2d3230, 0.82);
 scene.add(ambientLight);
@@ -826,6 +893,7 @@ const modeLabel = document.querySelector("#mode-label");
 const roomLabel = document.querySelector("#room-label");
 const speedLabel = document.querySelector("#speed-label");
 const roomButtons = document.querySelectorAll(".room-button");
+const mapRooms = document.querySelectorAll(".map-room");
 
 function moveCameraTo(view) {
   state.cameraTransition = {
@@ -839,9 +907,14 @@ function activateRoom(roomKey) {
   if (!view) return;
 
   state.roomKey = roomKey;
+  state.activeDoorKey = roomKey;
+  state.doorTimer = 2.4;
   roomLabel.textContent = view.label;
   modeLabel.textContent = state.running ? `Moving to ${view.label}` : `Paused in ${view.label}`;
   roomButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.room === roomKey);
+  });
+  mapRooms.forEach((button) => {
     button.classList.toggle("active", button.dataset.room === roomKey);
   });
   moveCameraTo(view);
@@ -888,6 +961,10 @@ roomButtons.forEach((button) => {
   button.addEventListener("click", () => activateRoom(button.dataset.room));
 });
 
+mapRooms.forEach((button) => {
+  button.addEventListener("click", () => activateRoom(button.dataset.room));
+});
+
 function animateRobot(robotRig, time, phase = 0) {
   const t = time + phase;
   robotRig.waistPivot.rotation.y = Math.sin(t * 0.85) * 0.55;
@@ -901,6 +978,39 @@ function animateRobot(robotRig, time, phase = 0) {
   const clawGrip = 0.22 + Math.sin(t * 2.2) * 0.11;
   robotRig.clawLeft.position.y = clawGrip;
   robotRig.clawRight.position.y = -clawGrip;
+}
+
+function updateSlidingDoors(delta) {
+  if (state.doorTimer > 0) {
+    state.doorTimer = Math.max(0, state.doorTimer - delta);
+  }
+
+  slidingDoors.forEach((door) => {
+    const shouldOpen = door.roomKey === state.activeDoorKey && state.doorTimer > 0;
+    const targetOffset = shouldOpen ? door.openOffset : 0;
+    const blend = 1 - Math.pow(0.001, delta);
+    door.left.position.x = THREE.MathUtils.lerp(door.left.position.x, door.closedLeftX - targetOffset, blend);
+    door.right.position.x = THREE.MathUtils.lerp(door.right.position.x, door.closedRightX + targetOffset, blend);
+  });
+}
+
+function updateAgv(time) {
+  const distance = (time * 1.05) % agvRouteLength;
+  let covered = 0;
+
+  for (let i = 0; i < agvSegments.length; i += 1) {
+    const segmentLength = agvSegments[i];
+    if (covered + segmentLength >= distance) {
+      const start = agvPath[i];
+      const end = agvPath[(i + 1) % agvPath.length];
+      const progress = (distance - covered) / segmentLength;
+      agv.position.lerpVectors(start, end, progress);
+      agv.position.y = 0;
+      agv.rotation.y = Math.atan2(end.x - start.x, end.z - start.z);
+      return;
+    }
+    covered += segmentLength;
+  }
 }
 
 function resizeRenderer() {
@@ -943,6 +1053,8 @@ function animate() {
   rotorPivots.forEach((pivot, index) => {
     pivot.rotation.y += delta * state.speed * (index % 2 === 0 ? 22 : -22);
   });
+  updateAgv(elapsed);
+  updateSlidingDoors(delta);
 
   ceilingLights.forEach((light, index) => {
     const pulse = 1 + Math.sin(elapsed * 1.8 + index) * 0.05;
