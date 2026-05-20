@@ -213,6 +213,10 @@ const materials = {
   yellow: new THREE.MeshStandardMaterial({ color: 0xf6c453, metalness: 0.22, roughness: 0.36 }),
   orange: new THREE.MeshStandardMaterial({ color: 0xe9853f, metalness: 0.18, roughness: 0.42 }),
   mutedOrange: new THREE.MeshStandardMaterial({ color: 0xb86538, metalness: 0.12, roughness: 0.56 }),
+  productShell: new THREE.MeshStandardMaterial({ color: 0xd5dce0, metalness: 0.38, roughness: 0.32 }),
+  productDark: new THREE.MeshStandardMaterial({ color: 0x20272c, metalness: 0.5, roughness: 0.3 }),
+  battery: new THREE.MeshStandardMaterial({ color: 0x6ce0a6, metalness: 0.18, roughness: 0.36 }),
+  reject: new THREE.MeshStandardMaterial({ color: 0xd94b42, metalness: 0.12, roughness: 0.5 }),
   palletWood: new THREE.MeshStandardMaterial({ color: 0x9a6b42, metalness: 0.03, roughness: 0.82 }),
   rubberMat: new THREE.MeshStandardMaterial({ color: 0x15191a, metalness: 0.02, roughness: 0.9 }),
   oil: new THREE.MeshStandardMaterial({
@@ -517,6 +521,45 @@ function createAgv(parent) {
   return agv;
 }
 
+function createProductionItem(kind, index) {
+  const item = new THREE.Group();
+  item.userData.kind = kind;
+  item.userData.index = index;
+
+  if (kind === "crate") {
+    addBox(item, [0.62, 0.62, 0.62], [0, 0, 0], materials.crate);
+    addBox(item, [0.68, 0.08, 0.68], [0, 0.21, 0], materials.darkSteel);
+    addBox(item, [0.68, 0.08, 0.68], [0, -0.21, 0], materials.darkSteel);
+    addBox(item, [0.08, 0.62, 0.68], [0.22, 0, 0], materials.darkSteel);
+  } else if (kind === "battery") {
+    addBox(item, [0.72, 0.34, 0.44], [0, 0, 0], materials.battery);
+    addBox(item, [0.16, 0.12, 0.18], [-0.28, 0.22, 0], materials.brushed);
+    addBox(item, [0.16, 0.12, 0.18], [0.28, 0.22, 0], materials.brushed);
+    addBox(item, [0.08, 0.4, 0.5], [0, 0, 0], materials.darkSteel);
+  } else if (kind === "chassis") {
+    addBox(item, [0.84, 0.16, 0.52], [0, -0.08, 0], materials.productShell);
+    addBox(item, [0.7, 0.18, 0.38], [0, 0.1, 0], materials.glass);
+    addCylinder(item, 0.11, 0.11, 0.08, [-0.28, -0.24, -0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
+    addCylinder(item, 0.11, 0.11, 0.08, [0.28, -0.24, -0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
+    addCylinder(item, 0.11, 0.11, 0.08, [-0.28, -0.24, 0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
+    addCylinder(item, 0.11, 0.11, 0.08, [0.28, -0.24, 0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
+  } else if (kind === "finished") {
+    addBox(item, [0.76, 0.34, 0.48], [0, -0.02, 0], materials.productShell);
+    addBox(item, [0.5, 0.2, 0.36], [0, 0.25, 0], materials.glass);
+    addSphere(item, 0.08, [-0.26, 0.21, 0.22], materials.glowGreen, 12);
+    addSphere(item, 0.08, [0.26, 0.21, 0.22], materials.glowBlue, 12);
+    addBox(item, [0.18, 0.08, 0.54], [0, -0.25, 0], materials.productDark);
+  } else {
+    addBox(item, [0.68, 0.32, 0.46], [0, 0, 0], materials.reject);
+    addBox(item, [0.78, 0.08, 0.08], [0, 0.24, 0], materials.warningBlack);
+    addBox(item, [0.08, 0.08, 0.56], [0, 0.24, 0], materials.warningBlack);
+    addSphere(item, 0.075, [0.3, 0.2, 0.2], materials.glowRed, 12);
+  }
+
+  scene.add(item);
+  return item;
+}
+
 const factory = new THREE.Group();
 scene.add(factory);
 
@@ -806,17 +849,31 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
 const primaryRobot = createRobot([-2.25, 0, -1.45], 0.1, materials.teal);
 const secondaryRobot = createRobot([2.95, 0, -1.5], -0.55, materials.blue);
 
-const crates = [];
-for (let i = 0; i < 7; i += 1) {
-  const crate = new THREE.Group();
-  crate.position.set(-5.5 + i * 1.85, 1.15, 0.2);
-  addBox(crate, [0.62, 0.62, 0.62], [0, 0, 0], materials.crate);
-  addBox(crate, [0.68, 0.08, 0.68], [0, 0.21, 0], materials.darkSteel);
-  addBox(crate, [0.68, 0.08, 0.68], [0, -0.21, 0], materials.darkSteel);
-  addBox(crate, [0.08, 0.62, 0.68], [0.22, 0, 0], materials.darkSteel);
-  crates.push(crate);
-  scene.add(crate);
+const productionItems = [];
+const productionKinds = ["crate", "battery", "chassis", "finished", "reject", "battery", "finished", "chassis"];
+for (let i = 0; i < productionKinds.length; i += 1) {
+  const item = createProductionItem(productionKinds[i], i);
+  item.position.set(-5.5 + i * 1.55, 1.15, 0.2);
+  productionItems.push(item);
 }
+
+const acceptedBin = new THREE.Group();
+acceptedBin.position.set(5.35, 0, -0.95);
+scene.add(acceptedBin);
+addBox(acceptedBin, [1.05, 0.12, 0.82], [0, 0.36, 0], materials.darkSteel);
+addBox(acceptedBin, [0.1, 0.72, 0.82], [-0.52, 0.72, 0], materials.brushed);
+addBox(acceptedBin, [0.1, 0.72, 0.82], [0.52, 0.72, 0], materials.brushed);
+addBox(acceptedBin, [1.05, 0.72, 0.1], [0, 0.72, -0.4], materials.brushed);
+addSphere(acceptedBin, 0.08, [0, 1.18, 0.42], materials.glowGreen, 12);
+
+const rejectBin = new THREE.Group();
+rejectBin.position.set(-4.9, 0, 1.72);
+scene.add(rejectBin);
+addBox(rejectBin, [1.0, 0.12, 0.8], [0, 0.36, 0], materials.reject);
+addBox(rejectBin, [0.1, 0.68, 0.8], [-0.5, 0.7, 0], materials.darkSteel);
+addBox(rejectBin, [0.1, 0.68, 0.8], [0.5, 0.7, 0], materials.darkSteel);
+addBox(rejectBin, [1.0, 0.68, 0.1], [0, 0.7, -0.38], materials.darkSteel);
+addSphere(rejectBin, 0.08, [0, 1.12, 0.4], materials.glowRed, 12);
 
 const pressMachine = new THREE.Group();
 pressMachine.position.set(0.8, 0, -2.7);
@@ -842,6 +899,7 @@ const scannerBeamMaterial = materials.glowBlue.clone();
 const scannerBeam = addBox(scanner, [1.45, 1.35, 0.02], [0, 1.7, 0.35], scannerBeamMaterial);
 scannerBeam.material.transparent = true;
 scannerBeam.material.opacity = 0.18;
+const scannerStatus = addSphere(scanner, 0.1, [0.5, 2.98, 0.25], materials.glowGreen, 16);
 
 const controlDesk = new THREE.Group();
 controlDesk.position.set(6.7, 0, 2.7);
@@ -860,6 +918,10 @@ drone.position.set(2.2, 3.3, 1.75);
 scene.add(drone);
 addBox(drone, [0.72, 0.18, 0.45], [0, 0, 0], materials.glass);
 addSphere(drone, 0.13, [0.42, 0.02, 0], materials.glowBlue, 14);
+const droneBeamMaterial = materials.glowBlue.clone();
+droneBeamMaterial.transparent = true;
+droneBeamMaterial.opacity = 0.16;
+const droneBeam = addCylinder(drone, 0.04, 0.28, 1.2, [0, -0.68, 0], droneBeamMaterial, 24);
 const rotorPivots = [];
 [
   [-0.56, 0, -0.43],
@@ -1160,16 +1222,45 @@ function animate() {
   animateRobot(secondaryRobot, elapsed, 1.9);
 
   pressHead.position.y = 1.82 + Math.max(0, Math.sin(elapsed * 2.2)) * 0.62;
-  scannerBeam.material.opacity = 0.1 + Math.abs(Math.sin(elapsed * 3.4)) * 0.22;
+  let inspectedRejectNearby = false;
+  let nearestItem = productionItems[0];
+  let nearestDistance = Infinity;
 
-  crates.forEach((crate, index) => {
-    crate.position.x = ((elapsed * 1.45 + index * 1.85 + 6.1) % 12.2) - 6.1;
-    crate.rotation.y += delta * state.speed * 0.18;
+  productionItems.forEach((item, index) => {
+    const x = ((elapsed * 1.35 + index * 1.55 + 6.1) % 12.2) - 6.1;
+    item.position.x = x;
+    item.position.z = 0.2;
+    item.position.y = 1.15 + Math.sin(elapsed * 2.2 + index) * 0.015;
+    item.rotation.y += delta * state.speed * (item.userData.kind === "chassis" ? 0.35 : 0.18);
+
+    if (Math.abs(x + 4.25) < 0.35) {
+      item.position.z += item.userData.kind === "reject" ? 0.34 : -0.08;
+      item.position.y += 0.05;
+      inspectedRejectNearby = item.userData.kind === "reject";
+    }
+
+    if (x > 3.8 && x < 5.4 && item.userData.kind === "finished") {
+      item.position.z -= 0.34;
+    }
+    if (x > -5.4 && x < -4.3 && item.userData.kind === "reject") {
+      item.position.z += 0.72;
+    }
+
+    const distanceToDrone = Math.abs(x - drone.position.x);
+    if (distanceToDrone < nearestDistance) {
+      nearestDistance = distanceToDrone;
+      nearestItem = item;
+    }
   });
 
-  drone.position.y = 3.35 + Math.sin(elapsed * 1.4) * 0.28;
-  drone.position.x = 2.2 + Math.sin(elapsed * 0.55) * 1.35;
+  scannerStatus.material = inspectedRejectNearby ? materials.glowRed : materials.glowGreen;
+  scannerBeam.material.opacity = (inspectedRejectNearby ? 0.26 : 0.12) + Math.abs(Math.sin(elapsed * 3.4)) * 0.18;
+
+  drone.position.y = 3.35 + Math.sin(elapsed * 1.4) * 0.24;
+  drone.position.x = THREE.MathUtils.lerp(drone.position.x, nearestItem.position.x, 1 - Math.pow(0.01, delta));
+  drone.position.z = THREE.MathUtils.lerp(drone.position.z, nearestItem.position.z + 1.35, 1 - Math.pow(0.02, delta));
   drone.rotation.z = Math.sin(elapsed * 1.1) * 0.08;
+  droneBeam.scale.y = 0.8 + Math.sin(elapsed * 5) * 0.08;
   rotorPivots.forEach((pivot, index) => {
     pivot.rotation.y += delta * state.speed * (index % 2 === 0 ? 22 : -22);
   });
