@@ -31,6 +31,8 @@ const state = {
   lampOn: true,
   speed: 1,
   cameraIndex: 0,
+  roomKey: "assembly",
+  cameraTransition: null,
 };
 
 const cameraViews = [
@@ -40,6 +42,29 @@ const cameraViews = [
   { position: new THREE.Vector3(4.3, 2.2, -4.7), target: new THREE.Vector3(1.2, 1.4, 0.2) },
   { position: new THREE.Vector3(11.5, 7.2, 11.4), target: new THREE.Vector3(0, 1.1, -0.15) },
 ];
+
+const roomViews = {
+  assembly: {
+    label: "Assembly room",
+    position: new THREE.Vector3(8.8, 5.1, 9.2),
+    target: new THREE.Vector3(0.1, 1.35, 0.05),
+  },
+  storage: {
+    label: "Storage room",
+    position: new THREE.Vector3(-8.8, 3.2, 7.6),
+    target: new THREE.Vector3(-8.35, 1.15, 4.85),
+  },
+  control: {
+    label: "Control room",
+    position: new THREE.Vector3(10.5, 3.4, 6.7),
+    target: new THREE.Vector3(7.25, 1.25, 3.3),
+  },
+  inspection: {
+    label: "Inspection room",
+    position: new THREE.Vector3(-6.8, 3.2, -5.0),
+    target: new THREE.Vector3(-3.8, 1.35, -2.85),
+  },
+};
 
 function makeCheckerTexture(colorA, colorB, size = 192, cells = 12) {
   const canvasTexture = document.createElement("canvas");
@@ -203,6 +228,14 @@ const materials = {
     transmission: 0.28,
     transparent: true,
     opacity: 0.5,
+  }),
+  glassWall: new THREE.MeshPhysicalMaterial({
+    color: 0xb8e7ff,
+    roughness: 0.08,
+    metalness: 0,
+    transmission: 0.18,
+    transparent: true,
+    opacity: 0.28,
   }),
   crate: new THREE.MeshStandardMaterial({ color: 0xb56b43, roughness: 0.68 }),
   hazard: new THREE.MeshStandardMaterial({ map: hazardTexture, roughness: 0.52 }),
@@ -407,6 +440,27 @@ function createOilStain(parent, position, scale = [0.8, 0.45], rotationZ = 0) {
   return stain;
 }
 
+function createDoorFrame(parent, position, rotationY = 0, width = 1.55, height = 2.25) {
+  const frame = new THREE.Group();
+  frame.position.set(...position);
+  frame.rotation.y = rotationY;
+  parent.add(frame);
+
+  addBox(frame, [0.1, height, 0.16], [-width / 2, height / 2, 0], materials.yellow);
+  addBox(frame, [0.1, height, 0.16], [width / 2, height / 2, 0], materials.yellow);
+  addBox(frame, [width + 0.18, 0.12, 0.18], [0, height, 0], materials.yellow);
+  addBox(frame, [width + 0.34, 0.08, 0.22], [0, 0.04, 0], materials.hazard);
+
+  return frame;
+}
+
+function createPartitionWall(parent, size, position, hasGlass = false) {
+  const lower = addBox(parent, [size[0], 1.1, size[2]], [position[0], 0.55, position[2]], materials.wall);
+  const upperMaterial = hasGlass ? materials.glassWall : materials.wall;
+  const upper = addBox(parent, [size[0], size[1] - 1.1, size[2]], [position[0], 1.1 + (size[1] - 1.1) / 2, position[2]], upperMaterial);
+  return [lower, upper];
+}
+
 const factory = new THREE.Group();
 scene.add(factory);
 
@@ -510,6 +564,43 @@ createOilStain(factory, [8.25, 0.062, -2.4], [0.55, 0.28], 0.1);
   const material = index % 2 === 0 ? materials.glowGreen : materials.glowBlue;
   addSphere(factory, 0.065, [x, y, z], material, 12);
 });
+
+const roomGroup = new THREE.Group();
+factory.add(roomGroup);
+
+// Storage room: separated from the assembly floor by partial walls and a door.
+createPartitionWall(roomGroup, [0.18, 3.0, 4.0], [-5.95, 0, 4.0], false);
+createPartitionWall(roomGroup, [3.1, 3.0, 0.18], [-8.4, 0, 2.18], false);
+createDoorFrame(roomGroup, [-6.85, 0, 2.2], 0, 1.6, 2.15);
+createFloorLabel(roomGroup, "STORAGE", [-8.6, 0.065, 6.0], [2.05, 0.62], 0, "#b86538");
+createPallet(roomGroup, [-9.3, 0, 6.1], Math.PI / 2);
+createPallet(roomGroup, [-7.5, 0, 6.15], Math.PI / 2);
+createBarrel(roomGroup, [-6.25, 0, 5.75], materials.pipeBlue);
+createBarrel(roomGroup, [-6.75, 0, 5.78], materials.pipeGreen);
+
+// Control room: glass booth overlooking the line.
+createPartitionWall(roomGroup, [4.2, 2.8, 0.16], [7.25, 0, 1.65], true);
+createPartitionWall(roomGroup, [0.16, 2.8, 3.55], [5.2, 0, 3.35], true);
+createPartitionWall(roomGroup, [0.16, 2.8, 3.55], [9.3, 0, 3.35], true);
+createDoorFrame(roomGroup, [5.2, 0, 2.35], Math.PI / 2, 1.35, 2.1);
+createFloorLabel(roomGroup, "CONTROL", [7.25, 0.067, 5.32], [2.0, 0.62], 0, "#3a725f");
+addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 1.52, 1.78], materials.brushed);
+addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 2.28, 1.78], materials.brushed);
+
+// Inspection/service room: frames the scanner and press as a separate station.
+createPartitionWall(roomGroup, [3.35, 2.65, 0.16], [-4.35, 0, -1.55], true);
+createPartitionWall(roomGroup, [0.16, 2.65, 2.2], [-6.0, 0, -2.65], true);
+createDoorFrame(roomGroup, [-4.35, 0, -1.55], 0, 1.45, 2.05);
+createFloorLabel(roomGroup, "INSPECT", [-4.35, 0.068, -4.68], [1.85, 0.56], 0, "#f6c453");
+
+addPipe(roomGroup, [-5.92, 2.85, -1.65], [-5.92, 2.85, -3.85], 0.035, materials.pipeBlue);
+addPipe(roomGroup, [5.28, 2.95, 1.75], [9.25, 2.95, 1.75], 0.035, materials.pipeGreen);
+addCable([
+  [5.35, 3.05, 1.85],
+  [6.4, 2.75, 1.65],
+  [7.5, 2.9, 1.82],
+  [9.0, 2.65, 1.7],
+]);
 
 const ambientLight = new THREE.HemisphereLight(0xdaf6ff, 0x2d3230, 0.82);
 scene.add(ambientLight);
@@ -732,12 +823,34 @@ const toggleLamp = document.querySelector("#toggle-lamp");
 const cameraView = document.querySelector("#camera-view");
 const speedControl = document.querySelector("#speed-control");
 const modeLabel = document.querySelector("#mode-label");
+const roomLabel = document.querySelector("#room-label");
 const speedLabel = document.querySelector("#speed-label");
+const roomButtons = document.querySelectorAll(".room-button");
+
+function moveCameraTo(view) {
+  state.cameraTransition = {
+    position: view.position.clone(),
+    target: view.target.clone(),
+  };
+}
+
+function activateRoom(roomKey) {
+  const view = roomViews[roomKey];
+  if (!view) return;
+
+  state.roomKey = roomKey;
+  roomLabel.textContent = view.label;
+  modeLabel.textContent = state.running ? `Moving to ${view.label}` : `Paused in ${view.label}`;
+  roomButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.room === roomKey);
+  });
+  moveCameraTo(view);
+}
 
 toggleAnimation.addEventListener("click", () => {
   state.running = !state.running;
   toggleAnimation.textContent = state.running ? "Pause" : "Resume";
-  modeLabel.textContent = state.running ? "Automatic cycle" : "Paused";
+  modeLabel.textContent = state.running ? "Automatic cycle" : `Paused in ${roomViews[state.roomKey].label}`;
 });
 
 toggleNight.addEventListener("click", () => {
@@ -762,14 +875,17 @@ toggleLamp.addEventListener("click", () => {
 cameraView.addEventListener("click", () => {
   state.cameraIndex = (state.cameraIndex + 1) % cameraViews.length;
   const view = cameraViews[state.cameraIndex];
-  camera.position.copy(view.position);
-  controls.target.copy(view.target);
+  moveCameraTo(view);
   cameraView.textContent = `Camera ${String.fromCharCode(65 + ((state.cameraIndex + 1) % cameraViews.length))}`;
 });
 
 speedControl.addEventListener("input", () => {
   state.speed = Number(speedControl.value);
   speedLabel.textContent = `${state.speed.toFixed(1)}x`;
+});
+
+roomButtons.forEach((button) => {
+  button.addEventListener("click", () => activateRoom(button.dataset.room));
 });
 
 function animateRobot(robotRig, time, phase = 0) {
@@ -832,6 +948,22 @@ function animate() {
     const pulse = 1 + Math.sin(elapsed * 1.8 + index) * 0.05;
     light.intensity = state.lampOn ? 8.2 * pulse : index % 2 === 0 ? 1.5 : 0;
   });
+
+  if (state.cameraTransition) {
+    const blend = 1 - Math.pow(0.002, delta);
+    camera.position.lerp(state.cameraTransition.position, blend);
+    controls.target.lerp(state.cameraTransition.target, blend);
+
+    if (
+      camera.position.distanceTo(state.cameraTransition.position) < 0.035 &&
+      controls.target.distanceTo(state.cameraTransition.target) < 0.035
+    ) {
+      camera.position.copy(state.cameraTransition.position);
+      controls.target.copy(state.cameraTransition.target);
+      state.cameraTransition = null;
+      modeLabel.textContent = state.running ? "Automatic cycle" : `Paused in ${roomViews[state.roomKey].label}`;
+    }
+  }
 
   controls.update();
   renderer.render(scene, camera);

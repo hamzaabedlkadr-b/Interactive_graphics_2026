@@ -107,10 +107,16 @@ h1 {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: min(740px, calc(100% - 40px));
+  width: min(1060px, calc(100% - 40px));
   padding: 12px;
   border-radius: 8px;
   z-index: 2;
+}
+
+.room-nav {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
 
 button,
@@ -132,6 +138,18 @@ button {
 
 button:hover {
   background: #ffdf7a;
+}
+
+.room-button {
+  background: rgb(255 255 255 / 0.12);
+  color: #f8f5ed;
+  border: 1px solid rgb(255 255 255 / 0.18);
+}
+
+.room-button:hover,
+.room-button.active {
+  background: #5fd0a5;
+  color: #101414;
 }
 
 label {
@@ -177,6 +195,13 @@ input[type="range"] {
     bottom: 12px;
     width: calc(100% - 24px);
     flex-wrap: wrap;
+  }
+
+  .room-nav {
+    order: 10;
+    width: 100%;
+    overflow-x: auto;
+    margin-left: 0;
   }
 
   button {

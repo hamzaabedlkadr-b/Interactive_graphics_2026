@@ -25,6 +25,7 @@
           </div>
           <div class="status">
             <span id="mode-label">Automatic cycle</span>
+            <span id="room-label">Assembly room</span>
             <span id="speed-label">1.0x</span>
           </div>
         </div>
@@ -37,6 +38,12 @@
             Speed
             <input id="speed-control" type="range" min="0.2" max="2.4" step="0.1" value="1" />
           </label>
+          <div class="room-nav" aria-label="Room navigation">
+            <button class="room-button active" type="button" data-room="assembly">Assembly</button>
+            <button class="room-button" type="button" data-room="storage">Storage</button>
+            <button class="room-button" type="button" data-room="control">Control</button>
+            <button class="room-button" type="button" data-room="inspection">Inspection</button>
+          </div>
         </div>
       </section>
     </main>

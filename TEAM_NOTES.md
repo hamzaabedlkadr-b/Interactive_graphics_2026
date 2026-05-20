@@ -6,7 +6,7 @@ Please read this before adding project work.
 
 - Hierarchical models: we need at least one complex model made from parent-child parts. The robot arms are our main hierarchical models.
 - Lights and textures: we need lights and different texture/material types. Keep adding meaningful materials, not only plain colors.
-- User interaction: the user must be able to control parts of the scene, such as lights, camera, animation, speed, or machine states.
+- User interaction: the user must be able to control parts of the scene, such as lights, room navigation, camera, animation, speed, or machine states.
 - Animations: most objects should move. Robot arms must animate using their hierarchy.
 - Do not import animations. All animations must be written by us in JavaScript.
 
@@ -15,7 +15,7 @@ Please read this before adding project work.
 - Hierarchical models: two robot arms.
 - Lights: hemisphere, directional, ceiling point lights, spot lamp, emissive indicators.
 - Textures/materials: procedural floor, wall, belt, hazard, labels, metal, glass, rubber, emissive materials.
-- Interactions: pause/resume, day/night, lamp toggle, camera presets, speed slider, orbit camera.
+- Interactions: pause/resume, day/night, lamp toggle, room navigation, camera presets, speed slider, orbit camera.
 - Animations: robot arms, conveyor, crates, press machine, scanner beam, drone, propellers, light pulsing.
 
 ## Responsibilities
