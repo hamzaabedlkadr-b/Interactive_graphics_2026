@@ -35,6 +35,16 @@ const state = {
   cameraTransition: null,
   activeDoorKey: null,
   doorTimer: 0,
+  walkMode: false,
+  walkYaw: -0.78,
+};
+
+const pressedKeys = new Set();
+const walkBounds = {
+  minX: -10.1,
+  maxX: 10.1,
+  minZ: -5.35,
+  maxZ: 6.55,
 };
 
 const cameraViews = [
@@ -894,6 +904,8 @@ const roomLabel = document.querySelector("#room-label");
 const speedLabel = document.querySelector("#speed-label");
 const roomButtons = document.querySelectorAll(".room-button");
 const mapRooms = document.querySelectorAll(".map-room");
+const toggleWalk = document.querySelector("#toggle-walk");
+const walkHelp = document.querySelector("#walk-help");
 
 function moveCameraTo(view) {
   state.cameraTransition = {
@@ -905,6 +917,9 @@ function moveCameraTo(view) {
 function activateRoom(roomKey) {
   const view = roomViews[roomKey];
   if (!view) return;
+  if (state.walkMode) {
+    setWalkMode(false);
+  }
 
   state.roomKey = roomKey;
   state.activeDoorKey = roomKey;
@@ -918,6 +933,28 @@ function activateRoom(roomKey) {
     button.classList.toggle("active", button.dataset.room === roomKey);
   });
   moveCameraTo(view);
+}
+
+function setWalkMode(enabled) {
+  state.walkMode = enabled;
+  state.cameraTransition = null;
+  controls.enabled = !enabled;
+  toggleWalk.classList.toggle("active", enabled);
+  toggleWalk.textContent = enabled ? "Exit Walk" : "Walk Mode";
+  walkHelp.classList.toggle("visible", enabled);
+
+  if (enabled) {
+    state.walkYaw = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
+    camera.position.y = 1.65;
+    controls.target.set(
+      camera.position.x - Math.sin(state.walkYaw) * 4,
+      1.55,
+      camera.position.z - Math.cos(state.walkYaw) * 4,
+    );
+    modeLabel.textContent = "Walk mode";
+  } else {
+    modeLabel.textContent = state.running ? "Automatic cycle" : `Paused in ${roomViews[state.roomKey].label}`;
+  }
 }
 
 toggleAnimation.addEventListener("click", () => {
@@ -946,6 +983,9 @@ toggleLamp.addEventListener("click", () => {
 });
 
 cameraView.addEventListener("click", () => {
+  if (state.walkMode) {
+    setWalkMode(false);
+  }
   state.cameraIndex = (state.cameraIndex + 1) % cameraViews.length;
   const view = cameraViews[state.cameraIndex];
   moveCameraTo(view);
@@ -963,6 +1003,22 @@ roomButtons.forEach((button) => {
 
 mapRooms.forEach((button) => {
   button.addEventListener("click", () => activateRoom(button.dataset.room));
+});
+
+toggleWalk.addEventListener("click", () => setWalkMode(!state.walkMode));
+
+window.addEventListener("keydown", (event) => {
+  const key = event.key.toLowerCase();
+  if (["w", "a", "s", "d", "q", "e", "shift", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key)) {
+    pressedKeys.add(key);
+    if (state.walkMode) {
+      event.preventDefault();
+    }
+  }
+});
+
+window.addEventListener("keyup", (event) => {
+  pressedKeys.delete(event.key.toLowerCase());
 });
 
 function animateRobot(robotRig, time, phase = 0) {
@@ -1013,6 +1069,69 @@ function updateAgv(time) {
   }
 }
 
+function getRoomForPosition(position) {
+  if (position.x < -5.95 && position.z > 2.15) return "storage";
+  if (position.x > 5.15 && position.z > 1.65) return "control";
+  if (position.x < -3.0 && position.z < -1.45) return "inspection";
+  return "assembly";
+}
+
+function syncRoomUi(roomKey) {
+  if (state.roomKey === roomKey) return;
+
+  state.roomKey = roomKey;
+  roomLabel.textContent = roomViews[roomKey].label;
+  roomButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.room === roomKey);
+  });
+  mapRooms.forEach((button) => {
+    button.classList.toggle("active", button.dataset.room === roomKey);
+  });
+}
+
+function updateWalkMode(delta) {
+  if (!state.walkMode) return;
+
+  const turnSpeed = 1.75;
+  const moveSpeed = pressedKeys.has("shift") ? 4.2 : 2.45;
+
+  if (pressedKeys.has("q") || pressedKeys.has("arrowleft")) {
+    state.walkYaw += turnSpeed * delta;
+  }
+  if (pressedKeys.has("e") || pressedKeys.has("arrowright")) {
+    state.walkYaw -= turnSpeed * delta;
+  }
+
+  const forward = new THREE.Vector3(-Math.sin(state.walkYaw), 0, -Math.cos(state.walkYaw));
+  const right = new THREE.Vector3(Math.cos(state.walkYaw), 0, -Math.sin(state.walkYaw));
+  const movement = new THREE.Vector3();
+
+  if (pressedKeys.has("w") || pressedKeys.has("arrowup")) movement.add(forward);
+  if (pressedKeys.has("s") || pressedKeys.has("arrowdown")) movement.sub(forward);
+  if (pressedKeys.has("d")) movement.add(right);
+  if (pressedKeys.has("a")) movement.sub(right);
+
+  if (movement.lengthSq() > 0) {
+    movement.normalize().multiplyScalar(moveSpeed * delta);
+    camera.position.add(movement);
+    camera.position.x = THREE.MathUtils.clamp(camera.position.x, walkBounds.minX, walkBounds.maxX);
+    camera.position.z = THREE.MathUtils.clamp(camera.position.z, walkBounds.minZ, walkBounds.maxZ);
+  }
+
+  camera.position.y = 1.65;
+  controls.target.set(
+    camera.position.x + forward.x * 4,
+    1.55,
+    camera.position.z + forward.z * 4,
+  );
+
+  const currentRoom = getRoomForPosition(camera.position);
+  syncRoomUi(currentRoom);
+  state.activeDoorKey = currentRoom;
+  state.doorTimer = Math.max(state.doorTimer, 0.2);
+  modeLabel.textContent = "Walk mode";
+}
+
 function resizeRenderer() {
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -1032,6 +1151,7 @@ function animate() {
   if (state.running) {
     elapsed += delta * state.speed;
   }
+  updateWalkMode(delta);
 
   beltTexture.offset.x = -elapsed * 0.58;
   hazardTexture.offset.x = -elapsed * 0.08;
