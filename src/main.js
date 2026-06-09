@@ -361,6 +361,13 @@ function addCable(points, radius = 0.025) {
   return mesh;
 }
 
+function addLocalCable(parent, points, radius = 0.025, material = materials.rubber) {
+  const curve = new THREE.CatmullRomCurve3(points.map((point) => new THREE.Vector3(...point)));
+  const mesh = shadow(new THREE.Mesh(new THREE.TubeGeometry(curve, 28, radius, 8), material));
+  parent.add(mesh);
+  return mesh;
+}
+
 function addPipe(parent, start, end, radius, material) {
   const startVector = new THREE.Vector3(...start);
   const endVector = new THREE.Vector3(...end);
@@ -1012,7 +1019,8 @@ function createParallelGripper(parent) {
   return { gripper, leftJaw, rightJaw };
 }
 
-function createRobot(position, rotationY = 0, accent = materials.teal) {
+function createRobot(position, rotationY = 0, accent = materials.teal, options = {}) {
+  const robotId = options.id || "R-01";
   const robot = new THREE.Group();
   robot.position.set(...position);
   robot.rotation.y = rotationY;
@@ -1020,6 +1028,13 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
 
   addCylinder(robot, 0.72, 0.88, 0.32, [0, 0.16, 0], materials.darkSteel);
   addCylinder(robot, 0.54, 0.62, 0.3, [0, 0.47, 0], materials.brushed);
+  const baseRing = addTorus(robot, 0.73, 0.025, [0, 0.35, 0], materials.brushed, 12, 44);
+  baseRing.rotation.x = Math.PI / 2;
+  for (let i = 0; i < 10; i += 1) {
+    const angle = (i / 10) * Math.PI * 2;
+    const bolt = addCylinder(robot, 0.035, 0.035, 0.045, [Math.cos(angle) * 0.66, 0.39, Math.sin(angle) * 0.66], materials.darkSteel, 10);
+    bolt.rotation.x = Math.PI / 2;
+  }
 
   const waistPivot = new THREE.Group();
   waistPivot.position.y = 0.62;
@@ -1027,33 +1042,69 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
 
   const torso = addCylinder(waistPivot, 0.42, 0.55, 0.75, [0, 0.38, 0], materials.yellow);
   addBox(waistPivot, [0.55, 0.18, 0.65], [0, 0.8, 0], materials.darkSteel);
+  const nameplateMaterial = new THREE.MeshStandardMaterial({
+    map: makeLabelTexture(robotId, "#f6c453", "#151515"),
+    roughness: 0.42,
+    metalness: 0.05,
+  });
+  const nameplate = shadow(new THREE.Mesh(new THREE.PlaneGeometry(0.58, 0.18), nameplateMaterial));
+  nameplate.position.set(0, 0.74, 0.36);
+  waistPivot.add(nameplate);
   addSphere(waistPivot, 0.08, [0.22, 0.93, 0.34], materials.glowGreen, 12);
   addSphere(waistPivot, 0.08, [-0.02, 0.93, 0.34], materials.glowRed, 12);
+  const stageLight = addSphere(waistPivot, 0.09, [-0.25, 0.93, 0.34], materials.glowBlue, 12);
+  addBox(waistPivot, [0.46, 0.08, 0.08], [0, 0.18, 0.48], materials.warningBlack);
+  addBox(waistPivot, [0.46, 0.08, 0.08], [0, 0.34, 0.48], materials.warningBlack);
 
   const shoulderPivot = new THREE.Group();
   shoulderPivot.position.set(0, 0.85, 0);
   waistPivot.add(shoulderPivot);
+  addSphere(shoulderPivot, 0.31, [0.04, 0, 0], materials.brushed, 18);
+  const shoulderCap = addCylinder(shoulderPivot, 0.32, 0.32, 0.18, [0.04, 0, 0.33], materials.darkSteel, 24);
+  shoulderCap.rotation.x = Math.PI / 2;
 
   const upperArm = new THREE.Group();
   upperArm.position.set(0.54, 0, 0);
   shoulderPivot.add(upperArm);
   addBox(upperArm, [1.46, 0.32, 0.38], [0.73, 0, 0], accent);
   addCylinder(upperArm, 0.26, 0.26, 0.48, [0, 0, 0], materials.brushed);
+  addPipe(upperArm, [0.08, 0.28, -0.24], [1.28, 0.2, -0.24], 0.035, materials.brushed);
+  addPipe(upperArm, [0.08, -0.28, 0.24], [1.28, -0.2, 0.24], 0.035, materials.brushed);
+  addLocalCable(upperArm, [
+    [0.0, 0.28, -0.28],
+    [0.42, 0.43, -0.36],
+    [0.96, 0.38, -0.32],
+    [1.35, 0.18, -0.28],
+  ], 0.026);
+  addBox(upperArm, [0.9, 0.05, 0.06], [0.72, 0.23, 0.25], materials.warningBlack);
 
   const elbowPivot = new THREE.Group();
   elbowPivot.position.set(1.5, 0, 0);
   upperArm.add(elbowPivot);
   addCylinder(elbowPivot, 0.24, 0.24, 0.5, [0, 0, 0], materials.brushed);
+  addSphere(elbowPivot, 0.27, [0, 0, 0], materials.darkSteel, 18);
+  const elbowCap = addCylinder(elbowPivot, 0.28, 0.28, 0.16, [0, 0, -0.32], materials.brushed, 24);
+  elbowCap.rotation.x = Math.PI / 2;
 
   const forearm = new THREE.Group();
   elbowPivot.add(forearm);
   addBox(forearm, [1.24, 0.27, 0.31], [0.62, 0, 0], materials.yellow);
   addBox(forearm, [0.5, 0.32, 0.36], [0.98, 0, 0], materials.darkSteel);
+  addPipe(forearm, [0.1, 0.22, -0.2], [1.13, 0.2, -0.2], 0.028, materials.brushed);
+  addPipe(forearm, [0.1, -0.22, 0.2], [1.13, -0.2, 0.2], 0.028, materials.brushed);
+  addLocalCable(forearm, [
+    [0.0, 0.25, 0.24],
+    [0.36, 0.36, 0.3],
+    [0.86, 0.3, 0.28],
+    [1.24, 0.12, 0.22],
+  ], 0.023);
 
   const wristPivot = new THREE.Group();
   wristPivot.position.set(1.28, 0, 0);
   forearm.add(wristPivot);
   addCylinder(wristPivot, 0.18, 0.18, 0.38, [0, 0, 0], materials.brushed);
+  addSphere(wristPivot, 0.19, [0.02, 0, 0], materials.darkSteel, 16);
+  const wristLight = addSphere(wristPivot, 0.055, [0.34, 0.22, 0.22], materials.glowBlue, 10);
   const gripperRig = createParallelGripper(wristPivot);
 
   const carriedObject = new THREE.Group();
@@ -1074,12 +1125,15 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
     wristPivot,
     clawLeft: gripperRig.leftJaw,
     clawRight: gripperRig.rightJaw,
+    stageLight,
+    wristLight,
+    nameplate,
     carriedObject,
   };
 }
 
-const primaryRobot = createRobot([-2.75, 0, -2.35], 0.18, materials.teal);
-const secondaryRobot = createRobot([4.15, 0, -3.35], -0.52, materials.blue);
+const primaryRobot = createRobot([-2.75, 0, -2.35], 0.18, materials.teal, { id: "R-01" });
+const secondaryRobot = createRobot([4.35, 0, -3.75], -0.44, materials.blue, { id: "R-02" });
 const pickupMarker = new THREE.Group();
 pickupMarker.position.set(-3.65, 0, -1.72);
 scene.add(pickupMarker);
@@ -1401,19 +1455,20 @@ function interpolatePose(a, b, amount) {
 }
 
 function animateRobot(robotRig, time, phase = 0, mirrored = false) {
-  const cycle = 8;
+  const cycle = 8.4;
   const t = (time + phase) % cycle;
   const side = mirrored ? -1 : 1;
   const poses = [
-    { at: 0, waist: -0.58 * side, shoulder: -0.72, upperYaw: -0.08, elbow: 1.45, wristX: 0.2, wristZ: -0.1, claw: 0.34 },
-    { at: 1.15, waist: -0.58 * side, shoulder: -0.92, upperYaw: -0.04, elbow: 1.12, wristX: 0.1, wristZ: -0.08, claw: 0.34 },
-    { at: 1.8, waist: -0.58 * side, shoulder: -0.92, upperYaw: -0.04, elbow: 1.12, wristX: 0.12, wristZ: -0.08, claw: 0.16 },
-    { at: 3.1, waist: -0.24 * side, shoulder: -0.52, upperYaw: 0.08, elbow: 1.36, wristX: 0.55, wristZ: 0.02, claw: 0.16 },
-    { at: 4.6, waist: 0.62 * side, shoulder: -0.5, upperYaw: 0.12, elbow: 1.38, wristX: 0.35, wristZ: 0.15, claw: 0.16 },
-    { at: 5.5, waist: 0.62 * side, shoulder: -0.78, upperYaw: 0.08, elbow: 1.08, wristX: 0.1, wristZ: 0.12, claw: 0.16 },
-    { at: 6.1, waist: 0.62 * side, shoulder: -0.78, upperYaw: 0.08, elbow: 1.08, wristX: 0.1, wristZ: 0.12, claw: 0.34 },
-    { at: 7.15, waist: 0.08 * side, shoulder: -0.42, upperYaw: 0.02, elbow: 1.42, wristX: 0.0, wristZ: 0.02, claw: 0.34 },
-    { at: 8, waist: -0.58 * side, shoulder: -0.72, upperYaw: -0.08, elbow: 1.45, wristX: 0.2, wristZ: -0.1, claw: 0.34 },
+    { at: 0, waist: -0.66 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 0.9, waist: -0.66 * side, shoulder: -0.7, upperYaw: -0.06, elbow: 1.28, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 1.45, waist: -0.66 * side, shoulder: -0.84, upperYaw: -0.04, elbow: 1.08, wristX: 0.1, wristZ: -0.06, claw: 0.42 },
+    { at: 1.95, waist: -0.66 * side, shoulder: -0.84, upperYaw: -0.04, elbow: 1.08, wristX: 0.12, wristZ: -0.06, claw: 0.13 },
+    { at: 2.85, waist: -0.5 * side, shoulder: -0.48, upperYaw: 0.02, elbow: 1.36, wristX: 0.38, wristZ: 0.0, claw: 0.13 },
+    { at: 4.15, waist: 0.52 * side, shoulder: -0.42, upperYaw: 0.12, elbow: 1.42, wristX: 0.34, wristZ: 0.13, claw: 0.13 },
+    { at: 5.2, waist: 0.6 * side, shoulder: -0.74, upperYaw: 0.08, elbow: 1.14, wristX: 0.12, wristZ: 0.12, claw: 0.13 },
+    { at: 5.8, waist: 0.6 * side, shoulder: -0.74, upperYaw: 0.08, elbow: 1.14, wristX: 0.12, wristZ: 0.12, claw: 0.42 },
+    { at: 6.75, waist: 0.36 * side, shoulder: -0.44, upperYaw: 0.04, elbow: 1.44, wristX: 0.15, wristZ: 0.04, claw: 0.42 },
+    { at: 8.4, waist: -0.66 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
   ];
 
   let start = poses[0];
@@ -1439,7 +1494,12 @@ function animateRobot(robotRig, time, phase = 0, mirrored = false) {
   const jawOffset = pose.claw * 0.42;
   robotRig.clawLeft.position.z = jawOffset;
   robotRig.clawRight.position.z = -jawOffset;
-  robotRig.carriedObject.visible = t >= 1.75 && t <= 6.05;
+  const carrying = t >= 1.85 && t <= 5.75;
+  robotRig.carriedObject.visible = carrying;
+  robotRig.stageLight.material = carrying ? materials.glowGreen : t > 5.65 && t < 6.2 ? materials.glowRed : materials.glowBlue;
+  robotRig.wristLight.material = carrying ? materials.glowGreen : materials.glowBlue;
+  robotRig.stageLight.scale.setScalar(1 + Math.sin((time + phase) * 8) * 0.08);
+  robotRig.wristLight.scale.setScalar(1 + Math.sin((time + phase) * 10) * 0.05);
 }
 
 function updateSlidingDoors(delta) {
@@ -1569,10 +1629,10 @@ function animate() {
   hazardTexture.offset.x = -machineElapsed * 0.08;
 
   animateRobot(primaryRobot, robotElapsed, 0, false);
-  animateRobot(secondaryRobot, robotElapsed, 2.2, true);
-  const robotCycle = robotElapsed % 8;
-  pickupMarker.scale.setScalar(robotCycle < 2.1 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
-  dropMarker.scale.setScalar(robotCycle > 4.7 && robotCycle < 6.4 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
+  animateRobot(secondaryRobot, robotElapsed, 3.6, true);
+  const robotCycle = robotElapsed % 8.4;
+  pickupMarker.scale.setScalar(robotCycle < 2.2 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
+  dropMarker.scale.setScalar(robotCycle > 5.0 && robotCycle < 6.2 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
 
   pressHead.position.y = 1.82 + Math.max(0, Math.sin(machineElapsed * 2.2)) * 0.62;
   let inspectedRejectNearby = false;

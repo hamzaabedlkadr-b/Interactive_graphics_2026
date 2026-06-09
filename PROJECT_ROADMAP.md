@@ -68,6 +68,13 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - The pick/place sequence has a visible purpose.
 - The report can include a diagram or paragraph explaining the hierarchy.
 
+### Current Status
+
+- Mostly complete after the robot hierarchy/detail pass.
+- Added base rings, bolts, joint caps, hydraulic rods, local cables, warning details, nameplates, stage lights, wrist lights, and industrial gripper details.
+- Improved the authored JavaScript keyframe cycle so it reads as approach, close claw, lift, rotate, lower, release, and return.
+- Remaining check: final visual QA from the main camera views to confirm gripper/belt clearance after Leo's production-flow updates.
+
 ## Leo - Conveyor, Drone, Production Flow, and Objects
 
 ### Required Tasks
