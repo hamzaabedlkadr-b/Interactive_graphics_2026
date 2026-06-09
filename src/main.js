@@ -1344,6 +1344,16 @@ addBox(drone, [0.72, 0.045, 0.07], [0, -0.48, -0.18], materials.brushed);
 addBox(drone, [0.08, 0.42, 0.05], [-0.28, -0.26, 0.18], materials.brushed);
 addBox(drone, [0.08, 0.42, 0.05], [0.28, -0.26, 0.18], materials.brushed);
 addBox(drone, [0.72, 0.045, 0.07], [0, -0.48, 0.18], materials.brushed);
+const droneCargoRig = new THREE.Group();
+drone.add(droneCargoRig);
+addBox(droneCargoRig, [0.22, 0.16, 0.2], [0, -0.36, 0], materials.brushed);
+addBox(droneCargoRig, [0.62, 0.055, 0.08], [0, -0.56, 0], materials.darkSteel);
+addBox(droneCargoRig, [0.08, 0.16, 0.46], [-0.26, -0.68, 0], materials.rubber);
+addBox(droneCargoRig, [0.08, 0.16, 0.46], [0.26, -0.68, 0], materials.rubber);
+const droneCargoLight = addSphere(droneCargoRig, 0.065, [0, -0.74, 0.3], materials.glowBlue, 10);
+const droneCarriedSample = createHandledPart(droneCargoRig, [0, -1.0, 0], materials.battery);
+droneCarriedSample.scale.setScalar(0.72);
+droneCarriedSample.visible = false;
 const dronePatrolPoints = [
   new THREE.Vector3(-5.35, 3.95, 2.7),
   new THREE.Vector3(-1.15, 3.45, 1.55),
@@ -1353,6 +1363,23 @@ const dronePatrolPoints = [
 ];
 const droneTarget = new THREE.Vector3();
 const dronePreviousPosition = drone.position.clone();
+const dronePickupPosition = new THREE.Vector3(-2.65, 1.18, 0.86);
+const droneReturnPosition = new THREE.Vector3(3.35, 1.18, 0.86);
+const dronePickupPadMaterial = materials.zoneBlue.clone();
+dronePickupPadMaterial.transparent = true;
+dronePickupPadMaterial.opacity = 0.58;
+const droneReturnPadMaterial = materials.zoneGreen.clone();
+droneReturnPadMaterial.transparent = true;
+droneReturnPadMaterial.opacity = 0.58;
+addBox(scene, [0.86, 0.035, 0.56], [dronePickupPosition.x, 1.02, dronePickupPosition.z], dronePickupPadMaterial);
+addBox(scene, [0.86, 0.035, 0.56], [droneReturnPosition.x, 1.02, droneReturnPosition.z], droneReturnPadMaterial);
+createFloorLabel(scene, "DRONE PICK", [dronePickupPosition.x, 0.073, 1.62], [1.45, 0.34], 0, "#2f6984");
+createFloorLabel(scene, "DRONE RETURN", [droneReturnPosition.x, 0.073, 1.62], [1.75, 0.34], 0, "#3a725f");
+const dronePickupSample = createHandledPart(scene, dronePickupPosition.toArray(), materials.battery);
+dronePickupSample.scale.setScalar(0.72);
+const droneReturnSample = createHandledPart(scene, droneReturnPosition.toArray(), materials.productShell);
+droneReturnSample.scale.setScalar(0.72);
+droneReturnSample.visible = false;
 
 for (let x = -8.5; x <= 8.5; x += 2.4) {
   addBox(factory, [0.09, 2.2, 0.09], [x, 1.1, 4.1], materials.darkSteel);
@@ -1487,6 +1514,9 @@ toggleDrone.addEventListener("click", () => {
   state.droneOn = !state.droneOn;
   setToggleState(toggleDrone, state.droneOn, "Drone Off", "Drone On");
   drone.visible = state.droneOn;
+  dronePickupSample.visible = state.droneOn;
+  droneReturnSample.visible = false;
+  droneCarriedSample.visible = false;
 });
 
 robotSpeed.addEventListener("click", () => {
@@ -1796,6 +1826,7 @@ function animate() {
 
   if (state.droneOn) {
     const routeTime = machineElapsed * 0.34;
+    const routePhase = routeTime % dronePatrolPoints.length;
     const routeIndex = Math.floor(routeTime) % dronePatrolPoints.length;
     const nextRouteIndex = (routeIndex + 1) % dronePatrolPoints.length;
     const routeProgress = smoothStep(routeTime % 1);
@@ -1818,6 +1849,33 @@ function animate() {
       droneTarget.y = 3.22 + Math.sin(machineElapsed * 9) * 0.04;
     }
 
+    const pickupApproach = routePhase > 1.08 && routePhase < 1.76;
+    const returnApproach = routePhase > 3.1 && routePhase < 3.78;
+    const pickupLocked = routePhase > 1.45 && routePhase < 1.68;
+    const returnLocked = routePhase > 3.45 && routePhase < 3.7;
+    const carryingCargo = routePhase >= 1.55 && routePhase < 3.55;
+    const cargoAction = pickupApproach || returnApproach || carryingCargo;
+    if (pickupApproach) {
+      const pickupDip = smoothStep(Math.min(1, (routePhase - 1.08) / 0.68));
+      droneTarget.x = THREE.MathUtils.lerp(droneTarget.x, dronePickupPosition.x, 0.9);
+      droneTarget.z = THREE.MathUtils.lerp(droneTarget.z, dronePickupPosition.z, 0.9);
+      droneTarget.y = THREE.MathUtils.lerp(3.15, 2.34, Math.sin(pickupDip * Math.PI)) + Math.sin(machineElapsed * 10) * 0.025;
+    } else if (returnApproach) {
+      const returnDip = smoothStep(Math.min(1, (routePhase - 3.1) / 0.68));
+      droneTarget.x = THREE.MathUtils.lerp(droneTarget.x, droneReturnPosition.x, 0.9);
+      droneTarget.z = THREE.MathUtils.lerp(droneTarget.z, droneReturnPosition.z, 0.9);
+      droneTarget.y = THREE.MathUtils.lerp(3.18, 2.34, Math.sin(returnDip * Math.PI)) + Math.sin(machineElapsed * 10) * 0.025;
+    }
+
+    dronePickupSample.visible = routePhase < 1.48 || routePhase > 4.4;
+    droneReturnSample.visible = routePhase >= 3.55 && routePhase <= 4.4;
+    droneCarriedSample.visible = carryingCargo;
+    dronePickupSample.position.y = dronePickupPosition.y + (pickupLocked ? Math.sin(machineElapsed * 14) * 0.015 : 0);
+    droneReturnSample.position.y = droneReturnPosition.y + (returnLocked ? Math.sin(machineElapsed * 14) * 0.015 : 0);
+    droneCarriedSample.rotation.y += carryingCargo ? delta * state.speed * 0.85 : 0;
+    droneCargoRig.scale.setScalar(cargoAction ? 1.04 + Math.sin(machineElapsed * 12) * 0.025 : 1);
+    droneCargoLight.material = returnLocked ? materials.glowRed : carryingCargo || pickupLocked ? materials.glowGreen : materials.glowBlue;
+
     const blend = 1 - Math.pow(0.006, delta);
     drone.position.lerp(droneTarget, blend);
     const velocityX = drone.position.x - dronePreviousPosition.x;
@@ -1828,13 +1886,30 @@ function animate() {
     dronePreviousPosition.copy(drone.position);
 
     const rejectInspection = inspectionWindow && scannedItem.userData.kind === "reject";
-    droneStatusLight.material = rejectInspection ? materials.glowRed : inspectionWindow ? materials.glowGreen : materials.glowBlue;
-    droneNoseLight.material = inspectionWindow ? materials.glowGreen : materials.glowBlue;
-    droneBeam.material.opacity = inspectionWindow ? 0.34 + Math.abs(Math.sin(machineElapsed * 11)) * 0.18 : 0.08;
-    droneScanRing.visible = inspectionWindow;
-    droneScanRing.scale.setScalar(inspectionWindow ? 0.85 + Math.abs(Math.sin(machineElapsed * 6)) * 0.35 : 0.7);
+    droneStatusLight.material = returnLocked
+      ? materials.glowRed
+      : carryingCargo || pickupLocked
+        ? materials.glowGreen
+        : rejectInspection
+          ? materials.glowRed
+          : inspectionWindow
+            ? materials.glowGreen
+            : materials.glowBlue;
+    droneNoseLight.material = cargoAction || inspectionWindow ? materials.glowGreen : materials.glowBlue;
+    droneBeam.material.opacity = cargoAction
+      ? 0.42 + Math.abs(Math.sin(machineElapsed * 13)) * 0.2
+      : inspectionWindow
+        ? 0.34 + Math.abs(Math.sin(machineElapsed * 11)) * 0.18
+        : 0.08;
+    droneScanRing.visible = cargoAction || inspectionWindow;
+    droneScanRing.scale.setScalar(cargoAction ? 0.68 + Math.abs(Math.sin(machineElapsed * 8)) * 0.18 : inspectionWindow ? 0.85 + Math.abs(Math.sin(machineElapsed * 6)) * 0.35 : 0.7);
     droneScanRing.rotation.z += delta * state.speed * 3.8;
-    droneBeam.scale.y = inspectionWindow ? 1.18 + Math.sin(machineElapsed * 9) * 0.08 : 0.58;
+    droneBeam.scale.y = cargoAction ? 1.42 + Math.sin(machineElapsed * 9) * 0.08 : inspectionWindow ? 1.18 + Math.sin(machineElapsed * 9) * 0.08 : 0.58;
+  } else {
+    dronePickupSample.visible = false;
+    droneReturnSample.visible = false;
+    droneCarriedSample.visible = false;
+    droneScanRing.visible = false;
   }
   rotorPivots.forEach((pivot, index) => {
     if (state.droneOn && state.running && state.machinesOn) {

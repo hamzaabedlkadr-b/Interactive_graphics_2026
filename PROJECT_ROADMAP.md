@@ -85,7 +85,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 
 - Improve conveyor realism: rollers, rails, belt texture, supports, bins, scanner station, reject lane, and production spacing.
 - Improve production objects: crates, batteries, chassis, finished units, rejected units should look distinct and detailed.
-- Improve drone behavior: recognizable quadcopter shape, propellers, sensor beam, patrol/tracking movement, and safe height.
+- Improve drone behavior: recognizable quadcopter shape, propellers, sensor beam, patrol/tracking movement, cargo pickup/return, and safe height.
 - Connect object flow to machines: scanner checks, press stamps, robot picks/places, reject/accept bins receive items.
 
 ### Course Concepts Covered
@@ -98,7 +98,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 ### Done Means
 
 - Belt objects are not simple cubes.
-- The drone is immediately recognizable.
+- The drone is immediately recognizable and performs a readable pickup, carry, and return cycle.
 - Moving objects are spaced correctly and do not overlap badly.
 - The production line tells a clear story: raw part, inspection, processing, accept/reject.
 
@@ -106,7 +106,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 
 - Mostly complete after the production-flow/drone pass.
 - Added a real drone patrol route across scanner, belt, press, accept/reject, and control zones.
-- Drone now dips during inspection, follows selected items, pulses a scan beam/ring, tilts while moving, and changes status lights for normal/reject inspection.
+- Drone now dips during inspection, follows selected items, pulses a scan beam/ring, tilts while moving, changes status lights for normal/reject inspection, and visibly picks up, carries, and returns a belt sample.
 - Remaining check: final visual QA to ensure drone beam/ring does not hide important robot or conveyor details in the main camera views.
 
 ## Edo - Interaction, UI, Camera, Deployment, and Report
