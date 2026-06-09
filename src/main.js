@@ -543,33 +543,47 @@ function createProductionItem(kind, index) {
   item.userData.index = index;
 
   if (kind === "crate") {
-    addBox(item, [0.62, 0.62, 0.62], [0, 0, 0], materials.crate);
-    addBox(item, [0.68, 0.08, 0.68], [0, 0.21, 0], materials.darkSteel);
-    addBox(item, [0.68, 0.08, 0.68], [0, -0.21, 0], materials.darkSteel);
-    addBox(item, [0.08, 0.62, 0.68], [0.22, 0, 0], materials.darkSteel);
+    addBox(item, [0.7, 0.54, 0.58], [0, -0.02, 0], materials.crate);
+    addBox(item, [0.74, 0.07, 0.62], [0, 0.24, 0], materials.darkSteel);
+    addBox(item, [0.74, 0.07, 0.62], [0, -0.28, 0], materials.darkSteel);
+    addBox(item, [0.07, 0.56, 0.64], [-0.26, -0.02, 0], materials.darkSteel);
+    addBox(item, [0.07, 0.56, 0.64], [0.26, -0.02, 0], materials.darkSteel);
+    addBox(item, [0.62, 0.035, 0.08], [0, 0.05, -0.33], materials.palletWood);
+    addBox(item, [0.62, 0.035, 0.08], [0, -0.11, -0.33], materials.palletWood);
+    addSphere(item, 0.045, [-0.24, 0.18, 0.31], materials.brushed, 10);
+    addSphere(item, 0.045, [0.24, 0.18, 0.31], materials.brushed, 10);
   } else if (kind === "battery") {
-    addBox(item, [0.72, 0.34, 0.44], [0, 0, 0], materials.battery);
-    addBox(item, [0.16, 0.12, 0.18], [-0.28, 0.22, 0], materials.brushed);
-    addBox(item, [0.16, 0.12, 0.18], [0.28, 0.22, 0], materials.brushed);
-    addBox(item, [0.08, 0.4, 0.5], [0, 0, 0], materials.darkSteel);
+    addBox(item, [0.76, 0.36, 0.48], [0, 0, 0], materials.battery);
+    addBox(item, [0.82, 0.05, 0.52], [0, 0.21, 0], materials.darkSteel);
+    addBox(item, [0.16, 0.13, 0.18], [-0.3, 0.3, 0], materials.brushed);
+    addBox(item, [0.16, 0.13, 0.18], [0.3, 0.3, 0], materials.brushed);
+    addBox(item, [0.08, 0.42, 0.54], [0, 0, 0], materials.darkSteel);
+    addBox(item, [0.46, 0.035, 0.035], [0, 0.02, 0.28], materials.glowGreen);
+    addSphere(item, 0.04, [-0.22, 0.23, 0.26], materials.glowBlue, 10);
   } else if (kind === "chassis") {
-    addBox(item, [0.84, 0.16, 0.52], [0, -0.08, 0], materials.productShell);
-    addBox(item, [0.7, 0.18, 0.38], [0, 0.1, 0], materials.glass);
+    addBox(item, [0.92, 0.16, 0.56], [0, -0.1, 0], materials.productShell);
+    addBox(item, [0.74, 0.18, 0.4], [0, 0.08, 0], materials.glass);
+    addBox(item, [0.22, 0.08, 0.5], [-0.24, 0.24, 0], materials.brushed);
+    addBox(item, [0.22, 0.08, 0.5], [0.24, 0.24, 0], materials.brushed);
     addCylinder(item, 0.11, 0.11, 0.08, [-0.28, -0.24, -0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
     addCylinder(item, 0.11, 0.11, 0.08, [0.28, -0.24, -0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
     addCylinder(item, 0.11, 0.11, 0.08, [-0.28, -0.24, 0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
     addCylinder(item, 0.11, 0.11, 0.08, [0.28, -0.24, 0.22], materials.rubber, 18).rotation.z = Math.PI / 2;
   } else if (kind === "finished") {
-    addBox(item, [0.76, 0.34, 0.48], [0, -0.02, 0], materials.productShell);
-    addBox(item, [0.5, 0.2, 0.36], [0, 0.25, 0], materials.glass);
-    addSphere(item, 0.08, [-0.26, 0.21, 0.22], materials.glowGreen, 12);
-    addSphere(item, 0.08, [0.26, 0.21, 0.22], materials.glowBlue, 12);
-    addBox(item, [0.18, 0.08, 0.54], [0, -0.25, 0], materials.productDark);
+    addBox(item, [0.82, 0.3, 0.5], [0, -0.04, 0], materials.productShell);
+    addBox(item, [0.54, 0.22, 0.36], [0, 0.22, 0], materials.glass);
+    addSphere(item, 0.075, [-0.28, 0.18, 0.25], materials.glowGreen, 12);
+    addSphere(item, 0.075, [0.28, 0.18, 0.25], materials.glowBlue, 12);
+    addBox(item, [0.2, 0.08, 0.56], [0, -0.24, 0], materials.productDark);
+    addBox(item, [0.62, 0.045, 0.07], [0, 0.02, -0.28], materials.brushed);
+    addCylinder(item, 0.06, 0.06, 0.52, [0, 0.34, 0], materials.darkSteel, 14).rotation.x = Math.PI / 2;
   } else {
-    addBox(item, [0.68, 0.32, 0.46], [0, 0, 0], materials.reject);
-    addBox(item, [0.78, 0.08, 0.08], [0, 0.24, 0], materials.warningBlack);
-    addBox(item, [0.08, 0.08, 0.56], [0, 0.24, 0], materials.warningBlack);
-    addSphere(item, 0.075, [0.3, 0.2, 0.2], materials.glowRed, 12);
+    addBox(item, [0.72, 0.34, 0.48], [0, 0, 0], materials.reject);
+    addBox(item, [0.82, 0.08, 0.08], [0, 0.25, 0], materials.warningBlack);
+    addBox(item, [0.08, 0.08, 0.58], [0, 0.25, 0], materials.warningBlack);
+    addBox(item, [0.5, 0.045, 0.5], [0.04, -0.23, 0], materials.darkSteel);
+    addSphere(item, 0.075, [0.3, 0.2, 0.22], materials.glowRed, 12);
+    addSphere(item, 0.04, [-0.22, 0.21, 0.22], materials.brushed, 10);
   }
 
   scene.add(item);
@@ -815,6 +829,36 @@ const lampHead = addCylinder(lamp, 0.48, 0.23, 0.42, [-4.7, 4.35, 1.7], material
 lampHead.rotation.x = Math.PI;
 addSphere(lamp, 0.16, [-4.7, 4.06, 1.7], materials.lampGlow, 16);
 
+function createParallelGripper(parent) {
+  const gripper = new THREE.Group();
+  parent.add(gripper);
+
+  addBox(gripper, [0.18, 0.52, 0.34], [0.18, 0, -0.02], materials.brushed);
+  addBox(gripper, [0.16, 0.62, 0.12], [0.3, 0, 0.16], materials.darkSteel);
+  addBox(gripper, [0.16, 0.62, 0.12], [0.3, 0, -0.2], materials.darkSteel);
+  addCylinder(gripper, 0.09, 0.09, 0.46, [0.08, 0, -0.02], materials.darkSteel, 18).rotation.x = Math.PI / 2;
+  addSphere(gripper, 0.055, [0.36, 0.24, 0.16], materials.glowGreen, 10);
+  addSphere(gripper, 0.045, [0.36, -0.24, 0.16], materials.glowRed, 10);
+
+  const leftJaw = new THREE.Group();
+  const rightJaw = new THREE.Group();
+  gripper.add(leftJaw, rightJaw);
+
+  addBox(leftJaw, [0.42, 0.09, 0.15], [0.58, 0, 0.13], materials.red);
+  addBox(leftJaw, [0.12, 0.09, 0.38], [0.76, 0, -0.01], materials.red);
+  addBox(leftJaw, [0.18, 0.11, 0.1], [0.82, 0, -0.22], materials.rubber);
+  addBox(leftJaw, [0.18, 0.11, 0.1], [0.55, 0, -0.22], materials.rubber);
+  addCylinder(leftJaw, 0.045, 0.045, 0.16, [0.46, 0, 0.12], materials.brushed, 12).rotation.x = Math.PI / 2;
+
+  addBox(rightJaw, [0.42, 0.09, 0.15], [0.58, 0, -0.17], materials.red);
+  addBox(rightJaw, [0.12, 0.09, 0.38], [0.76, 0, -0.03], materials.red);
+  addBox(rightJaw, [0.18, 0.11, 0.1], [0.82, 0, 0.18], materials.rubber);
+  addBox(rightJaw, [0.18, 0.11, 0.1], [0.55, 0, 0.18], materials.rubber);
+  addCylinder(rightJaw, 0.045, 0.045, 0.16, [0.46, 0, -0.16], materials.brushed, 12).rotation.x = Math.PI / 2;
+
+  return { gripper, leftJaw, rightJaw };
+}
+
 function createRobot(position, rotationY = 0, accent = materials.teal) {
   const robot = new THREE.Group();
   robot.position.set(...position);
@@ -857,17 +901,14 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
   wristPivot.position.set(1.28, 0, 0);
   forearm.add(wristPivot);
   addCylinder(wristPivot, 0.18, 0.18, 0.38, [0, 0, 0], materials.brushed);
-
-  const clawLeft = addBox(wristPivot, [0.1, 0.56, 0.12], [0.29, 0.2, -0.14], materials.red);
-  const clawRight = addBox(wristPivot, [0.1, 0.56, 0.12], [0.29, -0.2, -0.14], materials.red);
-  clawLeft.rotation.z = 0.35;
-  clawRight.rotation.z = -0.35;
+  const gripperRig = createParallelGripper(wristPivot);
 
   const carriedObject = new THREE.Group();
   carriedObject.visible = false;
   wristPivot.add(carriedObject);
-  addBox(carriedObject, [0.36, 0.18, 0.28], [0.48, 0, -0.16], materials.battery);
-  addBox(carriedObject, [0.08, 0.22, 0.32], [0.48, 0, -0.16], materials.darkSteel);
+  addBox(carriedObject, [0.42, 0.2, 0.3], [0.66, 0, -0.02], materials.battery);
+  addBox(carriedObject, [0.1, 0.24, 0.34], [0.66, 0, -0.02], materials.darkSteel);
+  addBox(carriedObject, [0.32, 0.045, 0.04], [0.66, 0.12, 0.15], materials.glowGreen);
 
   return {
     robot,
@@ -878,14 +919,14 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
     elbowPivot,
     forearm,
     wristPivot,
-    clawLeft,
-    clawRight,
+    clawLeft: gripperRig.leftJaw,
+    clawRight: gripperRig.rightJaw,
     carriedObject,
   };
 }
 
 const primaryRobot = createRobot([-2.75, 0, -2.35], 0.18, materials.teal);
-const secondaryRobot = createRobot([3.45, 0, -2.35], -0.65, materials.blue);
+const secondaryRobot = createRobot([4.15, 0, -3.35], -0.52, materials.blue);
 const pickupMarker = new THREE.Group();
 pickupMarker.position.set(-3.65, 0, -1.72);
 scene.add(pickupMarker);
@@ -1242,8 +1283,9 @@ function animateRobot(robotRig, time, phase = 0, mirrored = false) {
   robotRig.wristPivot.rotation.x = pose.wristX;
   robotRig.wristPivot.rotation.z = pose.wristZ;
   robotRig.torso.rotation.y = Math.sin((time + phase) * 1.7) * 0.018;
-  robotRig.clawLeft.position.y = pose.claw;
-  robotRig.clawRight.position.y = -pose.claw;
+  const jawOffset = pose.claw * 0.42;
+  robotRig.clawLeft.position.z = jawOffset;
+  robotRig.clawRight.position.z = -jawOffset;
   robotRig.carriedObject.visible = t >= 1.75 && t <= 6.05;
 }
 
