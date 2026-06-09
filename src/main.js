@@ -45,10 +45,10 @@ const state = {
 
 const pressedKeys = new Set();
 const walkBounds = {
-  minX: -10.1,
-  maxX: 10.1,
-  minZ: -5.35,
-  maxZ: 6.55,
+  minX: -14.0,
+  maxX: 14.0,
+  minZ: -8.4,
+  maxZ: 8.6,
 };
 const robotSpeedOptions = [
   { label: "Robot 0.5x", value: 0.5 },
@@ -57,33 +57,33 @@ const robotSpeedOptions = [
 ];
 
 const cameraViews = [
-  { position: new THREE.Vector3(8.8, 5.1, 9.2), target: new THREE.Vector3(0.1, 1.35, 0.05) },
-  { position: new THREE.Vector3(-6.6, 3.3, 4.2), target: new THREE.Vector3(-1.5, 1.4, -0.2) },
-  { position: new THREE.Vector3(1.5, 7.2, 6.3), target: new THREE.Vector3(0, 0.75, 0) },
-  { position: new THREE.Vector3(4.3, 2.2, -4.7), target: new THREE.Vector3(1.2, 1.4, 0.2) },
-  { position: new THREE.Vector3(11.5, 7.2, 11.4), target: new THREE.Vector3(0, 1.1, -0.15) },
+  { position: new THREE.Vector3(10.8, 5.8, 11.6), target: new THREE.Vector3(0.1, 1.35, 0.05) },
+  { position: new THREE.Vector3(-8.4, 3.8, 5.4), target: new THREE.Vector3(-2.2, 1.4, -0.2) },
+  { position: new THREE.Vector3(1.8, 8.4, 8.0), target: new THREE.Vector3(0, 0.75, 0) },
+  { position: new THREE.Vector3(5.3, 2.7, -6.0), target: new THREE.Vector3(1.2, 1.4, -0.4) },
+  { position: new THREE.Vector3(13.8, 8.3, 13.2), target: new THREE.Vector3(0, 1.1, -0.15) },
 ];
 
 const roomViews = {
   assembly: {
     label: "Assembly room",
-    position: new THREE.Vector3(8.8, 5.1, 9.2),
+    position: new THREE.Vector3(10.8, 5.8, 11.6),
     target: new THREE.Vector3(0.1, 1.35, 0.05),
   },
   storage: {
     label: "Storage room",
-    position: new THREE.Vector3(-8.8, 3.2, 7.6),
-    target: new THREE.Vector3(-8.35, 1.15, 4.85),
+    position: new THREE.Vector3(-10.4, 3.7, 8.35),
+    target: new THREE.Vector3(-8.8, 1.18, 5.25),
   },
   control: {
     label: "Control room",
-    position: new THREE.Vector3(10.5, 3.4, 6.7),
+    position: new THREE.Vector3(11.6, 3.8, 7.35),
     target: new THREE.Vector3(7.25, 1.25, 3.3),
   },
   inspection: {
     label: "Inspection room",
-    position: new THREE.Vector3(-6.8, 3.2, -5.0),
-    target: new THREE.Vector3(-3.8, 1.35, -2.85),
+    position: new THREE.Vector3(-7.9, 3.6, -6.45),
+    target: new THREE.Vector3(-4.25, 1.35, -3.05),
   },
 };
 
@@ -207,7 +207,7 @@ function makeLabelTexture(text, background = "#f6c453", foreground = "#151515") 
 }
 
 const floorTexture = makeCheckerTexture("#505d5d", "#465252", 192, 12);
-floorTexture.repeat.set(8, 8);
+floorTexture.repeat.set(12, 10);
 const beltTexture = makeStripeTexture("#202326", "#3d464b");
 const wallTexture = makePanelTexture();
 const hazardTexture = makeHazardTexture();
@@ -294,6 +294,13 @@ function addCylinder(parent, radiusTop, radiusBottom, height, position, material
 
 function addSphere(parent, radius, position, material, segments = 24) {
   const mesh = shadow(new THREE.Mesh(new THREE.SphereGeometry(radius, segments, segments), material));
+  mesh.position.set(...position);
+  parent.add(mesh);
+  return mesh;
+}
+
+function addTorus(parent, radius, tube, position, material, radialSegments = 24, tubularSegments = 36) {
+  const mesh = shadow(new THREE.Mesh(new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments), material));
   mesh.position.set(...position);
   parent.add(mesh);
   return mesh;
@@ -572,29 +579,32 @@ function createProductionItem(kind, index) {
 const factory = new THREE.Group();
 scene.add(factory);
 
-const floor = shadow(new THREE.Mesh(new THREE.PlaneGeometry(22, 16), materials.floor));
+const floor = shadow(new THREE.Mesh(new THREE.PlaneGeometry(30, 22), materials.floor));
 floor.rotation.x = -Math.PI / 2;
 factory.add(floor);
 
-const backWall = addBox(factory, [22, 6.2, 0.28], [0, 3.1, -6.1], materials.wall);
-const leftWall = addBox(factory, [0.28, 6.2, 16], [-10.9, 3.1, 0], materials.wall);
+const backWall = addBox(factory, [30, 6.2, 0.28], [0, 3.1, -9.1], materials.wall);
+const leftWall = addBox(factory, [0.28, 6.2, 22], [-14.9, 3.1, 0], materials.wall);
+const rightServiceWall = addBox(factory, [0.28, 4.4, 12], [14.9, 2.2, -2.2], materials.wall);
 leftWall.material = materials.wall;
 backWall.receiveShadow = true;
+rightServiceWall.receiveShadow = true;
 
-addBox(factory, [22, 0.18, 0.4], [0, 5.95, -5.7], materials.darkSteel);
-addBox(factory, [0.4, 0.18, 16], [-10.5, 5.95, 0], materials.darkSteel);
-for (let x = -9; x <= 9; x += 3) {
-  addBox(factory, [0.12, 5.4, 0.18], [x, 2.75, -5.82], materials.darkSteel);
+addBox(factory, [30, 0.18, 0.4], [0, 5.95, -8.7], materials.darkSteel);
+addBox(factory, [0.4, 0.18, 22], [-14.5, 5.95, 0], materials.darkSteel);
+addBox(factory, [0.4, 0.18, 12], [14.5, 4.28, -2.2], materials.darkSteel);
+for (let x = -13; x <= 13; x += 3.25) {
+  addBox(factory, [0.12, 5.4, 0.18], [x, 2.75, -8.82], materials.darkSteel);
 }
-for (let z = -5; z <= 5; z += 2.5) {
-  addBox(factory, [0.18, 5.4, 0.12], [-10.72, 2.75, z], materials.darkSteel);
+for (let z = -8; z <= 8; z += 2.65) {
+  addBox(factory, [0.18, 5.4, 0.12], [-14.72, 2.75, z], materials.darkSteel);
 }
 
-for (let x = -9.5; x <= 9.5; x += 3.8) {
-  addBox(factory, [0.18, 0.22, 15.2], [x, 5.72, -0.15], materials.darkSteel);
+for (let x = -13.0; x <= 13.0; x += 4.0) {
+  addBox(factory, [0.18, 0.22, 20.2], [x, 5.72, -0.15], materials.darkSteel);
 }
-for (let z = -5.1; z <= 5.1; z += 2.55) {
-  addBox(factory, [20.4, 0.16, 0.18], [-0.25, 5.78, z], materials.brushed);
+for (let z = -8.1; z <= 8.1; z += 2.7) {
+  addBox(factory, [28.4, 0.16, 0.18], [-0.25, 5.78, z], materials.brushed);
 }
 
 const assemblyZone = addBox(factory, [7.4, 0.03, 2.65], [-1.4, 0.018, 0.2], materials.zoneBlue);
@@ -678,32 +688,33 @@ factory.add(roomGroup);
 const slidingDoors = [];
 
 // Storage room: separated from the assembly floor by partial walls and a door.
-createPartitionWall(roomGroup, [0.18, 3.0, 4.0], [-5.95, 0, 4.0], false);
-createPartitionWall(roomGroup, [3.1, 3.0, 0.18], [-8.4, 0, 2.18], false);
-createDoorFrame(roomGroup, [-6.85, 0, 2.2], 0, 1.6, 2.15);
-slidingDoors.push(createSlidingDoor(roomGroup, [-6.85, 0, 2.2], 0, 1.42, "storage"));
-createFloorLabel(roomGroup, "STORAGE", [-8.6, 0.065, 6.0], [2.05, 0.62], 0, "#b86538");
-createPallet(roomGroup, [-9.3, 0, 6.1], Math.PI / 2);
-createPallet(roomGroup, [-7.5, 0, 6.15], Math.PI / 2);
-createBarrel(roomGroup, [-6.25, 0, 5.75], materials.pipeBlue);
-createBarrel(roomGroup, [-6.75, 0, 5.78], materials.pipeGreen);
+createPartitionWall(roomGroup, [0.18, 3.0, 5.4], [-6.35, 0, 4.9], false);
+createPartitionWall(roomGroup, [4.1, 3.0, 0.18], [-8.35, 0, 2.18], false);
+createDoorFrame(roomGroup, [-7.05, 0, 2.2], 0, 1.65, 2.15);
+slidingDoors.push(createSlidingDoor(roomGroup, [-7.05, 0, 2.2], 0, 1.46, "storage"));
+createFloorLabel(roomGroup, "STORAGE", [-8.95, 0.065, 6.45], [2.05, 0.62], 0, "#b86538");
+createPallet(roomGroup, [-10.4, 0, 6.35], Math.PI / 2);
+createPallet(roomGroup, [-8.6, 0, 6.55], Math.PI / 2);
+createPallet(roomGroup, [-7.25, 0, 5.35], Math.PI / 2);
+createBarrel(roomGroup, [-6.75, 0, 6.25], materials.pipeBlue);
+createBarrel(roomGroup, [-7.25, 0, 6.25], materials.pipeGreen);
 
 // Control room: glass booth overlooking the line.
-createPartitionWall(roomGroup, [4.2, 2.8, 0.16], [7.25, 0, 1.65], true);
-createPartitionWall(roomGroup, [0.16, 2.8, 3.55], [5.2, 0, 3.35], true);
-createPartitionWall(roomGroup, [0.16, 2.8, 3.55], [9.3, 0, 3.35], true);
-createDoorFrame(roomGroup, [5.2, 0, 2.35], Math.PI / 2, 1.35, 2.1);
-slidingDoors.push(createSlidingDoor(roomGroup, [5.2, 0, 2.35], Math.PI / 2, 1.22, "control"));
-createFloorLabel(roomGroup, "CONTROL", [7.25, 0.067, 5.32], [2.0, 0.62], 0, "#3a725f");
-addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 1.52, 1.78], materials.brushed);
-addBox(roomGroup, [2.4, 0.08, 0.42], [7.25, 2.28, 1.78], materials.brushed);
+createPartitionWall(roomGroup, [5.3, 2.8, 0.16], [7.25, 0, 1.45], true);
+createPartitionWall(roomGroup, [0.16, 2.8, 4.6], [4.65, 0, 3.7], true);
+createPartitionWall(roomGroup, [0.16, 2.8, 4.6], [9.85, 0, 3.7], true);
+createDoorFrame(roomGroup, [4.65, 0, 2.35], Math.PI / 2, 1.45, 2.1);
+slidingDoors.push(createSlidingDoor(roomGroup, [4.65, 0, 2.35], Math.PI / 2, 1.32, "control"));
+createFloorLabel(roomGroup, "CONTROL", [7.25, 0.067, 5.75], [2.0, 0.62], 0, "#3a725f");
+addBox(roomGroup, [3.1, 0.08, 0.42], [7.25, 1.52, 1.58], materials.brushed);
+addBox(roomGroup, [3.1, 0.08, 0.42], [7.25, 2.28, 1.58], materials.brushed);
 
 // Inspection/service room: frames the scanner and press as a separate station.
-createPartitionWall(roomGroup, [3.35, 2.65, 0.16], [-4.35, 0, -1.55], true);
-createPartitionWall(roomGroup, [0.16, 2.65, 2.2], [-6.0, 0, -2.65], true);
-createDoorFrame(roomGroup, [-4.35, 0, -1.55], 0, 1.45, 2.05);
-slidingDoors.push(createSlidingDoor(roomGroup, [-4.35, 0, -1.55], 0, 1.28, "inspection"));
-createFloorLabel(roomGroup, "INSPECT", [-4.35, 0.068, -4.68], [1.85, 0.56], 0, "#f6c453");
+createPartitionWall(roomGroup, [4.55, 2.65, 0.16], [-4.35, 0, -1.35], true);
+createPartitionWall(roomGroup, [0.16, 2.65, 3.25], [-6.6, 0, -2.95], true);
+createDoorFrame(roomGroup, [-4.35, 0, -1.35], 0, 1.55, 2.05);
+slidingDoors.push(createSlidingDoor(roomGroup, [-4.35, 0, -1.35], 0, 1.38, "inspection"));
+createFloorLabel(roomGroup, "INSPECT", [-4.35, 0.068, -5.15], [1.85, 0.56], 0, "#f6c453");
 
 addPipe(roomGroup, [-5.92, 2.85, -1.65], [-5.92, 2.85, -3.85], 0.035, materials.pipeBlue);
 addPipe(roomGroup, [5.28, 2.95, 1.75], [9.25, 2.95, 1.75], 0.035, materials.pipeGreen);
@@ -778,24 +789,24 @@ scene.add(lampLight, lampLight.target);
 const belt = new THREE.Group();
 belt.position.z = 0.2;
 scene.add(belt);
-addBox(belt, [11.6, 0.34, 1.48], [0, 0.6, 0], materials.belt);
-addBox(belt, [12.2, 0.22, 0.12], [0, 0.84, -0.92], materials.brushed);
-addBox(belt, [12.2, 0.22, 0.12], [0, 0.84, 0.92], materials.brushed);
-addBox(belt, [12.5, 0.12, 0.42], [0, 0.34, -1.16], materials.darkSteel);
-addBox(belt, [12.5, 0.12, 0.42], [0, 0.34, 1.16], materials.darkSteel);
+addBox(belt, [15.6, 0.34, 1.48], [0, 0.6, 0], materials.belt);
+addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, -0.92], materials.brushed);
+addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, 0.92], materials.brushed);
+addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, -1.16], materials.darkSteel);
+addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, 1.16], materials.darkSteel);
 
-for (let x = -5.6; x <= 5.6; x += 0.8) {
+for (let x = -7.6; x <= 7.6; x += 0.8) {
   const roller = addCylinder(belt, 0.17, 0.17, 1.82, [x, 0.82, 0], materials.darkSteel, 24);
   roller.rotation.z = Math.PI / 2;
 }
 
-for (let x = -5.8; x <= 5.8; x += 2.9) {
+for (let x = -7.8; x <= 7.8; x += 2.6) {
   addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, -1.04], materials.darkSteel);
   addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, 1.04], materials.darkSteel);
 }
 
-const hazardFront = addBox(factory, [12.4, 0.04, 0.42], [0, 0.025, 1.82], materials.hazard);
-const hazardBack = addBox(factory, [12.4, 0.04, 0.42], [0, 0.026, -1.42], materials.hazard);
+const hazardFront = addBox(factory, [16.4, 0.04, 0.42], [0, 0.025, 1.82], materials.hazard);
+const hazardBack = addBox(factory, [16.4, 0.04, 0.42], [0, 0.026, -1.42], materials.hazard);
 
 const lamp = new THREE.Group();
 scene.add(lamp);
@@ -873,32 +884,32 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
   };
 }
 
-const primaryRobot = createRobot([-2.25, 0, -1.45], 0.1, materials.teal);
-const secondaryRobot = createRobot([2.95, 0, -1.5], -0.55, materials.blue);
+const primaryRobot = createRobot([-2.75, 0, -2.35], 0.18, materials.teal);
+const secondaryRobot = createRobot([3.45, 0, -2.35], -0.65, materials.blue);
 const pickupMarker = new THREE.Group();
-pickupMarker.position.set(-3.15, 0, -0.95);
+pickupMarker.position.set(-3.65, 0, -1.72);
 scene.add(pickupMarker);
 addBox(pickupMarker, [0.72, 0.05, 0.56], [0, 0.78, 0], materials.zoneBlue);
 addBox(pickupMarker, [0.46, 0.18, 0.34], [0, 0.9, 0], materials.battery);
-createFloorLabel(scene, "PICK", [-3.15, 0.071, -0.95], [0.85, 0.32], 0, "#2f6984");
+createFloorLabel(scene, "PICK", [-3.65, 0.071, -1.72], [0.85, 0.32], 0, "#2f6984");
 
 const dropMarker = new THREE.Group();
-dropMarker.position.set(3.55, 0, -0.95);
+dropMarker.position.set(4.05, 0, -1.72);
 scene.add(dropMarker);
 addBox(dropMarker, [0.72, 0.05, 0.56], [0, 0.78, 0], materials.zoneGreen);
 addBox(dropMarker, [0.46, 0.18, 0.34], [0, 0.9, 0], materials.productShell);
-createFloorLabel(scene, "PLACE", [3.55, 0.072, -0.95], [0.95, 0.32], 0, "#3a725f");
+createFloorLabel(scene, "PLACE", [4.05, 0.072, -1.72], [0.95, 0.32], 0, "#3a725f");
 
 const productionItems = [];
 const productionKinds = ["crate", "battery", "chassis", "finished", "reject", "battery", "finished", "chassis"];
 for (let i = 0; i < productionKinds.length; i += 1) {
   const item = createProductionItem(productionKinds[i], i);
-  item.position.set(-5.5 + i * 1.55, 1.15, 0.2);
+  item.position.set(-7.4 + i * 2.05, 1.15, 0.2);
   productionItems.push(item);
 }
 
 const acceptedBin = new THREE.Group();
-acceptedBin.position.set(5.35, 0, -0.95);
+acceptedBin.position.set(5.95, 0, -1.45);
 scene.add(acceptedBin);
 addBox(acceptedBin, [1.05, 0.12, 0.82], [0, 0.36, 0], materials.darkSteel);
 addBox(acceptedBin, [0.1, 0.72, 0.82], [-0.52, 0.72, 0], materials.brushed);
@@ -954,15 +965,26 @@ for (let i = 0; i < 5; i += 1) {
 addBox(controlDesk, [0.58, 0.06, 0.36], [0.48, 1.08, -0.25], materials.glowBlue);
 
 const drone = new THREE.Group();
-drone.position.set(2.2, 3.3, 1.75);
+drone.position.set(2.2, 3.85, 2.95);
 scene.add(drone);
-addBox(drone, [0.72, 0.18, 0.45], [0, 0, 0], materials.glass);
-addSphere(drone, 0.13, [0.42, 0.02, 0], materials.glowBlue, 14);
+addBox(drone, [0.82, 0.2, 0.54], [0, 0, 0], materials.productDark);
+addBox(drone, [0.48, 0.14, 0.32], [0.05, 0.11, 0], materials.glass);
+addSphere(drone, 0.14, [0.46, 0.02, 0], materials.glowBlue, 14);
+addSphere(drone, 0.1, [-0.42, 0.01, 0], materials.glowGreen, 12);
+addBox(drone, [0.22, 0.08, 0.18], [0.05, -0.18, 0.32], materials.brushed);
 const droneBeamMaterial = materials.glowBlue.clone();
 droneBeamMaterial.transparent = true;
 droneBeamMaterial.opacity = 0.16;
 const droneBeam = addCylinder(drone, 0.04, 0.28, 1.2, [0, -0.68, 0], droneBeamMaterial, 24);
 const rotorPivots = [];
+[
+  [-0.56, -0.43],
+  [0.56, -0.43],
+  [-0.56, 0.43],
+  [0.56, 0.43],
+].forEach(([x, z]) => {
+  addPipe(drone, [0, 0.03, 0], [x, 0.03, z], 0.035, materials.darkSteel);
+});
 [
   [-0.56, 0, -0.43],
   [0.56, 0, -0.43],
@@ -972,10 +994,19 @@ const rotorPivots = [];
   const pivot = new THREE.Group();
   pivot.position.set(...position);
   drone.add(pivot);
-  addBox(pivot, [0.72, 0.035, 0.075], [0, 0.08, 0], materials.darkSteel);
-  addCylinder(drone, 0.06, 0.08, 0.12, [position[0], 0.02, position[2]], materials.brushed, 14);
+  const guard = addTorus(pivot, 0.32, 0.018, [0, 0.08, 0], materials.brushed, 12, 34);
+  guard.rotation.x = Math.PI / 2;
+  addBox(pivot, [0.58, 0.025, 0.055], [0, 0.1, 0], materials.darkSteel);
+  addBox(pivot, [0.055, 0.025, 0.58], [0, 0.1, 0], materials.darkSteel);
+  addCylinder(pivot, 0.06, 0.08, 0.12, [0, 0.02, 0], materials.brushed, 14);
   rotorPivots.push(pivot);
 });
+addBox(drone, [0.08, 0.42, 0.05], [-0.28, -0.26, -0.18], materials.brushed);
+addBox(drone, [0.08, 0.42, 0.05], [0.28, -0.26, -0.18], materials.brushed);
+addBox(drone, [0.72, 0.045, 0.07], [0, -0.48, -0.18], materials.brushed);
+addBox(drone, [0.08, 0.42, 0.05], [-0.28, -0.26, 0.18], materials.brushed);
+addBox(drone, [0.08, 0.42, 0.05], [0.28, -0.26, 0.18], materials.brushed);
+addBox(drone, [0.72, 0.045, 0.07], [0, -0.48, 0.18], materials.brushed);
 
 for (let x = -8.5; x <= 8.5; x += 2.4) {
   addBox(factory, [0.09, 2.2, 0.09], [x, 1.1, 4.1], materials.darkSteel);
@@ -1250,9 +1281,9 @@ function updateAgv(time) {
 }
 
 function getRoomForPosition(position) {
-  if (position.x < -5.95 && position.z > 2.15) return "storage";
-  if (position.x > 5.15 && position.z > 1.65) return "control";
-  if (position.x < -3.0 && position.z < -1.45) return "inspection";
+  if (position.x < -6.35 && position.z > 2.15) return "storage";
+  if (position.x > 4.65 && position.z > 1.45) return "control";
+  if (position.x < -3.0 && position.z < -1.35) return "inspection";
   return "assembly";
 }
 
@@ -1354,7 +1385,7 @@ function animate() {
   let nearestDistance = Infinity;
 
   productionItems.forEach((item, index) => {
-    const x = ((machineElapsed * 1.35 + index * 1.55 + 6.1) % 12.2) - 6.1;
+    const x = ((machineElapsed * 1.12 + index * 2.05 + 8.0) % 16.0) - 8.0;
     item.position.x = x;
     item.position.z = 0.2;
     item.position.y = 1.15 + Math.sin(machineElapsed * 2.2 + index) * 0.015;
@@ -1368,10 +1399,10 @@ function animate() {
       inspectedRejectNearby = item.userData.kind === "reject";
     }
 
-    if (x > 3.8 && x < 5.4 && item.userData.kind === "finished") {
+    if (x > 4.45 && x < 6.2 && item.userData.kind === "finished") {
       item.position.z -= 0.34;
     }
-    if (x > -5.4 && x < -4.3 && item.userData.kind === "reject") {
+    if (x > -5.7 && x < -4.25 && item.userData.kind === "reject") {
       item.position.z += 0.72;
     }
 
@@ -1388,11 +1419,11 @@ function animate() {
     : 0;
 
   if (state.droneOn) {
-    drone.position.y = 3.35 + Math.sin(machineElapsed * 1.4) * 0.24;
+    drone.position.y = 3.85 + Math.sin(machineElapsed * 1.4) * 0.22;
     drone.position.x = THREE.MathUtils.lerp(drone.position.x, nearestItem.position.x, 1 - Math.pow(0.01, delta));
-    drone.position.z = THREE.MathUtils.lerp(drone.position.z, nearestItem.position.z + 1.35, 1 - Math.pow(0.02, delta));
+    drone.position.z = THREE.MathUtils.lerp(drone.position.z, nearestItem.position.z + 2.35, 1 - Math.pow(0.02, delta));
     drone.rotation.z = Math.sin(machineElapsed * 1.1) * 0.08;
-    droneBeam.scale.y = 0.8 + Math.sin(machineElapsed * 5) * 0.08;
+    droneBeam.scale.y = 0.62 + Math.sin(machineElapsed * 5) * 0.06;
   }
   rotorPivots.forEach((pivot, index) => {
     if (state.droneOn && state.running && state.machinesOn) {

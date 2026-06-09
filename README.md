@@ -9,8 +9,8 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 ## Current Features
 
 - Two hierarchical robot arms with base, rotating waist, shoulder, elbow, wrist, and claw.
-- Animated conveyor belt, moving production objects, staged robot pick/place cycles, inspection drone, scanner gate, reject/accept flow, and press machine.
-- Multi-room factory layout with assembly floor, storage room, glass control room, and inspection/service room.
+- Longer animated conveyor belt, moving production objects with wider spacing, staged robot pick/place cycles, inspection drone, scanner gate, reject/accept flow, and press machine.
+- Larger multi-room factory layout with assembly floor, storage room, glass control room, and inspection/service room.
 - Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, oil stains, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
 - Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving between rooms.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
@@ -52,7 +52,7 @@ Every teammate should check their work against this list before pushing changes.
 - Milestone 4: polish lighting placement and shadows so the scene feels like an enclosed industrial factory.
 - Final check: make sure the environment supports the other teammates' models without blocking camera views or interactions.
 
-Progress: Hamza's main environment pass is complete. Factory zones, wall pipes, ceiling beams, vents, warning panels, storage racks, pallets, barrels, tool carts, electrical cabinets, service markings, oil stains, and extra safety details have been added. Final lighting polish should happen after the other teammates finish their objects and interactions.
+Progress: Hamza's main environment pass is complete. Factory zones, larger rooms, wall pipes, ceiling beams, vents, warning panels, storage racks, pallets, barrels, tool carts, electrical cabinets, service markings, oil stains, safety details, and spacing cleanup have been added. Final lighting polish should happen after the other teammates finish their objects and interactions.
 
 ### Marco - Robot Arms and Hierarchical Animation
 
@@ -72,7 +72,7 @@ Progress: Marco's main robot animation pass is complete. The robot arms now use 
 - Milestone 4: connect the conveyor objects with the machines, for example scanner checks crates, press machine stamps them, robot arms pick them.
 - Final check: make sure all production objects animate smoothly and remain synchronized with the belt.
 
-Progress: Leo's first production-flow pass is complete. The line now includes varied production objects, battery modules, chassis parts, finished units, rejected parts, accept/reject bins, scanner status feedback, and a drone that tracks items on the belt.
+Progress: Leo's first production-flow pass is complete. The line now includes varied production objects, battery modules, chassis parts, finished units, rejected parts, accept/reject bins, scanner status feedback, and a more detailed quadcopter-style drone that tracks items from above the belt.
 
 ### Edo - Interaction, UI, Deployment, and Report
 
@@ -114,7 +114,7 @@ Walk mode controls:
 
 ## Next Steps
 
-- Add more complex factory details and 3D models.
-- Add a second robot arm or machine station.
+- Add fine details to the robot arms, such as bolts, cables, hydraulic pistons, and labels.
+- Do one final collision/clearance pass from all camera views and walk mode.
 - Add sound-free visual feedback for successful assembly steps.
 - Expand the documentation into the required technical report and user manual.

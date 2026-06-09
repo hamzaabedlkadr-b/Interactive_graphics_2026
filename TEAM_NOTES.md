@@ -20,7 +20,7 @@ Please read this before adding project work.
 
 ## Responsibilities
 
-- Hamza: environment, floor/walls, extra machines, textures. Main environment pass is complete; final lighting polish comes later.
+- Hamza: environment, floor/walls, extra machines, textures, room scale, and spacing cleanup. Keep enough clearance around robots, conveyor objects, drone path, and doors.
 - Marco: robot arm hierarchy and additional robot animations.
 - Leo: conveyor belt, crates, drone, production objects.
 - Edo: interactions, camera controls, UI, GitHub Pages, README, and final report.
@@ -30,4 +30,5 @@ Please read this before adding project work.
 - Run `node --check src/main.js`.
 - Open `http://localhost:5173`.
 - Make sure your change is visible.
+- Check that robot claws, conveyor objects, drone, doors, and bins are not visually passing through each other.
 - Update README or final report notes if your work affects requirements.
