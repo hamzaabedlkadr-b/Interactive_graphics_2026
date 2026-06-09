@@ -99,6 +99,13 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - Moving objects are spaced correctly and do not overlap badly.
 - The production line tells a clear story: raw part, inspection, processing, accept/reject.
 
+### Current Status
+
+- Mostly complete after the production-flow/drone pass.
+- Added a real drone patrol route across scanner, belt, press, accept/reject, and control zones.
+- Drone now dips during inspection, follows selected items, pulses a scan beam/ring, tilts while moving, and changes status lights for normal/reject inspection.
+- Remaining check: final visual QA to ensure drone beam/ring does not hide important robot or conveyor details in the main camera views.
+
 ## Edo - Interaction, UI, Camera, Deployment, and Report
 
 ### Required Tasks

@@ -74,7 +74,7 @@ Progress: Marco's robot hierarchy/detail pass is mostly complete. The robot arms
 - Milestone 4: connect the conveyor objects with the machines, for example scanner checks crates, press machine stamps them, robot arms pick them.
 - Final check: make sure all production objects animate smoothly and remain synchronized with the belt.
 
-Progress: Leo's first production-flow pass is complete. The line now includes varied production objects, battery modules, chassis parts, finished units, rejected parts, accept/reject bins, scanner status feedback, and a more detailed quadcopter-style drone that tracks items from above the belt.
+Progress: Leo's production-flow pass is mostly complete. The line now includes varied production objects, battery modules, chassis parts, finished units, rejected parts, accept/reject bins, scanner status feedback, and a quadcopter-style drone with a real patrol/inspection cycle. The drone moves between scanner, belt, press, accept/reject, and control zones, dips over selected items, pulses a scan beam/ring, and changes status lights during inspection.
 
 ### Edo - Interaction, UI, Deployment, and Report
 

@@ -1238,13 +1238,15 @@ drone.position.set(2.2, 3.85, 2.95);
 scene.add(drone);
 addBox(drone, [0.82, 0.2, 0.54], [0, 0, 0], materials.productDark);
 addBox(drone, [0.48, 0.14, 0.32], [0.05, 0.11, 0], materials.glass);
-addSphere(drone, 0.14, [0.46, 0.02, 0], materials.glowBlue, 14);
-addSphere(drone, 0.1, [-0.42, 0.01, 0], materials.glowGreen, 12);
+const droneNoseLight = addSphere(drone, 0.14, [0.46, 0.02, 0], materials.glowBlue, 14);
+const droneStatusLight = addSphere(drone, 0.1, [-0.42, 0.01, 0], materials.glowGreen, 12);
 addBox(drone, [0.22, 0.08, 0.18], [0.05, -0.18, 0.32], materials.brushed);
 const droneBeamMaterial = materials.glowBlue.clone();
 droneBeamMaterial.transparent = true;
 droneBeamMaterial.opacity = 0.16;
-const droneBeam = addCylinder(drone, 0.04, 0.28, 1.2, [0, -0.68, 0], droneBeamMaterial, 24);
+const droneBeam = addCylinder(drone, 0.04, 0.28, 1.5, [0, -0.84, 0], droneBeamMaterial, 24);
+const droneScanRing = addTorus(drone, 0.38, 0.012, [0, -1.95, 0], droneBeamMaterial, 10, 44);
+droneScanRing.rotation.x = Math.PI / 2;
 const rotorPivots = [];
 [
   [-0.56, -0.43],
@@ -1276,6 +1278,15 @@ addBox(drone, [0.72, 0.045, 0.07], [0, -0.48, -0.18], materials.brushed);
 addBox(drone, [0.08, 0.42, 0.05], [-0.28, -0.26, 0.18], materials.brushed);
 addBox(drone, [0.08, 0.42, 0.05], [0.28, -0.26, 0.18], materials.brushed);
 addBox(drone, [0.72, 0.045, 0.07], [0, -0.48, 0.18], materials.brushed);
+const dronePatrolPoints = [
+  new THREE.Vector3(-5.35, 3.95, 2.7),
+  new THREE.Vector3(-1.15, 3.45, 1.55),
+  new THREE.Vector3(1.65, 3.85, -1.65),
+  new THREE.Vector3(5.65, 3.55, 1.25),
+  new THREE.Vector3(2.2, 4.25, 3.45),
+];
+const droneTarget = new THREE.Vector3();
+const dronePreviousPosition = drone.position.clone();
 
 for (let x = -8.5; x <= 8.5; x += 2.4) {
   addBox(factory, [0.09, 2.2, 0.09], [x, 1.1, 4.1], materials.darkSteel);
@@ -1708,11 +1719,46 @@ function animate() {
     : 0;
 
   if (state.droneOn) {
-    drone.position.y = 3.85 + Math.sin(machineElapsed * 1.4) * 0.22;
-    drone.position.x = THREE.MathUtils.lerp(drone.position.x, nearestItem.position.x, 1 - Math.pow(0.01, delta));
-    drone.position.z = THREE.MathUtils.lerp(drone.position.z, nearestItem.position.z + 2.35, 1 - Math.pow(0.02, delta));
-    drone.rotation.z = Math.sin(machineElapsed * 1.1) * 0.08;
-    droneBeam.scale.y = 0.62 + Math.sin(machineElapsed * 5) * 0.06;
+    const routeTime = machineElapsed * 0.34;
+    const routeIndex = Math.floor(routeTime) % dronePatrolPoints.length;
+    const nextRouteIndex = (routeIndex + 1) % dronePatrolPoints.length;
+    const routeProgress = smoothStep(routeTime % 1);
+    droneTarget.lerpVectors(dronePatrolPoints[routeIndex], dronePatrolPoints[nextRouteIndex], routeProgress);
+
+    let scannedItem = productionItems[0];
+    let scanDistance = Infinity;
+    productionItems.forEach((item) => {
+      const distance = Math.abs(item.position.x - droneTarget.x);
+      if (distance < scanDistance) {
+        scanDistance = distance;
+        scannedItem = item;
+      }
+    });
+
+    const inspectionWindow = routeProgress > 0.28 && routeProgress < 0.72 && (routeIndex === 0 || routeIndex === 1 || routeIndex === 3);
+    if (inspectionWindow) {
+      droneTarget.x = THREE.MathUtils.lerp(droneTarget.x, scannedItem.position.x, 0.72);
+      droneTarget.z = THREE.MathUtils.lerp(droneTarget.z, scannedItem.position.z + 1.35, 0.68);
+      droneTarget.y = 3.22 + Math.sin(machineElapsed * 9) * 0.04;
+    }
+
+    const blend = 1 - Math.pow(0.006, delta);
+    drone.position.lerp(droneTarget, blend);
+    const velocityX = drone.position.x - dronePreviousPosition.x;
+    const velocityZ = drone.position.z - dronePreviousPosition.z;
+    drone.rotation.y = Math.atan2(velocityX, velocityZ) + Math.PI / 2;
+    drone.rotation.x = THREE.MathUtils.clamp(-velocityZ * 1.8, -0.22, 0.22);
+    drone.rotation.z = THREE.MathUtils.clamp(-velocityX * 1.8, -0.24, 0.24);
+    dronePreviousPosition.copy(drone.position);
+
+    const rejectInspection = inspectionWindow && scannedItem.userData.kind === "reject";
+    droneStatusLight.material = rejectInspection ? materials.glowRed : inspectionWindow ? materials.glowGreen : materials.glowBlue;
+    droneNoseLight.material = inspectionWindow ? materials.glowGreen : materials.glowBlue;
+    droneBeam.material.opacity = inspectionWindow ? 0.34 + Math.abs(Math.sin(machineElapsed * 11)) * 0.18 : 0.08;
+    droneScanRing.visible = inspectionWindow;
+    droneScanRing.scale.setScalar(inspectionWindow ? 0.85 + Math.abs(Math.sin(machineElapsed * 6)) * 0.35 : 0.7);
+    droneScanRing.rotation.z += delta * state.speed * 3.8;
+    droneBeam.scale.y = inspectionWindow ? 1.18 + Math.sin(machineElapsed * 9) * 0.08 : 0.58;
   }
   rotorPivots.forEach((pivot, index) => {
     if (state.droneOn && state.running && state.machinesOn) {
