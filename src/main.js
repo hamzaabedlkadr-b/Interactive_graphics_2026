@@ -61,7 +61,7 @@ const cameraViews = [
   { position: new THREE.Vector3(10.8, 5.8, 11.6), target: new THREE.Vector3(0.1, 1.35, 0.05) },
   { position: new THREE.Vector3(-8.4, 3.8, 5.4), target: new THREE.Vector3(-2.2, 1.4, -0.2) },
   { position: new THREE.Vector3(1.8, 8.4, 8.0), target: new THREE.Vector3(0, 0.75, 0) },
-  { position: new THREE.Vector3(5.3, 2.7, -6.0), target: new THREE.Vector3(1.2, 1.4, -0.4) },
+  { position: new THREE.Vector3(6.8, 3.4, -7.4), target: new THREE.Vector3(0.35, 1.35, -0.75) },
   { position: new THREE.Vector3(13.8, 8.3, 13.2), target: new THREE.Vector3(0, 1.1, -0.15) },
 ];
 
@@ -83,8 +83,8 @@ const roomViews = {
   },
   inspection: {
     label: "Inspection room",
-    position: new THREE.Vector3(-7.9, 3.6, -6.45),
-    target: new THREE.Vector3(-4.25, 1.35, -3.05),
+    position: new THREE.Vector3(-8.8, 4.0, -7.4),
+    target: new THREE.Vector3(-3.85, 1.35, -3.3),
   },
 };
 
@@ -817,17 +817,17 @@ createWarningPanel(factory, [-10.83, 2.35, -2.7], Math.PI / 2);
 
 createStorageRack(factory, [-8.8, 0, 4.8], Math.PI / 2);
 createStorageRack(factory, [-7.2, 0, 4.8], Math.PI / 2);
-createStorageRack(factory, [8.7, 0, -4.6], -Math.PI / 2);
+createStorageRack(factory, [13.0, 0, -5.75], -Math.PI / 2);
 createBarrel(factory, [-9.7, 0, 2.65], materials.pipeBlue);
 createBarrel(factory, [-9.05, 0, 2.8], materials.pipeRed);
 createBarrel(factory, [7.9, 0, -4.8], materials.pipeGreen);
 createBarrel(factory, [8.55, 0, -4.6], materials.mutedOrange);
-createPallet(factory, [-8.35, 0, -4.25], 0.2);
-createPallet(factory, [-6.7, 0, -4.35], -0.12);
+createPallet(factory, [-13.25, 0, -5.35], 0.2);
+createPallet(factory, [-12.85, 0, -6.8], -0.12);
 createPallet(factory, [5.15, 0, 4.7], Math.PI / 2);
 createToolCart(factory, [7.25, 0, 4.05], -0.35);
 createToolCart(factory, [-9.4, 0, -0.7], Math.PI / 2);
-createElectricalCabinet(factory, [8.95, 0, -5.88], 0);
+createElectricalCabinet(factory, [10.55, 0, -7.05], 0);
 createElectricalCabinet(factory, [-10.78, 0, 0.7], Math.PI / 2);
 createFloorLabel(factory, "ASSEMBLY", [-1.5, 0.055, 2.92], [2.2, 0.7], 0, "#2f6984");
 createFloorLabel(factory, "SERVICE", [6.15, 0.056, 1.1], [1.75, 0.62], 0, "#3a725f");
@@ -930,17 +930,19 @@ addSphere(roomGroup, 0.055, [8.28, 1.3, 4.42], materials.glowBlue, 12);
 addSphere(roomGroup, 0.055, [8.54, 1.3, 4.42], materials.glowRed, 12);
 
 // Inspection/service room: frames the scanner and press as a separate station.
-createPartitionWall(roomGroup, [4.55, 2.65, 0.16], [-4.35, 0, -1.35], true);
-createPartitionWall(roomGroup, [0.16, 2.65, 3.25], [-6.6, 0, -2.95], true);
-createDoorFrame(roomGroup, [-4.35, 0, -1.35], 0, 1.55, 2.05);
-slidingDoors.push(createSlidingDoor(roomGroup, [-4.35, 0, -1.35], 0, 1.38, "inspection"));
-createFloorLabel(roomGroup, "INSPECT", [-4.35, 0.068, -5.15], [1.85, 0.56], 0, "#f6c453");
-createFloorDrain(roomGroup, [-5.75, 0.077, -4.65], -0.35);
-createSafetyBollard(roomGroup, [-6.05, 0, -1.65], 0.82);
-createSafetyBollard(roomGroup, [-2.65, 0, -1.65], 0.82);
-addBox(roomGroup, [1.65, 0.045, 1.1], [-3.05, 0.045, -4.38], materials.concretePatch);
+createPartitionWall(roomGroup, [4.8, 2.65, 0.16], [-4.1, 0, -2.28], true);
+createPartitionWall(roomGroup, [0.16, 2.65, 3.95], [-6.75, 0, -4.2], true);
+createDoorFrame(roomGroup, [-4.1, 0, -2.28], 0, 1.55, 2.05);
+slidingDoors.push(createSlidingDoor(roomGroup, [-4.1, 0, -2.28], 0, 1.38, "inspection"));
+createFloorLabel(roomGroup, "INSPECT", [-4.1, 0.068, -5.75], [1.85, 0.56], 0, "#f6c453");
+createFloorDrain(roomGroup, [-5.75, 0.077, -5.18], -0.35);
+createSafetyBollard(roomGroup, [-6.05, 0, -2.58], 0.82);
+createSafetyBollard(roomGroup, [-2.35, 0, -2.58], 0.82);
+addBox(roomGroup, [1.85, 0.045, 1.1], [-2.85, 0.045, -5.05], materials.concretePatch);
+addBox(roomGroup, [5.3, 0.032, 0.58], [-1.9, 0.048, -1.78], materials.zoneBlue);
+createFloorLabel(roomGroup, "ROBOT CLEAR", [-1.9, 0.073, -2.05], [1.55, 0.34], 0, "#2f6984");
 
-addPipe(roomGroup, [-5.92, 2.85, -1.65], [-5.92, 2.85, -3.85], 0.035, materials.pipeBlue);
+addPipe(roomGroup, [-6.62, 2.85, -2.55], [-6.62, 2.85, -5.25], 0.035, materials.pipeBlue);
 addPipe(roomGroup, [5.28, 2.95, 1.75], [9.25, 2.95, 1.75], 0.035, materials.pipeGreen);
 addCable([
   [5.35, 3.05, 1.85],
@@ -958,11 +960,11 @@ const agvPath = [
   new THREE.Vector3(2.8, 0, 3.75),
   new THREE.Vector3(7.3, 0, 4.3),
   new THREE.Vector3(11.35, 0, 4.0),
-  new THREE.Vector3(11.35, 0, -5.65),
-  new THREE.Vector3(5.8, 0, -5.65),
-  new THREE.Vector3(-0.5, 0, -5.65),
-  new THREE.Vector3(-5.3, 0, -5.2),
-  new THREE.Vector3(-11.65, 0, -4.8),
+  new THREE.Vector3(11.35, 0, -7.1),
+  new THREE.Vector3(6.2, 0, -7.1),
+  new THREE.Vector3(-0.6, 0, -7.1),
+  new THREE.Vector3(-5.4, 0, -6.72),
+  new THREE.Vector3(-11.65, 0, -6.45),
   new THREE.Vector3(-11.65, 0, 1.8),
   new THREE.Vector3(-11.65, 0, 6.05),
 ];
@@ -1191,7 +1193,7 @@ function createRobot(position, rotationY = 0, accent = materials.teal, options =
 }
 
 const primaryRobot = createRobot([-2.75, 0, -2.35], 0.18, materials.teal, { id: "R-01" });
-const secondaryRobot = createRobot([4.35, 0, -3.75], -0.44, materials.blue, { id: "R-02" });
+const secondaryRobot = createRobot([5.05, 0, -4.55], -0.34, materials.blue, { id: "R-02" });
 const pickupMarker = new THREE.Group();
 pickupMarker.position.set(-0.05, 0, -0.74);
 scene.add(pickupMarker);
@@ -1238,7 +1240,7 @@ addBox(rejectBin, [1.0, 0.68, 0.1], [0, 0.7, -0.38], materials.darkSteel);
 addSphere(rejectBin, 0.08, [0, 1.12, 0.4], materials.glowRed, 12);
 
 const pressMachine = new THREE.Group();
-pressMachine.position.set(0.8, 0, -2.7);
+pressMachine.position.set(1.35, 0, -4.15);
 scene.add(pressMachine);
 addBox(pressMachine, [1.8, 0.22, 1.15], [0, 0.55, 0], materials.darkSteel);
 addBox(pressMachine, [0.22, 2.1, 0.22], [-0.72, 1.55, -0.42], materials.brushed);
@@ -1252,7 +1254,7 @@ addSphere(pressMachine, 0.1, [-0.22, 2.9, 0.62], materials.glowBlue, 16);
 addSphere(pressMachine, 0.1, [0.08, 2.9, 0.62], materials.glowRed, 16);
 
 const scanner = new THREE.Group();
-scanner.position.set(-4.25, 0, -2.5);
+scanner.position.set(-4.55, 0, -3.35);
 scene.add(scanner);
 addBox(scanner, [0.24, 2.5, 0.24], [-0.7, 1.55, 0], materials.darkSteel);
 addBox(scanner, [0.24, 2.5, 0.24], [0.7, 1.55, 0], materials.darkSteel);
