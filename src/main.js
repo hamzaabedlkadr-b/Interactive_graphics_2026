@@ -670,7 +670,8 @@ function createAgv(parent) {
 
   addBox(agv, [0.92, 0.22, 0.62], [0, 0.28, 0], materials.darkSteel);
   addBox(agv, [0.72, 0.18, 0.48], [0, 0.48, 0], materials.yellow);
-  addBox(agv, [0.5, 0.22, 0.36], [0.06, 0.7, 0], materials.crate);
+  const cargo = createCargoCrate(agv, [0.06, 0.7, 0], materials.crate);
+  agv.userData.cargo = cargo;
   addSphere(agv, 0.075, [-0.34, 0.64, 0.22], materials.glowBlue, 12);
   addSphere(agv, 0.055, [0.34, 0.62, -0.22], materials.glowGreen, 12);
 
@@ -682,6 +683,20 @@ function createAgv(parent) {
   });
 
   return agv;
+}
+
+function createCargoCrate(parent, position, material = materials.crate) {
+  const cargo = new THREE.Group();
+  cargo.position.set(...position);
+  parent.add(cargo);
+
+  addBox(cargo, [0.5, 0.26, 0.36], [0, 0, 0], material);
+  addBox(cargo, [0.56, 0.045, 0.4], [0, 0.15, 0], materials.darkSteel);
+  addBox(cargo, [0.08, 0.28, 0.42], [0, 0, 0], materials.darkSteel);
+  addSphere(cargo, 0.045, [-0.18, 0.15, 0.18], materials.glowGreen, 10);
+  addSphere(cargo, 0.04, [0.18, 0.15, 0.18], materials.glowBlue, 10);
+
+  return cargo;
 }
 
 function createProductionItem(kind, index) {
@@ -953,28 +968,35 @@ addCable([
 
 const agv = createAgv(scene);
 const agvPath = [
-  new THREE.Vector3(-9.9, 0, 6.05),
-  new THREE.Vector3(-11.65, 0, 6.05),
-  new THREE.Vector3(-11.65, 0, 3.75),
-  new THREE.Vector3(-4.2, 0, 3.75),
-  new THREE.Vector3(2.8, 0, 3.75),
-  new THREE.Vector3(7.3, 0, 4.3),
-  new THREE.Vector3(11.35, 0, 4.0),
-  new THREE.Vector3(11.35, 0, -7.1),
-  new THREE.Vector3(6.2, 0, -7.1),
-  new THREE.Vector3(-0.6, 0, -7.1),
-  new THREE.Vector3(-5.4, 0, -6.72),
-  new THREE.Vector3(-11.65, 0, -6.45),
-  new THREE.Vector3(-11.65, 0, 1.8),
-  new THREE.Vector3(-11.65, 0, 6.05),
+  new THREE.Vector3(-10.85, 0, 7.82),
+  new THREE.Vector3(-12.45, 0, 7.82),
+  new THREE.Vector3(-12.45, 0, -7.42),
+  new THREE.Vector3(-4.9, 0, -7.42),
+  new THREE.Vector3(3.1, 0, -7.42),
+  new THREE.Vector3(12.35, 0, -7.42),
+  new THREE.Vector3(12.35, 0, 7.82),
+  new THREE.Vector3(10.85, 0, 7.82),
+  new THREE.Vector3(3.5, 0, 7.82),
+  new THREE.Vector3(-4.2, 0, 7.82),
+  new THREE.Vector3(-10.85, 0, 7.82),
 ];
 createAgvLane(factory, agvPath, 0.95);
 createFloorLabel(factory, "AGV ROAD", [-12.35, 0.066, 0.4], [1.55, 0.42], Math.PI / 2, "#3a725f");
+addBox(factory, [1.35, 0.12, 0.9], [-10.85, 0.36, 7.82], materials.darkSteel);
+addBox(factory, [1.35, 0.06, 0.9], [-10.85, 0.45, 7.82], materials.brushed);
+createFloorLabel(factory, "AGV LOAD", [-10.85, 0.073, 8.62], [1.35, 0.36], 0, "#b86538");
+addBox(factory, [1.35, 0.12, 0.9], [10.85, 0.36, 7.82], materials.darkSteel);
+addBox(factory, [1.35, 0.06, 0.9], [10.85, 0.45, 7.82], materials.brushed);
+createFloorLabel(factory, "AGV DROP", [10.85, 0.073, 8.62], [1.35, 0.36], 0, "#3a725f");
+const agvLoadCrate = createCargoCrate(scene, [-10.85, 0.62, 7.82], materials.crate);
+const agvDropCrate = createCargoCrate(scene, [10.85, 0.62, 7.82], materials.productShell);
+agvDropCrate.visible = false;
 const agvSegments = agvPath.map((point, index) => {
   const next = agvPath[(index + 1) % agvPath.length];
   return point.distanceTo(next);
 });
 const agvRouteLength = agvSegments.reduce((total, length) => total + length, 0);
+const agvDropDistance = agvSegments.slice(0, 7).reduce((total, length) => total + length, 0);
 
 const ambientLight = new THREE.HemisphereLight(0xdaf6ff, 0x2d3230, 0.82);
 scene.add(ambientLight);
@@ -1595,6 +1617,16 @@ function updateSlidingDoors(delta) {
 function updateAgv(time) {
   const distance = (time * 1.05) % agvRouteLength;
   let covered = 0;
+  const loadTransfer = distance < 0.85 || distance > agvRouteLength - 0.85;
+  const dropTransfer = Math.abs(distance - agvDropDistance) < 0.9;
+  const cargoOnCart = !loadTransfer && !dropTransfer;
+
+  agv.userData.cargo.visible = cargoOnCart;
+  agv.userData.cargo.position.y = 0.7 + Math.sin(time * 5) * 0.012;
+  agvLoadCrate.visible = loadTransfer;
+  agvLoadCrate.scale.setScalar(loadTransfer ? 1 + Math.sin(time * 8) * 0.035 : 1);
+  agvDropCrate.visible = dropTransfer;
+  agvDropCrate.scale.setScalar(dropTransfer ? 1 + Math.sin(time * 8) * 0.035 : 1);
 
   for (let i = 0; i < agvSegments.length; i += 1) {
     const segmentLength = agvSegments[i];

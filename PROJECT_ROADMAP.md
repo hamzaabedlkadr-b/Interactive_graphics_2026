@@ -43,7 +43,8 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 
 - Mostly complete after the environment/material pass.
 - Added procedural floor/wall scuffs, bump-style material detail, maintenance panels, floor drains, cable trays, loading markings, concrete service pads, safety bollards, and wider directional-light shadow coverage.
-- Added a marked AGV road and rerouted the autonomous cart around the factory perimeter so it does not pass through the conveyor.
+- Added a marked AGV road and rerouted the autonomous cart around the open factory perimeter so it does not pass through the conveyor or room walls.
+- Added AGV load/drop docks and cargo visibility states so the cart visibly receives a crate, carries it, unloads it, and returns with cargo again.
 - Added a marked `ROBOT CLEAR` lane and moved the inspection wall, scanner, press, rear robot, and background props farther from the conveyor so the robot/belt interaction is easier to see.
 - Remaining check: final visual QA from every camera view and walk mode after Marco/Leo/Edo finish their parts.
 
