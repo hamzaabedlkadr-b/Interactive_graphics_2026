@@ -585,6 +585,40 @@ function createCableTray(parent, points, width = 0.22) {
   }
 }
 
+function createAgvLane(parent, points, width = 0.95) {
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const start = points[i];
+    const end = points[i + 1];
+    const startVector = new THREE.Vector3(start.x, 0, start.z);
+    const endVector = new THREE.Vector3(end.x, 0, end.z);
+    const midpoint = new THREE.Vector3().addVectors(startVector, endVector).multiplyScalar(0.5);
+    const direction = new THREE.Vector3().subVectors(endVector, startVector);
+    const length = direction.length();
+    const angle = Math.atan2(direction.z, direction.x);
+
+    const lane = addBox(parent, [length, 0.028, width], [midpoint.x, 0.034, midpoint.z], materials.concretePatch);
+    lane.rotation.y = -angle;
+
+    [-width / 2 + 0.08, width / 2 - 0.08].forEach((offset) => {
+      const stripe = addBox(parent, [length * 0.96, 0.032, 0.055], [midpoint.x, 0.055, midpoint.z], materials.cautionPaint);
+      stripe.rotation.y = -angle;
+      stripe.position.x += Math.sin(angle) * offset;
+      stripe.position.z += Math.cos(angle) * offset;
+    });
+
+    if (i % 2 === 0 && length > 1.5) {
+      const arrow = addBox(parent, [0.42, 0.034, 0.12], [midpoint.x, 0.064, midpoint.z], materials.safetyWhite);
+      arrow.rotation.y = -angle;
+      const arrowHead = addBox(parent, [0.16, 0.035, 0.34], [midpoint.x, 0.066, midpoint.z], materials.safetyWhite);
+      arrowHead.rotation.y = -angle + Math.PI / 4;
+      arrow.position.x += Math.cos(angle) * 0.25;
+      arrow.position.z += Math.sin(angle) * 0.25;
+      arrowHead.position.x += Math.cos(angle) * 0.52;
+      arrowHead.position.z += Math.sin(angle) * 0.52;
+    }
+  }
+}
+
 function createDoorFrame(parent, position, rotationY = 0, width = 1.55, height = 2.25) {
   const frame = new THREE.Group();
   frame.position.set(...position);
@@ -917,15 +951,23 @@ addCable([
 
 const agv = createAgv(scene);
 const agvPath = [
-  new THREE.Vector3(-8.6, 0, 5.55),
-  new THREE.Vector3(-6.8, 0, 3.0),
-  new THREE.Vector3(-3.8, 0, 2.25),
-  new THREE.Vector3(2.8, 0, 2.15),
-  new THREE.Vector3(6.9, 0, 3.25),
-  new THREE.Vector3(4.2, 0, 0.85),
-  new THREE.Vector3(-2.8, 0, -0.45),
-  new THREE.Vector3(-4.7, 0, -3.4),
+  new THREE.Vector3(-9.9, 0, 6.05),
+  new THREE.Vector3(-11.65, 0, 6.05),
+  new THREE.Vector3(-11.65, 0, 3.75),
+  new THREE.Vector3(-4.2, 0, 3.75),
+  new THREE.Vector3(2.8, 0, 3.75),
+  new THREE.Vector3(7.3, 0, 4.3),
+  new THREE.Vector3(11.35, 0, 4.0),
+  new THREE.Vector3(11.35, 0, -5.65),
+  new THREE.Vector3(5.8, 0, -5.65),
+  new THREE.Vector3(-0.5, 0, -5.65),
+  new THREE.Vector3(-5.3, 0, -5.2),
+  new THREE.Vector3(-11.65, 0, -4.8),
+  new THREE.Vector3(-11.65, 0, 1.8),
+  new THREE.Vector3(-11.65, 0, 6.05),
 ];
+createAgvLane(factory, agvPath, 0.95);
+createFloorLabel(factory, "AGV ROAD", [-12.35, 0.066, 0.4], [1.55, 0.42], Math.PI / 2, "#3a725f");
 const agvSegments = agvPath.map((point, index) => {
   const next = agvPath[(index + 1) % agvPath.length];
   return point.distanceTo(next);

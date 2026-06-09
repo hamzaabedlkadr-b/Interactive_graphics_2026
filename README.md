@@ -12,7 +12,7 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 - Longer animated conveyor belt, moving production objects with wider spacing, staged robot pick/place cycles, inspection drone, scanner gate, reject/accept flow, and press machine.
 - Larger multi-room factory layout with assembly floor, storage room, glass control room, and inspection/service room.
 - Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, floor drains, maintenance panels, loading zones, oil stains, guard rails, bollards, hazard stripes, ceiling lamps, cable trays, and control desk.
-- Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving between rooms.
+- Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving on a marked AGV road around the factory.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
 - Procedural floor, wall, conveyor, hazard, label, scuff, and bump-style textures generated in JavaScript.
 - User controls for pause/resume, day/night mode, lamp toggle, machine line toggle, scanner toggle, drone toggle, robot speed toggle, camera views, room navigation, minimap navigation, walk mode, orbit controls, and animation speed.

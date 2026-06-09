@@ -43,6 +43,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 
 - Mostly complete after the environment/material pass.
 - Added procedural floor/wall scuffs, bump-style material detail, maintenance panels, floor drains, cable trays, loading markings, concrete service pads, safety bollards, and wider directional-light shadow coverage.
+- Added a marked AGV road and rerouted the autonomous cart around the factory perimeter so it does not pass through the conveyor.
 - Remaining check: final visual QA from every camera view and walk mode after Marco/Leo/Edo finish their parts.
 
 ## Marco - Robot Hierarchy and Robot Animation
