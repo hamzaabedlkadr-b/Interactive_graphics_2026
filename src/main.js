@@ -185,6 +185,35 @@ function makeHazardTexture() {
   return texture;
 }
 
+function makeScuffTexture(base = "#777777", mark = "#3a3a3a", size = 256, scratches = 120) {
+  const canvasTexture = document.createElement("canvas");
+  canvasTexture.width = size;
+  canvasTexture.height = size;
+  const context = canvasTexture.getContext("2d");
+  context.fillStyle = base;
+  context.fillRect(0, 0, size, size);
+  context.strokeStyle = mark;
+  context.lineWidth = 1;
+  context.globalAlpha = 0.22;
+
+  for (let i = 0; i < scratches; i += 1) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const length = 8 + Math.random() * 34;
+    const angle = Math.random() * Math.PI;
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+    context.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvasTexture);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function makeLabelTexture(text, background = "#f6c453", foreground = "#151515") {
   const canvasTexture = document.createElement("canvas");
   canvasTexture.width = 512;
@@ -211,10 +240,26 @@ floorTexture.repeat.set(12, 10);
 const beltTexture = makeStripeTexture("#202326", "#3d464b");
 const wallTexture = makePanelTexture();
 const hazardTexture = makeHazardTexture();
+const floorScuffTexture = makeScuffTexture("#7a8482", "#2d3635", 256, 170);
+floorScuffTexture.repeat.set(10, 8);
+const wallScuffTexture = makeScuffTexture("#6b7478", "#273139", 256, 90);
+wallScuffTexture.repeat.set(6, 3);
 
 const materials = {
-  floor: new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.78, metalness: 0.05 }),
-  wall: new THREE.MeshStandardMaterial({ map: wallTexture, roughness: 0.58, metalness: 0.15 }),
+  floor: new THREE.MeshStandardMaterial({
+    map: floorTexture,
+    bumpMap: floorScuffTexture,
+    bumpScale: 0.025,
+    roughness: 0.84,
+    metalness: 0.04,
+  }),
+  wall: new THREE.MeshStandardMaterial({
+    map: wallTexture,
+    bumpMap: wallScuffTexture,
+    bumpScale: 0.018,
+    roughness: 0.66,
+    metalness: 0.12,
+  }),
   steel: new THREE.MeshStandardMaterial({ color: 0x8a969c, metalness: 0.78, roughness: 0.24 }),
   brushed: new THREE.MeshStandardMaterial({ color: 0xb7c1c4, metalness: 0.9, roughness: 0.18 }),
   darkSteel: new THREE.MeshStandardMaterial({ color: 0x22292e, metalness: 0.7, roughness: 0.32 }),
@@ -264,6 +309,9 @@ const materials = {
   }),
   crate: new THREE.MeshStandardMaterial({ color: 0xb56b43, roughness: 0.68 }),
   hazard: new THREE.MeshStandardMaterial({ map: hazardTexture, roughness: 0.52 }),
+  concretePatch: new THREE.MeshStandardMaterial({ color: 0x394444, roughness: 0.9, metalness: 0.02 }),
+  cautionPaint: new THREE.MeshStandardMaterial({ color: 0xe2b83f, roughness: 0.64, metalness: 0.04 }),
+  cableTray: new THREE.MeshStandardMaterial({ color: 0x151b1f, metalness: 0.62, roughness: 0.38 }),
   glowGreen: new THREE.MeshStandardMaterial({ color: 0x68f5a0, emissive: 0x2dff85, emissiveIntensity: 1.6 }),
   glowRed: new THREE.MeshStandardMaterial({ color: 0xff665c, emissive: 0xff362b, emissiveIntensity: 1.4 }),
   glowBlue: new THREE.MeshStandardMaterial({ color: 0x9ad9ff, emissive: 0x4cb9ff, emissiveIntensity: 1.1 }),
@@ -472,6 +520,63 @@ function createOilStain(parent, position, scale = [0.8, 0.45], rotationZ = 0) {
   return stain;
 }
 
+function createFloorDrain(parent, position, rotationZ = 0) {
+  const drain = new THREE.Group();
+  drain.position.set(...position);
+  drain.rotation.y = 0;
+  parent.add(drain);
+
+  const plate = addBox(drain, [0.82, 0.035, 0.46], [0, 0.035, 0], materials.darkSteel);
+  plate.rotation.y = rotationZ;
+  for (let x = -0.28; x <= 0.28; x += 0.14) {
+    const slot = addBox(drain, [0.035, 0.04, 0.38], [x, 0.065, 0], materials.brushed);
+    slot.rotation.y = rotationZ;
+  }
+
+  return drain;
+}
+
+function createSafetyBollard(parent, position, height = 1.0) {
+  const bollard = new THREE.Group();
+  bollard.position.set(...position);
+  parent.add(bollard);
+
+  addCylinder(bollard, 0.11, 0.13, height, [0, height / 2, 0], materials.cautionPaint, 20);
+  addCylinder(bollard, 0.14, 0.14, 0.06, [0, 0.03, 0], materials.darkSteel, 20);
+  [0.28, 0.56, 0.82].forEach((y) => {
+    addBox(bollard, [0.24, 0.045, 0.24], [0, y, 0], materials.warningBlack);
+  });
+
+  return bollard;
+}
+
+function createMaintenancePanel(parent, position, rotationY = 0, labelColor = materials.glowBlue) {
+  const panel = new THREE.Group();
+  panel.position.set(...position);
+  panel.rotation.y = rotationY;
+  parent.add(panel);
+
+  addBox(panel, [1.12, 0.82, 0.08], [0, 0, 0], materials.darkSteel);
+  addBox(panel, [0.86, 0.48, 0.04], [0, 0.05, 0.06], materials.brushed);
+  addBox(panel, [0.62, 0.055, 0.045], [0, 0.22, 0.09], materials.warningBlack);
+  addBox(panel, [0.62, 0.055, 0.045], [0, 0.05, 0.09], materials.warningBlack);
+  addSphere(panel, 0.055, [-0.36, -0.25, 0.1], labelColor, 12);
+  addSphere(panel, 0.055, [-0.15, -0.25, 0.1], materials.glowGreen, 12);
+  addSphere(panel, 0.055, [0.06, -0.25, 0.1], materials.glowRed, 12);
+
+  return panel;
+}
+
+function createCableTray(parent, points, width = 0.22) {
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const start = points[i];
+    const end = points[i + 1];
+    addPipe(parent, start, end, width * 0.16, materials.cableTray);
+    addPipe(parent, [start[0], start[1] - width, start[2]], [end[0], end[1] - width, end[2]], width * 0.12, materials.cableTray);
+    addPipe(parent, [start[0], start[1] + width, start[2]], [end[0], end[1] + width, end[2]], width * 0.12, materials.cableTray);
+  }
+}
+
 function createDoorFrame(parent, position, rotationY = 0, width = 1.55, height = 2.25) {
   const frame = new THREE.Group();
   frame.position.set(...position);
@@ -673,6 +778,13 @@ createFloorLabel(factory, "KEEP CLEAR", [-5.1, 0.057, -3.55], [2.0, 0.58], 0, "#
 createOilStain(factory, [-3.6, 0.06, -3.25], [0.95, 0.42], 0.25);
 createOilStain(factory, [3.65, 0.061, 3.55], [0.72, 0.36], -0.45);
 createOilStain(factory, [8.25, 0.062, -2.4], [0.55, 0.28], 0.1);
+createFloorDrain(factory, [-7.55, 0.075, -0.9], 0.15);
+createFloorDrain(factory, [5.85, 0.075, -3.25], -0.2);
+createFloorDrain(factory, [10.55, 0.075, 2.65], 0.45);
+createFloorLabel(factory, "MAINT", [10.7, 0.057, -2.65], [1.45, 0.48], Math.PI / 2, "#b86538");
+addBox(factory, [1.55, 0.045, 1.18], [10.7, 0.045, -3.7], materials.concretePatch);
+addBox(factory, [2.1, 0.045, 1.55], [-9.55, 0.045, 1.35], materials.concretePatch);
+addBox(factory, [2.2, 0.045, 1.35], [8.35, 0.045, -5.25], materials.concretePatch);
 
 [
   [-4.2, 0.05, 3.5],
@@ -697,6 +809,33 @@ createOilStain(factory, [8.25, 0.062, -2.4], [0.55, 0.28], 0.1);
   addSphere(factory, 0.065, [x, y, z], material, 12);
 });
 
+[
+  [-7.6, 0, 2.25],
+  [-5.95, 0, 2.25],
+  [5.95, 0, 2.25],
+  [7.6, 0, 2.25],
+  [-7.6, 0, -2.05],
+  [-5.95, 0, -2.05],
+  [5.95, 0, -2.05],
+  [7.6, 0, -2.05],
+].forEach((position) => createSafetyBollard(factory, position, 0.92));
+
+createMaintenancePanel(factory, [-12.5, 2.2, -8.92], 0, materials.glowBlue);
+createMaintenancePanel(factory, [12.4, 2.0, -8.92], 0, materials.glowGreen);
+createMaintenancePanel(factory, [-14.82, 2.1, 5.25], Math.PI / 2, materials.glowRed);
+createCableTray(factory, [
+  [-12.6, 4.92, -7.8],
+  [-7.5, 4.78, -7.1],
+  [-1.5, 4.86, -7.65],
+  [5.2, 4.74, -7.05],
+  [12.0, 4.82, -7.5],
+]);
+createCableTray(factory, [
+  [-13.75, 4.45, 6.7],
+  [-13.75, 4.25, 2.4],
+  [-13.75, 4.35, -2.2],
+]);
+
 const roomGroup = new THREE.Group();
 factory.add(roomGroup);
 const slidingDoors = [];
@@ -712,6 +851,11 @@ createPallet(roomGroup, [-8.6, 0, 6.55], Math.PI / 2);
 createPallet(roomGroup, [-7.25, 0, 5.35], Math.PI / 2);
 createBarrel(roomGroup, [-6.75, 0, 6.25], materials.pipeBlue);
 createBarrel(roomGroup, [-7.25, 0, 6.25], materials.pipeGreen);
+createFloorLabel(roomGroup, "LOAD", [-10.35, 0.066, 3.1], [1.35, 0.42], 0, "#f6c453");
+addBox(roomGroup, [2.6, 0.04, 0.08], [-9.45, 0.052, 3.85], materials.cautionPaint);
+addBox(roomGroup, [2.6, 0.04, 0.08], [-9.45, 0.053, 5.6], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.04, 1.75], [-10.75, 0.054, 4.72], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.04, 1.75], [-8.15, 0.055, 4.72], materials.cautionPaint);
 
 // Control room: glass booth overlooking the line.
 createPartitionWall(roomGroup, [5.3, 2.8, 0.16], [7.25, 0, 1.45], true);
@@ -722,6 +866,11 @@ slidingDoors.push(createSlidingDoor(roomGroup, [4.65, 0, 2.35], Math.PI / 2, 1.3
 createFloorLabel(roomGroup, "CONTROL", [7.25, 0.067, 5.75], [2.0, 0.62], 0, "#3a725f");
 addBox(roomGroup, [3.1, 0.08, 0.42], [7.25, 1.52, 1.58], materials.brushed);
 addBox(roomGroup, [3.1, 0.08, 0.42], [7.25, 2.28, 1.58], materials.brushed);
+createMaintenancePanel(roomGroup, [9.65, 1.75, 3.4], -Math.PI / 2, materials.glowGreen);
+addBox(roomGroup, [1.35, 0.05, 0.62], [8.45, 1.22, 4.72], materials.darkSteel);
+addSphere(roomGroup, 0.055, [8.02, 1.3, 4.42], materials.glowGreen, 12);
+addSphere(roomGroup, 0.055, [8.28, 1.3, 4.42], materials.glowBlue, 12);
+addSphere(roomGroup, 0.055, [8.54, 1.3, 4.42], materials.glowRed, 12);
 
 // Inspection/service room: frames the scanner and press as a separate station.
 createPartitionWall(roomGroup, [4.55, 2.65, 0.16], [-4.35, 0, -1.35], true);
@@ -729,6 +878,10 @@ createPartitionWall(roomGroup, [0.16, 2.65, 3.25], [-6.6, 0, -2.95], true);
 createDoorFrame(roomGroup, [-4.35, 0, -1.35], 0, 1.55, 2.05);
 slidingDoors.push(createSlidingDoor(roomGroup, [-4.35, 0, -1.35], 0, 1.38, "inspection"));
 createFloorLabel(roomGroup, "INSPECT", [-4.35, 0.068, -5.15], [1.85, 0.56], 0, "#f6c453");
+createFloorDrain(roomGroup, [-5.75, 0.077, -4.65], -0.35);
+createSafetyBollard(roomGroup, [-6.05, 0, -1.65], 0.82);
+createSafetyBollard(roomGroup, [-2.65, 0, -1.65], 0.82);
+addBox(roomGroup, [1.65, 0.045, 1.1], [-3.05, 0.045, -4.38], materials.concretePatch);
 
 addPipe(roomGroup, [-5.92, 2.85, -1.65], [-5.92, 2.85, -3.85], 0.035, materials.pipeBlue);
 addPipe(roomGroup, [5.28, 2.95, 1.75], [9.25, 2.95, 1.75], 0.035, materials.pipeGreen);
@@ -767,10 +920,10 @@ sun.shadow.bias = -0.00018;
 sun.shadow.radius = 4;
 sun.shadow.camera.near = 1;
 sun.shadow.camera.far = 28;
-sun.shadow.camera.left = -12;
-sun.shadow.camera.right = 12;
-sun.shadow.camera.top = 12;
-sun.shadow.camera.bottom = -12;
+sun.shadow.camera.left = -17;
+sun.shadow.camera.right = 17;
+sun.shadow.camera.top = 15;
+sun.shadow.camera.bottom = -15;
 scene.add(sun);
 
 const ceilingLights = [];

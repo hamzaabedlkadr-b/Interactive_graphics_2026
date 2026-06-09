@@ -11,10 +11,10 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 - Two hierarchical robot arms with base, rotating waist, shoulder, elbow, wrist, and claw.
 - Longer animated conveyor belt, moving production objects with wider spacing, staged robot pick/place cycles, inspection drone, scanner gate, reject/accept flow, and press machine.
 - Larger multi-room factory layout with assembly floor, storage room, glass control room, and inspection/service room.
-- Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, oil stains, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
+- Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, floor drains, maintenance panels, loading zones, oil stains, guard rails, bollards, hazard stripes, ceiling lamps, cable trays, and control desk.
 - Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving between rooms.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
-- Procedural floor, wall, conveyor, and hazard textures generated in JavaScript.
+- Procedural floor, wall, conveyor, hazard, label, scuff, and bump-style textures generated in JavaScript.
 - User controls for pause/resume, day/night mode, lamp toggle, machine line toggle, scanner toggle, drone toggle, robot speed toggle, camera views, room navigation, minimap navigation, walk mode, orbit controls, and animation speed.
 
 ## Course Requirements Checklist
@@ -54,7 +54,7 @@ See `PROJECT_ROADMAP.md` for the full owner-by-owner roadmap and final delivery 
 - Milestone 4: polish lighting placement and shadows so the scene feels like an enclosed industrial factory.
 - Final check: make sure the environment supports the other teammates' models without blocking camera views or interactions.
 
-Progress: Hamza's main environment pass is complete. Factory zones, larger rooms, wall pipes, ceiling beams, vents, warning panels, storage racks, pallets, barrels, tool carts, electrical cabinets, service markings, oil stains, safety details, and spacing cleanup have been added. Final lighting polish should happen after the other teammates finish their objects and interactions.
+Progress: Hamza's main environment/material pass is mostly complete. Factory zones, larger rooms, wall pipes, ceiling beams, vents, warning panels, storage racks, pallets, barrels, tool carts, electrical cabinets, maintenance panels, cable trays, floor drains, loading markings, service pads, oil stains, safety bollards, procedural scuff/bump textures, and wider shadow coverage have been added. Final visual QA should still check camera views for object intersections.
 
 ### Marco - Robot Arms and Hierarchical Animation
 

@@ -39,6 +39,12 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - Objects look grounded with shadows.
 - No obvious object intersections from the main camera views.
 
+### Current Status
+
+- Mostly complete after the environment/material pass.
+- Added procedural floor/wall scuffs, bump-style material detail, maintenance panels, floor drains, cable trays, loading markings, concrete service pads, safety bollards, and wider directional-light shadow coverage.
+- Remaining check: final visual QA from every camera view and walk mode after Marco/Leo/Edo finish their parts.
+
 ## Marco - Robot Hierarchy and Robot Animation
 
 ### Required Tasks
@@ -129,4 +135,3 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 4. Show scanner/drone/accept-reject behavior.
 5. Walk between rooms and use camera/room controls.
 6. End by explaining how each teammate contributed and which course requirements are satisfied.
-
