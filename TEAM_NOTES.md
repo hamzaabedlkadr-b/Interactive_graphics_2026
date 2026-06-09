@@ -27,6 +27,7 @@ Please read this before adding project work.
 
 ## Before Pushing
 
+- Check `PROJECT_ROADMAP.md` and make sure your change moves one roadmap item forward.
 - Run `node --check src/main.js`.
 - Open `http://localhost:5173`.
 - Make sure your change is visible.

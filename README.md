@@ -35,6 +35,8 @@ Every teammate should check their work against this list before pushing changes.
 - Before pushing, run `node --check src/main.js` and open the scene locally.
 - If tween.js is added later for smoother motion, document where it is used. It is suggested by the professor, but not required.
 
+See `PROJECT_ROADMAP.md` for the full owner-by-owner roadmap and final delivery checklist.
+
 ## Suggested Team Split
 
 - Hamza: factory environment, floor/walls, extra machines, textures.
