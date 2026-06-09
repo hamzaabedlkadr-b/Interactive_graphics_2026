@@ -16,7 +16,7 @@ Please read this before adding project work.
 - Lights: hemisphere, directional, ceiling point lights, spot lamp, emissive indicators.
 - Textures/materials: procedural floor, wall, belt, hazard, labels, metal, glass, rubber, emissive materials.
 - Interactions: pause/resume, day/night, lamp toggle, machine line toggle, scanner visibility, drone visibility, robot speed toggle, room navigation, minimap navigation, walk mode, camera presets, speed slider, orbit camera.
-- Animations: robot arms, conveyor, varied production objects, scanner quality feedback, press machine, scanner beam, drone item tracking, propellers, sliding doors, autonomous transport cart, light pulsing.
+- Animations: staged robot pick/place cycles, conveyor, varied production objects, scanner quality feedback, press machine, scanner beam, drone item tracking, propellers, sliding doors, autonomous transport cart, light pulsing.
 
 ## Responsibilities
 

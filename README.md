@@ -9,7 +9,7 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 ## Current Features
 
 - Two hierarchical robot arms with base, rotating waist, shoulder, elbow, wrist, and claw.
-- Animated conveyor belt, moving production objects, robot arm cycles, inspection drone, scanner gate, reject/accept flow, and press machine.
+- Animated conveyor belt, moving production objects, staged robot pick/place cycles, inspection drone, scanner gate, reject/accept flow, and press machine.
 - Multi-room factory layout with assembly floor, storage room, glass control room, and inspection/service room.
 - Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, oil stains, guard rails, hazard stripes, ceiling lamps, cables, and control desk.
 - Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving between rooms.
@@ -24,7 +24,7 @@ Every teammate should check their work against this list before pushing changes.
 - Hierarchical models: the project must include at least one complex hierarchical model. Our main examples are the robot arms, built from parent-child parts: base, waist, shoulder, elbow, wrist, and claw.
 - Lights and textures: the scene must include lights and different texture/material types. We currently use hemisphere, directional, point, and spot lights, plus procedural floor, wall, belt, hazard, label, metal, glass, emissive, and rough/metal materials.
 - User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, machine line toggle, scanner visibility, drone visibility, robot speed control, camera presets, room navigation, minimap navigation, walk mode with keyboard controls, orbit controls, and animation speed.
-- Animations: most objects should be animated, especially hierarchical models. Current animations include robot arm motion, conveyor movement, varied production objects, scanner quality feedback, press machine, scanner beam, drone tracking, propellers, sliding doors, autonomous transport cart, and light pulsing.
+- Animations: most objects should be animated, especially hierarchical models. Current animations include staged robot pick/place motion, conveyor movement, varied production objects, scanner quality feedback, press machine, scanner beam, drone tracking, propellers, sliding doors, autonomous transport cart, and light pulsing.
 - Important rule: animations must be implemented by us in JavaScript. Do not import premade animations from online models.
 
 ## Team Contribution Rules
@@ -61,6 +61,8 @@ Progress: Hamza's main environment pass is complete. Factory zones, wall pipes, 
 - Milestone 3: add visual details to the robots, such as bolts, cables, hydraulic pistons, warning labels, and status lights.
 - Milestone 4: make the two robot arms behave differently so they do not look like duplicated animations.
 - Final check: document the hierarchy clearly for the final report, including which parent-child transformations are used.
+
+Progress: Marco's main robot animation pass is complete. The robot arms now use staged JavaScript keyframe poses for approach, grip, lift, rotate, lower, release, and return. A carried object appears in the claw during the transport phase, and the two robots use offset/mirrored cycles.
 
 ### Leo - Conveyor, Drone, and Production Objects
 

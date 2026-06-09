@@ -852,11 +852,42 @@ function createRobot(position, rotationY = 0, accent = materials.teal) {
   clawLeft.rotation.z = 0.35;
   clawRight.rotation.z = -0.35;
 
-  return { robot, waistPivot, torso, shoulderPivot, upperArm, elbowPivot, forearm, wristPivot, clawLeft, clawRight };
+  const carriedObject = new THREE.Group();
+  carriedObject.visible = false;
+  wristPivot.add(carriedObject);
+  addBox(carriedObject, [0.36, 0.18, 0.28], [0.48, 0, -0.16], materials.battery);
+  addBox(carriedObject, [0.08, 0.22, 0.32], [0.48, 0, -0.16], materials.darkSteel);
+
+  return {
+    robot,
+    waistPivot,
+    torso,
+    shoulderPivot,
+    upperArm,
+    elbowPivot,
+    forearm,
+    wristPivot,
+    clawLeft,
+    clawRight,
+    carriedObject,
+  };
 }
 
 const primaryRobot = createRobot([-2.25, 0, -1.45], 0.1, materials.teal);
 const secondaryRobot = createRobot([2.95, 0, -1.5], -0.55, materials.blue);
+const pickupMarker = new THREE.Group();
+pickupMarker.position.set(-3.15, 0, -0.95);
+scene.add(pickupMarker);
+addBox(pickupMarker, [0.72, 0.05, 0.56], [0, 0.78, 0], materials.zoneBlue);
+addBox(pickupMarker, [0.46, 0.18, 0.34], [0, 0.9, 0], materials.battery);
+createFloorLabel(scene, "PICK", [-3.15, 0.071, -0.95], [0.85, 0.32], 0, "#2f6984");
+
+const dropMarker = new THREE.Group();
+dropMarker.position.set(3.55, 0, -0.95);
+scene.add(dropMarker);
+addBox(dropMarker, [0.72, 0.05, 0.56], [0, 0.78, 0], materials.zoneGreen);
+addBox(dropMarker, [0.46, 0.18, 0.34], [0, 0.9, 0], materials.productShell);
+createFloorLabel(scene, "PLACE", [3.55, 0.072, -0.95], [0.95, 0.32], 0, "#3a725f");
 
 const productionItems = [];
 const productionKinds = ["crate", "battery", "chassis", "finished", "reject", "battery", "finished", "chassis"];
@@ -1127,19 +1158,62 @@ window.addEventListener("keyup", (event) => {
   pressedKeys.delete(event.key.toLowerCase());
 });
 
-function animateRobot(robotRig, time, phase = 0) {
-  const t = time + phase;
-  robotRig.waistPivot.rotation.y = Math.sin(t * 0.85) * 0.55;
-  robotRig.shoulderPivot.rotation.z = -0.42 + Math.sin(t * 1.05) * 0.42;
-  robotRig.upperArm.rotation.y = Math.sin(t * 0.8) * 0.14;
-  robotRig.elbowPivot.rotation.z = 0.86 + Math.sin(t * 1.45) * 0.5;
-  robotRig.wristPivot.rotation.x = t * 2.1;
-  robotRig.wristPivot.rotation.z = Math.sin(t * 2.4) * 0.18;
-  robotRig.torso.rotation.y = Math.sin(t * 1.8) * 0.025;
+function smoothStep(value) {
+  return value * value * (3 - 2 * value);
+}
 
-  const clawGrip = 0.22 + Math.sin(t * 2.2) * 0.11;
-  robotRig.clawLeft.position.y = clawGrip;
-  robotRig.clawRight.position.y = -clawGrip;
+function interpolatePose(a, b, amount) {
+  const t = smoothStep(amount);
+  return {
+    waist: THREE.MathUtils.lerp(a.waist, b.waist, t),
+    shoulder: THREE.MathUtils.lerp(a.shoulder, b.shoulder, t),
+    upperYaw: THREE.MathUtils.lerp(a.upperYaw, b.upperYaw, t),
+    elbow: THREE.MathUtils.lerp(a.elbow, b.elbow, t),
+    wristX: THREE.MathUtils.lerp(a.wristX, b.wristX, t),
+    wristZ: THREE.MathUtils.lerp(a.wristZ, b.wristZ, t),
+    claw: THREE.MathUtils.lerp(a.claw, b.claw, t),
+  };
+}
+
+function animateRobot(robotRig, time, phase = 0, mirrored = false) {
+  const cycle = 8;
+  const t = (time + phase) % cycle;
+  const side = mirrored ? -1 : 1;
+  const poses = [
+    { at: 0, waist: -0.58 * side, shoulder: -0.72, upperYaw: -0.08, elbow: 1.45, wristX: 0.2, wristZ: -0.1, claw: 0.34 },
+    { at: 1.15, waist: -0.58 * side, shoulder: -0.92, upperYaw: -0.04, elbow: 1.12, wristX: 0.1, wristZ: -0.08, claw: 0.34 },
+    { at: 1.8, waist: -0.58 * side, shoulder: -0.92, upperYaw: -0.04, elbow: 1.12, wristX: 0.12, wristZ: -0.08, claw: 0.16 },
+    { at: 3.1, waist: -0.24 * side, shoulder: -0.52, upperYaw: 0.08, elbow: 1.36, wristX: 0.55, wristZ: 0.02, claw: 0.16 },
+    { at: 4.6, waist: 0.62 * side, shoulder: -0.5, upperYaw: 0.12, elbow: 1.38, wristX: 0.35, wristZ: 0.15, claw: 0.16 },
+    { at: 5.5, waist: 0.62 * side, shoulder: -0.78, upperYaw: 0.08, elbow: 1.08, wristX: 0.1, wristZ: 0.12, claw: 0.16 },
+    { at: 6.1, waist: 0.62 * side, shoulder: -0.78, upperYaw: 0.08, elbow: 1.08, wristX: 0.1, wristZ: 0.12, claw: 0.34 },
+    { at: 7.15, waist: 0.08 * side, shoulder: -0.42, upperYaw: 0.02, elbow: 1.42, wristX: 0.0, wristZ: 0.02, claw: 0.34 },
+    { at: 8, waist: -0.58 * side, shoulder: -0.72, upperYaw: -0.08, elbow: 1.45, wristX: 0.2, wristZ: -0.1, claw: 0.34 },
+  ];
+
+  let start = poses[0];
+  let end = poses[1];
+  for (let i = 0; i < poses.length - 1; i += 1) {
+    if (t >= poses[i].at && t <= poses[i + 1].at) {
+      start = poses[i];
+      end = poses[i + 1];
+      break;
+    }
+  }
+
+  const localT = (t - start.at) / (end.at - start.at);
+  const pose = interpolatePose(start, end, localT);
+
+  robotRig.waistPivot.rotation.y = pose.waist;
+  robotRig.shoulderPivot.rotation.z = pose.shoulder;
+  robotRig.upperArm.rotation.y = pose.upperYaw;
+  robotRig.elbowPivot.rotation.z = pose.elbow;
+  robotRig.wristPivot.rotation.x = pose.wristX;
+  robotRig.wristPivot.rotation.z = pose.wristZ;
+  robotRig.torso.rotation.y = Math.sin((time + phase) * 1.7) * 0.018;
+  robotRig.clawLeft.position.y = pose.claw;
+  robotRig.clawRight.position.y = -pose.claw;
+  robotRig.carriedObject.visible = t >= 1.75 && t <= 6.05;
 }
 
 function updateSlidingDoors(delta) {
@@ -1268,8 +1342,11 @@ function animate() {
   beltTexture.offset.x = -machineElapsed * 0.58;
   hazardTexture.offset.x = -machineElapsed * 0.08;
 
-  animateRobot(primaryRobot, robotElapsed, 0);
-  animateRobot(secondaryRobot, robotElapsed, 1.9);
+  animateRobot(primaryRobot, robotElapsed, 0, false);
+  animateRobot(secondaryRobot, robotElapsed, 2.2, true);
+  const robotCycle = robotElapsed % 8;
+  pickupMarker.scale.setScalar(robotCycle < 2.1 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
+  dropMarker.scale.setScalar(robotCycle > 4.7 && robotCycle < 6.4 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
 
   pressHead.position.y = 1.82 + Math.max(0, Math.sin(machineElapsed * 2.2)) * 0.62;
   let inspectedRejectNearby = false;
