@@ -15,7 +15,7 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 - Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving between rooms.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
 - Procedural floor, wall, conveyor, and hazard textures generated in JavaScript.
-- User controls for pause/resume, day/night mode, lamp toggle, camera views, room navigation, minimap navigation, walk mode, orbit controls, and animation speed.
+- User controls for pause/resume, day/night mode, lamp toggle, machine line toggle, scanner toggle, drone toggle, robot speed toggle, camera views, room navigation, minimap navigation, walk mode, orbit controls, and animation speed.
 
 ## Course Requirements Checklist
 
@@ -23,7 +23,7 @@ Every teammate should check their work against this list before pushing changes.
 
 - Hierarchical models: the project must include at least one complex hierarchical model. Our main examples are the robot arms, built from parent-child parts: base, waist, shoulder, elbow, wrist, and claw.
 - Lights and textures: the scene must include lights and different texture/material types. We currently use hemisphere, directional, point, and spot lights, plus procedural floor, wall, belt, hazard, label, metal, glass, emissive, and rough/metal materials.
-- User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, camera presets, room navigation, minimap navigation, walk mode with keyboard controls, orbit controls, and animation speed.
+- User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, machine line toggle, scanner visibility, drone visibility, robot speed control, camera presets, room navigation, minimap navigation, walk mode with keyboard controls, orbit controls, and animation speed.
 - Animations: most objects should be animated, especially hierarchical models. Current animations include robot arm motion, conveyor movement, varied production objects, scanner quality feedback, press machine, scanner beam, drone tracking, propellers, sliding doors, autonomous transport cart, and light pulsing.
 - Important rule: animations must be implemented by us in JavaScript. Do not import premade animations from online models.
 
@@ -80,6 +80,8 @@ Progress: Leo's first production-flow pass is complete. The line now includes va
 - Milestone 4: set up GitHub Pages, test the project online, and keep the README updated with the live link and usage instructions.
 - Milestone 5: lead the final report/user manual with screenshots, project description, libraries used, technical explanation, interactions, and team contributions.
 - Final check: test the full project from a fresh browser tab and confirm it works without local-only files.
+
+Progress: Edo's interaction polish pass is in progress. Added machine line toggle, scanner visibility toggle, drone visibility toggle, robot speed toggle, and clearer active/inactive button states.
 
 ## Run Locally
 

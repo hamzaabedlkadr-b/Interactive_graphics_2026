@@ -37,6 +37,10 @@ const state = {
   doorTimer: 0,
   walkMode: false,
   walkYaw: -0.78,
+  machinesOn: true,
+  scannerOn: true,
+  droneOn: true,
+  robotSpeedIndex: 1,
 };
 
 const pressedKeys = new Set();
@@ -46,6 +50,11 @@ const walkBounds = {
   minZ: -5.35,
   maxZ: 6.55,
 };
+const robotSpeedOptions = [
+  { label: "Robot 0.5x", value: 0.5 },
+  { label: "Robot 1x", value: 1 },
+  { label: "Robot 1.5x", value: 1.5 },
+];
 
 const cameraViews = [
   { position: new THREE.Vector3(8.8, 5.1, 9.2), target: new THREE.Vector3(0.1, 1.35, 0.05) },
@@ -959,6 +968,10 @@ addCable([
 const toggleAnimation = document.querySelector("#toggle-animation");
 const toggleNight = document.querySelector("#toggle-night");
 const toggleLamp = document.querySelector("#toggle-lamp");
+const toggleMachines = document.querySelector("#toggle-machines");
+const toggleScanner = document.querySelector("#toggle-scanner");
+const toggleDrone = document.querySelector("#toggle-drone");
+const robotSpeed = document.querySelector("#robot-speed");
 const cameraView = document.querySelector("#camera-view");
 const speedControl = document.querySelector("#speed-control");
 const modeLabel = document.querySelector("#mode-label");
@@ -968,6 +981,12 @@ const roomButtons = document.querySelectorAll(".room-button");
 const mapRooms = document.querySelectorAll(".map-room");
 const toggleWalk = document.querySelector("#toggle-walk");
 const walkHelp = document.querySelector("#walk-help");
+
+function setToggleState(button, isActive, activeText, inactiveText) {
+  button.textContent = isActive ? activeText : inactiveText;
+  button.classList.toggle("inactive", !isActive);
+  button.classList.toggle("active", isActive && button === robotSpeed);
+}
 
 function moveCameraTo(view) {
   state.cameraTransition = {
@@ -1037,11 +1056,36 @@ toggleNight.addEventListener("click", () => {
 
 toggleLamp.addEventListener("click", () => {
   state.lampOn = !state.lampOn;
-  toggleLamp.textContent = state.lampOn ? "Lamp Off" : "Lamp On";
+  setToggleState(toggleLamp, state.lampOn, "Lamp Off", "Lamp On");
   lampLight.visible = state.lampOn;
   ceilingLights.forEach((light, index) => {
     light.intensity = state.lampOn ? 8.2 : index % 2 === 0 ? 1.5 : 0;
   });
+});
+
+toggleMachines.addEventListener("click", () => {
+  state.machinesOn = !state.machinesOn;
+  setToggleState(toggleMachines, state.machinesOn, "Machines Off", "Machines On");
+  modeLabel.textContent = state.machinesOn ? "Production line active" : "Production line stopped";
+});
+
+toggleScanner.addEventListener("click", () => {
+  state.scannerOn = !state.scannerOn;
+  setToggleState(toggleScanner, state.scannerOn, "Scanner Off", "Scanner On");
+  scanner.visible = state.scannerOn;
+});
+
+toggleDrone.addEventListener("click", () => {
+  state.droneOn = !state.droneOn;
+  setToggleState(toggleDrone, state.droneOn, "Drone Off", "Drone On");
+  drone.visible = state.droneOn;
+});
+
+robotSpeed.addEventListener("click", () => {
+  state.robotSpeedIndex = (state.robotSpeedIndex + 1) % robotSpeedOptions.length;
+  const option = robotSpeedOptions[state.robotSpeedIndex];
+  robotSpeed.textContent = option.label;
+  robotSpeed.classList.toggle("active", option.value !== 1);
 });
 
 cameraView.addEventListener("click", () => {
@@ -1206,32 +1250,40 @@ window.addEventListener("resize", resizeRenderer);
 resizeRenderer();
 
 let elapsed = 0;
+let machineElapsed = 0;
+let robotElapsed = 0;
 
 function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   if (state.running) {
     elapsed += delta * state.speed;
+    robotElapsed += delta * state.speed * robotSpeedOptions[state.robotSpeedIndex].value;
+    if (state.machinesOn) {
+      machineElapsed += delta * state.speed;
+    }
   }
   updateWalkMode(delta);
 
-  beltTexture.offset.x = -elapsed * 0.58;
-  hazardTexture.offset.x = -elapsed * 0.08;
+  beltTexture.offset.x = -machineElapsed * 0.58;
+  hazardTexture.offset.x = -machineElapsed * 0.08;
 
-  animateRobot(primaryRobot, elapsed, 0);
-  animateRobot(secondaryRobot, elapsed, 1.9);
+  animateRobot(primaryRobot, robotElapsed, 0);
+  animateRobot(secondaryRobot, robotElapsed, 1.9);
 
-  pressHead.position.y = 1.82 + Math.max(0, Math.sin(elapsed * 2.2)) * 0.62;
+  pressHead.position.y = 1.82 + Math.max(0, Math.sin(machineElapsed * 2.2)) * 0.62;
   let inspectedRejectNearby = false;
   let nearestItem = productionItems[0];
   let nearestDistance = Infinity;
 
   productionItems.forEach((item, index) => {
-    const x = ((elapsed * 1.35 + index * 1.55 + 6.1) % 12.2) - 6.1;
+    const x = ((machineElapsed * 1.35 + index * 1.55 + 6.1) % 12.2) - 6.1;
     item.position.x = x;
     item.position.z = 0.2;
-    item.position.y = 1.15 + Math.sin(elapsed * 2.2 + index) * 0.015;
-    item.rotation.y += delta * state.speed * (item.userData.kind === "chassis" ? 0.35 : 0.18);
+    item.position.y = 1.15 + Math.sin(machineElapsed * 2.2 + index) * 0.015;
+    if (state.machinesOn && state.running) {
+      item.rotation.y += delta * state.speed * (item.userData.kind === "chassis" ? 0.35 : 0.18);
+    }
 
     if (Math.abs(x + 4.25) < 0.35) {
       item.position.z += item.userData.kind === "reject" ? 0.34 : -0.08;
@@ -1254,17 +1306,23 @@ function animate() {
   });
 
   scannerStatus.material = inspectedRejectNearby ? materials.glowRed : materials.glowGreen;
-  scannerBeam.material.opacity = (inspectedRejectNearby ? 0.26 : 0.12) + Math.abs(Math.sin(elapsed * 3.4)) * 0.18;
+  scannerBeam.material.opacity = state.scannerOn
+    ? (inspectedRejectNearby ? 0.26 : 0.12) + Math.abs(Math.sin(machineElapsed * 3.4)) * 0.18
+    : 0;
 
-  drone.position.y = 3.35 + Math.sin(elapsed * 1.4) * 0.24;
-  drone.position.x = THREE.MathUtils.lerp(drone.position.x, nearestItem.position.x, 1 - Math.pow(0.01, delta));
-  drone.position.z = THREE.MathUtils.lerp(drone.position.z, nearestItem.position.z + 1.35, 1 - Math.pow(0.02, delta));
-  drone.rotation.z = Math.sin(elapsed * 1.1) * 0.08;
-  droneBeam.scale.y = 0.8 + Math.sin(elapsed * 5) * 0.08;
+  if (state.droneOn) {
+    drone.position.y = 3.35 + Math.sin(machineElapsed * 1.4) * 0.24;
+    drone.position.x = THREE.MathUtils.lerp(drone.position.x, nearestItem.position.x, 1 - Math.pow(0.01, delta));
+    drone.position.z = THREE.MathUtils.lerp(drone.position.z, nearestItem.position.z + 1.35, 1 - Math.pow(0.02, delta));
+    drone.rotation.z = Math.sin(machineElapsed * 1.1) * 0.08;
+    droneBeam.scale.y = 0.8 + Math.sin(machineElapsed * 5) * 0.08;
+  }
   rotorPivots.forEach((pivot, index) => {
-    pivot.rotation.y += delta * state.speed * (index % 2 === 0 ? 22 : -22);
+    if (state.droneOn && state.running && state.machinesOn) {
+      pivot.rotation.y += delta * state.speed * (index % 2 === 0 ? 22 : -22);
+    }
   });
-  updateAgv(elapsed);
+  updateAgv(machineElapsed);
   updateSlidingDoors(delta);
 
   ceilingLights.forEach((light, index) => {

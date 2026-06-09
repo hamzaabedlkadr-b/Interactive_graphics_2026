@@ -200,9 +200,15 @@ button:hover {
 
 .room-button:hover,
 .room-button.active,
-#toggle-walk.active {
+#toggle-walk.active,
+button.active {
   background: #5fd0a5;
   color: #101414;
+}
+
+button.inactive {
+  background: #344047;
+  color: #d7e0df;
 }
 
 label {
