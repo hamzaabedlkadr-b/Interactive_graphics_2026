@@ -64,7 +64,7 @@ Progress: Hamza's main environment/material pass is mostly complete. Factory zon
 - Milestone 4: make the two robot arms behave differently so they do not look like duplicated animations.
 - Final check: document the hierarchy clearly for the final report, including which parent-child transformations are used.
 
-Progress: Marco's robot hierarchy/detail pass is mostly complete. The robot arms now use staged JavaScript keyframe poses for approach, grip, lift, rotate, lower, release, and return. The models include base bolts, rotating rings, shoulder/elbow/wrist caps, hydraulic rods, local cables, nameplates, gripper pads, wrist lights, and stage lights. A carried object appears in the claw during the transport phase, and the two robots use offset/mirrored cycles with different timing and placement.
+Progress: Marco's robot hierarchy/detail pass is mostly complete. The robot arms now use staged JavaScript keyframe poses for approach, grip, lift, rotate, lower, release, and return. The models include base bolts, rotating rings, shoulder/elbow/wrist caps, hydraulic rods, local cables, nameplates, gripper pads, wrist lights, and stage lights. The main robot now synchronizes with a visible belt workpiece: the part waits on the belt, disappears when the claw closes, appears in the gripper, then reappears on the return area of the belt. The two robots use offset/mirrored cycles with different timing and placement.
 
 ### Leo - Conveyor, Drone, and Production Objects
 

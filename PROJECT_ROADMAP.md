@@ -73,6 +73,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - Mostly complete after the robot hierarchy/detail pass.
 - Added base rings, bolts, joint caps, hydraulic rods, local cables, warning details, nameplates, stage lights, wrist lights, and industrial gripper details.
 - Improved the authored JavaScript keyframe cycle so it reads as approach, close claw, lift, rotate, lower, release, and return.
+- Added a synchronized belt workpiece so the robot visibly picks from the conveyor and returns the part to the conveyor instead of only moving an empty hand.
 - Remaining check: final visual QA from the main camera views to confirm gripper/belt clearance after Leo's production-flow updates.
 
 ## Leo - Conveyor, Drone, Production Flow, and Objects
