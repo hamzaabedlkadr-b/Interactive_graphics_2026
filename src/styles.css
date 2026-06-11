@@ -249,12 +249,7 @@ input[type="range"] {
   }
 
   .facility-map {
-    top: auto;
-    right: 12px;
-    bottom: 156px;
-    grid-template-columns: repeat(4, minmax(86px, 1fr));
-    width: calc(100% - 24px);
-    overflow-x: auto;
+    display: none;
   }
 
   .walk-help {
@@ -267,25 +262,36 @@ input[type="range"] {
     left: 12px;
     right: 12px;
     bottom: 12px;
-    width: calc(100% - 24px);
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
+    width: auto;
+    max-height: 46vh;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .room-nav {
+    display: grid;
+    grid-template-columns: 1fr;
     order: 10;
+    grid-column: 1 / -1;
     width: 100%;
-    overflow-x: auto;
     margin-left: 0;
   }
 
   button {
-    flex: 1 1 92px;
     padding: 0 10px;
+    min-width: 0;
+    width: 100%;
   }
 
   label {
-    flex: 1 1 100%;
+    grid-column: 1 / -1;
     justify-content: space-between;
+  }
+
+  #toggle-walk {
+    grid-column: 1 / -1;
   }
 
   input[type="range"] {

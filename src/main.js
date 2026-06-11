@@ -14,10 +14,10 @@ scene.background = new THREE.Color(0x202b32);
 scene.fog = new THREE.Fog(0x202b32, 22, 46);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(8.8, 5.1, 9.2);
+camera.position.set(9.4, 4.2, 10.4);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0.1, 1.35, 0.05);
+controls.target.set(-0.65, 1.22, -0.35);
 controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.48;
 controls.minDistance = 4;
@@ -58,18 +58,18 @@ const robotSpeedOptions = [
 const ROBOT_CYCLE_DURATION = 8.4;
 
 const cameraViews = [
-  { position: new THREE.Vector3(10.8, 5.8, 11.6), target: new THREE.Vector3(0.1, 1.35, 0.05) },
-  { position: new THREE.Vector3(-8.4, 3.8, 5.4), target: new THREE.Vector3(-2.2, 1.4, -0.2) },
-  { position: new THREE.Vector3(1.8, 8.4, 8.0), target: new THREE.Vector3(0, 0.75, 0) },
-  { position: new THREE.Vector3(6.8, 3.4, -7.4), target: new THREE.Vector3(0.35, 1.35, -0.75) },
+  { position: new THREE.Vector3(9.4, 4.2, 10.4), target: new THREE.Vector3(-0.65, 1.22, -0.35) },
+  { position: new THREE.Vector3(-8.0, 3.5, 4.65), target: new THREE.Vector3(-3.15, 1.35, -1.2) },
+  { position: new THREE.Vector3(1.8, 7.3, 8.0), target: new THREE.Vector3(0, 0.75, 0) },
+  { position: new THREE.Vector3(6.8, 3.25, -7.4), target: new THREE.Vector3(0.35, 1.35, -0.75) },
   { position: new THREE.Vector3(13.8, 8.3, 13.2), target: new THREE.Vector3(0, 1.1, -0.15) },
 ];
 
 const roomViews = {
   assembly: {
     label: "Assembly room",
-    position: new THREE.Vector3(10.8, 5.8, 11.6),
-    target: new THREE.Vector3(0.1, 1.35, 0.05),
+    position: new THREE.Vector3(9.4, 4.2, 10.4),
+    target: new THREE.Vector3(-0.65, 1.22, -0.35),
   },
   storage: {
     label: "Storage room",
@@ -798,12 +798,14 @@ for (let z = -8.1; z <= 8.1; z += 2.7) {
   addBox(factory, [28.4, 0.16, 0.18], [-0.25, 5.78, z], materials.brushed);
 }
 
-const assemblyZone = addBox(factory, [7.4, 0.03, 2.65], [-1.4, 0.018, 0.2], materials.zoneBlue);
-assemblyZone.material.transparent = true;
-assemblyZone.material.opacity = 0.32;
-const serviceZone = addBox(factory, [4.2, 0.032, 2.35], [6.1, 0.019, 2.55], materials.zoneGreen);
-serviceZone.material.transparent = true;
-serviceZone.material.opacity = 0.28;
+const assemblyZoneMaterial = materials.zoneBlue.clone();
+assemblyZoneMaterial.transparent = true;
+assemblyZoneMaterial.opacity = 0.32;
+const assemblyZone = addBox(factory, [7.4, 0.03, 2.65], [-1.4, 0.018, 0.2], assemblyZoneMaterial);
+const serviceZoneMaterial = materials.zoneGreen.clone();
+serviceZoneMaterial.transparent = true;
+serviceZoneMaterial.opacity = 0.28;
+const serviceZone = addBox(factory, [4.2, 0.032, 2.35], [6.1, 0.019, 2.55], serviceZoneMaterial);
 
 for (let x = -6.4; x <= 6.4; x += 1.6) {
   addBox(factory, [0.75, 0.035, 0.08], [x, 0.04, 2.03], materials.safetyWhite);
@@ -944,11 +946,15 @@ addSphere(roomGroup, 0.055, [8.02, 1.3, 4.42], materials.glowGreen, 12);
 addSphere(roomGroup, 0.055, [8.28, 1.3, 4.42], materials.glowBlue, 12);
 addSphere(roomGroup, 0.055, [8.54, 1.3, 4.42], materials.glowRed, 12);
 
-// Inspection/service room: frames the scanner and press as a separate station.
-createPartitionWall(roomGroup, [4.8, 2.65, 0.16], [-4.1, 0, -2.28], true);
+// Inspection/service room: side glass panels plus an open guarded transfer window for the robot.
+createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-5.78, 0, -2.28], true);
+createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-2.42, 0, -2.28], true);
 createPartitionWall(roomGroup, [0.16, 2.65, 3.95], [-6.75, 0, -4.2], true);
-createDoorFrame(roomGroup, [-4.1, 0, -2.28], 0, 1.55, 2.05);
-slidingDoors.push(createSlidingDoor(roomGroup, [-4.1, 0, -2.28], 0, 1.38, "inspection"));
+createDoorFrame(roomGroup, [-4.1, 0, -2.28], 0, 1.85, 2.12);
+addPipe(roomGroup, [-4.92, 0.8, -2.17], [-4.92, 2.35, -2.17], 0.018, materials.glowBlue);
+addPipe(roomGroup, [-4.52, 0.8, -2.17], [-4.52, 2.35, -2.17], 0.018, materials.glowBlue);
+addPipe(roomGroup, [-3.68, 0.8, -2.17], [-3.68, 2.35, -2.17], 0.018, materials.glowBlue);
+addPipe(roomGroup, [-3.28, 0.8, -2.17], [-3.28, 2.35, -2.17], 0.018, materials.glowBlue);
 createFloorLabel(roomGroup, "INSPECT", [-4.1, 0.068, -5.75], [1.85, 0.56], 0, "#f6c453");
 createFloorDrain(roomGroup, [-5.75, 0.077, -5.18], -0.35);
 createSafetyBollard(roomGroup, [-6.05, 0, -2.58], 0.82);
@@ -1238,6 +1244,12 @@ addBox(dropMarker, [0.1, 0.76, 0.1], [-0.5, 0.42, 0.3], materials.brushed);
 addBox(dropMarker, [0.1, 0.76, 0.1], [0.5, 0.42, 0.3], materials.brushed);
 addBox(dropMarker, [1.18, 0.07, 0.08], [0, 1.08, -0.38], materials.brushed);
 addBox(dropMarker, [1.18, 0.07, 0.08], [0, 1.08, 0.38], materials.brushed);
+addBox(dropMarker, [0.12, 0.22, 0.58], [-0.46, 1.18, 0], materials.darkSteel);
+addBox(dropMarker, [0.12, 0.22, 0.58], [0.46, 1.18, 0], materials.darkSteel);
+addBox(dropMarker, [0.42, 0.045, 0.08], [0, 1.2, -0.31], materials.glowGreen);
+addSphere(dropMarker, 0.055, [-0.24, 1.22, 0.32], materials.glowGreen, 12);
+addSphere(dropMarker, 0.055, [0.0, 1.22, 0.32], materials.glowBlue, 12);
+addSphere(dropMarker, 0.055, [0.24, 1.22, 0.32], materials.glowRed, 12);
 createFloorLabel(scene, "SIDE DROP", [robotDropPosition.x, 0.072, -3.58], [1.4, 0.32], 0, "#3a725f");
 const robotPlacedPart = createHandledPart(scene, robotDropPosition.toArray(), materials.productShell);
 robotPlacedPart.visible = false;
@@ -1763,8 +1775,8 @@ function animate() {
   const delta = clock.getDelta();
   if (state.running) {
     elapsed += delta * state.speed;
-    robotElapsed += delta * state.speed * robotSpeedOptions[state.robotSpeedIndex].value;
     if (state.machinesOn) {
+      robotElapsed += delta * state.speed * robotSpeedOptions[state.robotSpeedIndex].value;
       machineElapsed += delta * state.speed;
     }
   }
