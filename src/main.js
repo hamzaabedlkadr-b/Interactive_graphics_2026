@@ -954,8 +954,8 @@ createFloorDrain(roomGroup, [-5.75, 0.077, -5.18], -0.35);
 createSafetyBollard(roomGroup, [-6.05, 0, -2.58], 0.82);
 createSafetyBollard(roomGroup, [-2.35, 0, -2.58], 0.82);
 addBox(roomGroup, [1.85, 0.045, 1.1], [-2.85, 0.045, -5.05], materials.concretePatch);
-addBox(roomGroup, [5.3, 0.032, 0.58], [-1.9, 0.048, -1.78], materials.zoneBlue);
-createFloorLabel(roomGroup, "ROBOT CLEAR", [-1.9, 0.073, -2.05], [1.55, 0.34], 0, "#2f6984");
+addBox(roomGroup, [5.6, 0.032, 0.58], [-4.1, 0.048, -1.78], materials.zoneBlue);
+createFloorLabel(roomGroup, "ROBOT CLEAR", [-4.1, 0.073, -2.05], [1.55, 0.34], 0, "#2f6984");
 
 addPipe(roomGroup, [-6.62, 2.85, -2.55], [-6.62, 2.85, -5.25], 0.035, materials.pipeBlue);
 addPipe(roomGroup, [5.28, 2.95, 1.75], [9.25, 2.95, 1.75], 0.035, materials.pipeGreen);
@@ -1214,25 +1214,32 @@ function createRobot(position, rotationY = 0, accent = materials.teal, options =
   };
 }
 
-const primaryRobot = createRobot([-2.75, 0, -2.35], 0.18, materials.teal, { id: "R-01" });
+const primaryRobot = createRobot([-4.1, 0, -3.35], 0.18, materials.teal, { id: "R-01" });
 const secondaryRobot = createRobot([5.05, 0, -4.55], -0.34, materials.blue, { id: "R-02" });
+const robotPickupPosition = new THREE.Vector3(-1.55, 1.18, -0.74);
+const robotDropPosition = new THREE.Vector3(-5.65, 1.18, -4.65);
 const pickupMarker = new THREE.Group();
-pickupMarker.position.set(-0.05, 0, -0.74);
+pickupMarker.position.set(robotPickupPosition.x, 0, robotPickupPosition.z);
 scene.add(pickupMarker);
 addBox(pickupMarker, [0.8, 0.045, 0.48], [0, 1.0, 0], materials.zoneBlue);
 addBox(pickupMarker, [0.12, 0.08, 0.52], [-0.46, 1.04, 0], materials.brushed);
 addBox(pickupMarker, [0.12, 0.08, 0.52], [0.46, 1.04, 0], materials.brushed);
-createFloorLabel(scene, "BELT PICK", [-0.05, 0.071, -1.35], [1.25, 0.32], 0, "#2f6984");
-const robotPickupPart = createHandledPart(scene, [-0.05, 1.18, -0.74], materials.battery);
+createFloorLabel(scene, "BELT PICK", [robotPickupPosition.x, 0.071, -1.35], [1.25, 0.32], 0, "#2f6984");
+const robotPickupPart = createHandledPart(scene, robotPickupPosition.toArray(), materials.battery);
 
 const dropMarker = new THREE.Group();
-dropMarker.position.set(-0.62, 0, 0.02);
+dropMarker.position.set(robotDropPosition.x, 0, robotDropPosition.z);
 scene.add(dropMarker);
-addBox(dropMarker, [0.8, 0.045, 0.48], [0, 1.0, 0], materials.zoneGreen);
-addBox(dropMarker, [0.12, 0.08, 0.52], [-0.46, 1.04, 0], materials.brushed);
-addBox(dropMarker, [0.12, 0.08, 0.52], [0.46, 1.04, 0], materials.brushed);
-createFloorLabel(scene, "RETURN", [-0.62, 0.072, 0.92], [1.15, 0.32], 0, "#3a725f");
-const robotPlacedPart = createHandledPart(scene, [-0.62, 1.18, 0.02], materials.productShell);
+addBox(dropMarker, [1.28, 0.16, 0.86], [0, 0.82, 0], materials.darkSteel);
+addBox(dropMarker, [1.08, 0.055, 0.66], [0, 1.0, 0], materials.zoneGreen);
+addBox(dropMarker, [0.1, 0.76, 0.1], [-0.5, 0.42, -0.3], materials.brushed);
+addBox(dropMarker, [0.1, 0.76, 0.1], [0.5, 0.42, -0.3], materials.brushed);
+addBox(dropMarker, [0.1, 0.76, 0.1], [-0.5, 0.42, 0.3], materials.brushed);
+addBox(dropMarker, [0.1, 0.76, 0.1], [0.5, 0.42, 0.3], materials.brushed);
+addBox(dropMarker, [1.18, 0.07, 0.08], [0, 1.08, -0.38], materials.brushed);
+addBox(dropMarker, [1.18, 0.07, 0.08], [0, 1.08, 0.38], materials.brushed);
+createFloorLabel(scene, "SIDE DROP", [robotDropPosition.x, 0.072, -3.58], [1.4, 0.32], 0, "#3a725f");
+const robotPlacedPart = createHandledPart(scene, robotDropPosition.toArray(), materials.productShell);
 robotPlacedPart.visible = false;
 
 const productionItems = [];
@@ -1587,16 +1594,16 @@ function animateRobot(robotRig, time, phase = 0, mirrored = false) {
   const t = (time + phase) % cycle;
   const side = mirrored ? -1 : 1;
   const poses = [
-    { at: 0, waist: -0.66 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
-    { at: 0.9, waist: -0.68 * side, shoulder: -0.68, upperYaw: -0.05, elbow: 1.3, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
-    { at: 1.45, waist: -0.7 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: -0.06, claw: 0.42 },
-    { at: 1.95, waist: -0.7 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.12, wristZ: -0.06, claw: 0.13 },
-    { at: 2.85, waist: -0.78 * side, shoulder: -0.42, upperYaw: 0.0, elbow: 1.42, wristX: 0.34, wristZ: 0.0, claw: 0.13 },
-    { at: 4.15, waist: -1.0 * side, shoulder: -0.42, upperYaw: -0.02, elbow: 1.42, wristX: 0.28, wristZ: 0.08, claw: 0.13 },
-    { at: 5.2, waist: -1.0 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.13 },
-    { at: 5.8, waist: -1.0 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.42 },
-    { at: 6.75, waist: -0.82 * side, shoulder: -0.42, upperYaw: 0.02, elbow: 1.44, wristX: 0.15, wristZ: 0.04, claw: 0.42 },
-    { at: 8.4, waist: -0.66 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 0, waist: -0.34 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 0.9, waist: -0.3 * side, shoulder: -0.68, upperYaw: -0.05, elbow: 1.3, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 1.45, waist: -0.28 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: -0.06, claw: 0.42 },
+    { at: 1.95, waist: -0.28 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.12, wristZ: -0.06, claw: 0.13 },
+    { at: 2.85, waist: -0.72 * side, shoulder: -0.42, upperYaw: 0.0, elbow: 1.42, wristX: 0.34, wristZ: 0.0, claw: 0.13 },
+    { at: 4.15, waist: -1.42 * side, shoulder: -0.42, upperYaw: -0.02, elbow: 1.42, wristX: 0.28, wristZ: 0.08, claw: 0.13 },
+    { at: 5.2, waist: -1.46 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.13 },
+    { at: 5.8, waist: -1.46 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.42 },
+    { at: 6.75, waist: -0.88 * side, shoulder: -0.42, upperYaw: 0.02, elbow: 1.44, wristX: 0.15, wristZ: 0.04, claw: 0.42 },
+    { at: 8.4, waist: -0.34 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
   ];
 
   let start = poses[0];
@@ -1774,15 +1781,22 @@ function animate() {
   const pickupWaiting = robotCycle < 1.85 || robotCycle > 7.45;
   const partReleased = robotCycle >= 5.75 && robotCycle < 7.75;
   robotPickupPart.visible = pickupWaiting;
-  robotPickupPart.position.set(-0.05, 1.18 + Math.sin(robotElapsed * 6) * 0.01, -0.74);
+  robotPickupPart.position.set(
+    robotPickupPosition.x,
+    robotPickupPosition.y + Math.sin(robotElapsed * 6) * 0.01,
+    robotPickupPosition.z,
+  );
   robotPickupPart.rotation.y = Math.sin(robotElapsed * 1.4) * 0.04;
   robotPlacedPart.visible = partReleased;
   if (partReleased) {
-    const returnProgress = Math.min(1, (robotCycle - 5.75) / 2.0);
-    robotPlacedPart.position.set(-0.62 + returnProgress * 1.7, 1.18, 0.02 + returnProgress * 0.18);
+    robotPlacedPart.position.set(
+      robotDropPosition.x,
+      robotDropPosition.y + Math.sin(robotElapsed * 7) * 0.008,
+      robotDropPosition.z,
+    );
     robotPlacedPart.rotation.y += delta * state.speed * 0.65;
   } else {
-    robotPlacedPart.position.set(-0.62, 1.18, 0.02);
+    robotPlacedPart.position.copy(robotDropPosition);
   }
 
   pressHead.position.y = 1.82 + Math.max(0, Math.sin(machineElapsed * 2.2)) * 0.62;

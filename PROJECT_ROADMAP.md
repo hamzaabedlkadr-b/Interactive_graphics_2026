@@ -45,7 +45,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - Added procedural floor/wall scuffs, bump-style material detail, maintenance panels, floor drains, cable trays, loading markings, concrete service pads, safety bollards, and wider directional-light shadow coverage.
 - Added a marked AGV road and rerouted the autonomous cart around the open factory perimeter so it does not pass through the conveyor or room walls.
 - Added AGV load/drop docks and cargo visibility states so the cart visibly receives a crate, carries it, unloads it, and returns with cargo again.
-- Added a marked `ROBOT CLEAR` lane and moved the inspection wall, scanner, press, rear robot, and background props farther from the conveyor so the robot/belt interaction is easier to see.
+- Added a marked `ROBOT CLEAR` lane and moved the inspection wall, scanner, press, rear robot, and background props farther from the conveyor so the robot/belt interaction is easier to see. The main robot is now centered in the glass cell.
 - Remaining check: final visual QA from every camera view and walk mode after Marco/Leo/Edo finish their parts.
 
 ## Marco - Robot Hierarchy and Robot Animation
@@ -76,7 +76,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - Mostly complete after the robot hierarchy/detail pass.
 - Added base rings, bolts, joint caps, hydraulic rods, local cables, warning details, nameplates, stage lights, wrist lights, and industrial gripper details.
 - Improved the authored JavaScript keyframe cycle so it reads as approach, close claw, lift, rotate, lower, release, and return.
-- Added a synchronized belt workpiece so the robot visibly picks from the conveyor and returns the part to the conveyor instead of only moving an empty hand.
+- Added a synchronized belt workpiece so the robot visibly picks from the conveyor, carries it through a wider authored arc, and places it on a separate side drop table instead of only moving an empty hand.
 - Remaining check: final visual QA from the main camera views to confirm gripper/belt clearance after Leo's production-flow updates.
 
 ## Leo - Conveyor, Drone, Production Flow, and Objects
