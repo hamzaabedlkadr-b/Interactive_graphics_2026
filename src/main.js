@@ -1399,20 +1399,20 @@ scene.add(lampLight, lampLight.target);
 const belt = new THREE.Group();
 belt.position.z = 0.2;
 scene.add(belt);
-addBox(belt, [15.6, 0.34, 1.48], [0, 0.6, 0], materials.belt);
-addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, -0.92], materials.brushed);
-addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, 0.92], materials.brushed);
-addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, -1.16], materials.darkSteel);
-addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, 1.16], materials.darkSteel);
+addBox(belt, [15.6, 0.34, 2.8], [0, 0.6, 0], materials.belt);
+addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, -1.55], materials.brushed);
+addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, 1.55], materials.brushed);
+addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, -1.76], materials.darkSteel);
+addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, 1.76], materials.darkSteel);
 
 for (let x = -7.6; x <= 7.6; x += 0.8) {
-  const roller = addCylinder(belt, 0.17, 0.17, 1.82, [x, 0.82, 0], materials.darkSteel, 24);
+  const roller = addCylinder(belt, 0.17, 0.17, 3.1, [x, 0.82, 0], materials.darkSteel, 24);
   roller.rotation.z = Math.PI / 2;
 }
 
 for (let x = -7.8; x <= 7.8; x += 2.6) {
-  addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, -1.04], materials.darkSteel);
-  addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, 1.04], materials.darkSteel);
+  addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, -1.58], materials.darkSteel);
+  addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, 1.58], materials.darkSteel);
 }
 
 const hazardFront = addBox(factory, [16.4, 0.04, 0.42], [0, 0.025, 1.82], materials.hazard);
@@ -1570,16 +1570,11 @@ function createRobot(position, rotationY = 0, accent = materials.teal, options =
 
 const primaryRobot = createRobot([-4.1, 0, -3.35], 0.18, materials.teal, { id: "R-01" });
 const secondaryRobot = createRobot([5.05, 0, -4.55], -0.34, materials.blue, { id: "R-02" });
-const robotPickupPosition = new THREE.Vector3(-1.55, 1.18, -0.74);
-const robotDropPosition = new THREE.Vector3(-5.65, 1.18, -4.65);
-const pickupMarker = new THREE.Group();
-pickupMarker.position.set(robotPickupPosition.x, 0, robotPickupPosition.z);
-scene.add(pickupMarker);
-addBox(pickupMarker, [0.8, 0.045, 0.48], [0, 1.0, 0], materials.zoneBlue);
-addBox(pickupMarker, [0.12, 0.08, 0.52], [-0.46, 1.04, 0], materials.brushed);
-addBox(pickupMarker, [0.12, 0.08, 0.52], [0.46, 1.04, 0], materials.brushed);
+const robotPickupPosition = new THREE.Vector3(-1.82, 1.18, -1.1);
+const robotDropPosition = new THREE.Vector3(-7.26, 1.24, -3.48);
 createFloorLabel(scene, "BELT PICK", [robotPickupPosition.x, 0.071, -1.35], [1.25, 0.32], 0, "#2f6984");
-const robotPickupPart = createHandledPart(scene, robotPickupPosition.toArray(), materials.battery);
+const robotPickupPart = createProductionItem("battery", -1);
+const robotPickupEntryX = -7.2;
 
 const dropMarker = new THREE.Group();
 dropMarker.position.set(robotDropPosition.x, 0, robotDropPosition.z);
@@ -1954,16 +1949,16 @@ function animateRobot(robotRig, time, phase = 0, mirrored = false) {
   const t = (time + phase) % cycle;
   const side = mirrored ? -1 : 1;
   const poses = [
-    { at: 0, waist: -0.34 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
-    { at: 0.9, waist: -0.3 * side, shoulder: -0.68, upperYaw: -0.05, elbow: 1.3, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
-    { at: 1.45, waist: -0.28 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: -0.06, claw: 0.42 },
-    { at: 1.95, waist: -0.28 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.12, wristZ: -0.06, claw: 0.13 },
-    { at: 2.85, waist: -0.72 * side, shoulder: -0.42, upperYaw: 0.0, elbow: 1.42, wristX: 0.34, wristZ: 0.0, claw: 0.13 },
-    { at: 4.15, waist: -1.42 * side, shoulder: -0.42, upperYaw: -0.02, elbow: 1.42, wristX: 0.28, wristZ: 0.08, claw: 0.13 },
-    { at: 5.2, waist: -1.46 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.13 },
-    { at: 5.8, waist: -1.46 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.42 },
-    { at: 6.75, waist: -0.88 * side, shoulder: -0.42, upperYaw: 0.02, elbow: 1.44, wristX: 0.15, wristZ: 0.04, claw: 0.42 },
-    { at: 8.4, waist: -0.34 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 0, waist: -0.58 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 0.9, waist: -0.82 * side, shoulder: -0.64, upperYaw: -0.05, elbow: 1.32, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
+    { at: 1.45, waist: -0.94 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: -0.06, claw: 0.42 },
+    { at: 1.95, waist: -0.94 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.12, wristZ: -0.06, claw: 0.13 },
+    { at: 2.85, waist: -1.35 * side, shoulder: -0.42, upperYaw: 0.0, elbow: 1.42, wristX: 0.34, wristZ: 0.0, claw: 0.13 },
+    { at: 4.15, waist: -2.55 * side, shoulder: -0.42, upperYaw: -0.02, elbow: 1.42, wristX: 0.28, wristZ: 0.08, claw: 0.13 },
+    { at: 5.2, waist: -3.34 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.13 },
+    { at: 5.8, waist: -3.34 * side, shoulder: -0.7, upperYaw: -0.04, elbow: 1.28, wristX: 0.1, wristZ: 0.06, claw: 0.42 },
+    { at: 6.75, waist: -2.18 * side, shoulder: -0.42, upperYaw: 0.02, elbow: 1.44, wristX: 0.15, wristZ: 0.04, claw: 0.42 },
+    { at: 8.4, waist: -0.58 * side, shoulder: -0.48, upperYaw: -0.08, elbow: 1.38, wristX: 0.08, wristZ: -0.08, claw: 0.42 },
   ];
 
   let start = poses[0];
@@ -1989,12 +1984,76 @@ function animateRobot(robotRig, time, phase = 0, mirrored = false) {
   const jawOffset = pose.claw * 0.42;
   robotRig.clawLeft.position.z = jawOffset;
   robotRig.clawRight.position.z = -jawOffset;
-  const carrying = t >= 1.85 && t <= 5.75;
+  const carrying = t >= 1.95 && t <= 5.65;
   robotRig.carriedObject.visible = carrying;
   robotRig.stageLight.material = carrying ? materials.glowGreen : t > 5.65 && t < 6.2 ? materials.glowRed : materials.glowBlue;
   robotRig.wristLight.material = carrying ? materials.glowGreen : materials.glowBlue;
   robotRig.stageLight.scale.setScalar(1 + Math.sin((time + phase) * 8) * 0.08);
   robotRig.wristLight.scale.setScalar(1 + Math.sin((time + phase) * 10) * 0.05);
+}
+
+const pickupTransferPosition = new THREE.Vector3();
+const beltStopPosition = new THREE.Vector3();
+const dropTransferPosition = new THREE.Vector3();
+const neutralPartQuaternion = new THREE.Quaternion();
+
+function getConveyorPickupProgress(cycle) {
+  const approachStart = 7.45;
+  const approachEnd = 1.45;
+  const approachDuration = ROBOT_CYCLE_DURATION - approachStart + approachEnd;
+  const elapsedSinceApproach = cycle >= approachStart
+    ? cycle - approachStart
+    : ROBOT_CYCLE_DURATION - approachStart + cycle;
+  return THREE.MathUtils.clamp(elapsedSinceApproach / approachDuration, 0, 1);
+}
+
+function updatePrimaryRobotTransfer(time, delta) {
+  const cycle = time % ROBOT_CYCLE_DURATION;
+
+  const conveyorProgress = getConveyorPickupProgress(cycle);
+  const conveyorX = THREE.MathUtils.lerp(robotPickupEntryX, robotPickupPosition.x, conveyorProgress);
+  pickupTransferPosition.set(
+    conveyorX,
+    robotPickupPosition.y + Math.sin(time * 6) * 0.01,
+    robotPickupPosition.z,
+  );
+
+  if (cycle < 1.45 || cycle > 7.45) {
+    robotPickupPart.visible = true;
+    robotPickupPart.position.copy(pickupTransferPosition);
+    robotPickupPart.rotation.set(0, time * 0.65, 0);
+  } else if (cycle < 1.95) {
+    beltStopPosition.set(
+      robotPickupPosition.x,
+      robotPickupPosition.y + Math.sin(time * 6) * 0.01,
+      robotPickupPosition.z,
+    );
+    robotPickupPart.visible = true;
+    robotPickupPart.position.copy(beltStopPosition);
+    robotPickupPart.quaternion.copy(neutralPartQuaternion);
+  } else {
+    robotPickupPart.visible = false;
+  }
+
+  const partReleased = cycle >= 5.65 && cycle < 7.75;
+  robotPlacedPart.visible = partReleased;
+  if (!partReleased) {
+    robotPlacedPart.position.copy(robotDropPosition);
+    robotPlacedPart.quaternion.copy(neutralPartQuaternion);
+    return;
+  }
+
+  dropTransferPosition.set(
+    robotDropPosition.x,
+    robotDropPosition.y + Math.sin(time * 7) * 0.008,
+    robotDropPosition.z,
+  );
+
+  robotPlacedPart.position.copy(dropTransferPosition);
+  robotPlacedPart.quaternion.copy(neutralPartQuaternion);
+  if (cycle >= 6.05) {
+    robotPlacedPart.rotation.y += delta * state.speed * 0.65;
+  }
 }
 
 function updateSlidingDoors(delta) {
@@ -2136,28 +2195,8 @@ function animate() {
   animateRobot(primaryRobot, robotElapsed, 0, false);
   animateRobot(secondaryRobot, robotElapsed, 3.6, true);
   const robotCycle = robotElapsed % ROBOT_CYCLE_DURATION;
-  pickupMarker.scale.setScalar(robotCycle < 2.2 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
   dropMarker.scale.setScalar(robotCycle > 5.0 && robotCycle < 6.2 ? 1.08 + Math.sin(robotElapsed * 8) * 0.025 : 1);
-  const pickupWaiting = robotCycle < 1.85 || robotCycle > 7.45;
-  const partReleased = robotCycle >= 5.75 && robotCycle < 7.75;
-  robotPickupPart.visible = pickupWaiting;
-  robotPickupPart.position.set(
-    robotPickupPosition.x,
-    robotPickupPosition.y + Math.sin(robotElapsed * 6) * 0.01,
-    robotPickupPosition.z,
-  );
-  robotPickupPart.rotation.y = Math.sin(robotElapsed * 1.4) * 0.04;
-  robotPlacedPart.visible = partReleased;
-  if (partReleased) {
-    robotPlacedPart.position.set(
-      robotDropPosition.x,
-      robotDropPosition.y + Math.sin(robotElapsed * 7) * 0.008,
-      robotDropPosition.z,
-    );
-    robotPlacedPart.rotation.y += delta * state.speed * 0.65;
-  } else {
-    robotPlacedPart.position.copy(robotDropPosition);
-  }
+  updatePrimaryRobotTransfer(robotElapsed, delta);
 
   pressHead.position.y = 1.82 + Math.max(0, Math.sin(machineElapsed * 2.2)) * 0.62;
   let inspectedRejectNearby = false;
