@@ -46,6 +46,7 @@ This roadmap defines what still needs to be done before final delivery. Every ta
 - Added a marked AGV road and rerouted the autonomous cart around the open factory perimeter so it does not pass through the conveyor or room walls.
 - Added AGV load/drop docks and cargo visibility states so the cart visibly receives a crate, carries it, unloads it, and returns with cargo again.
 - Added a marked `ROBOT CLEAR` lane and moved the inspection wall, scanner, press, rear robot, and background props farther from the conveyor so the robot/belt interaction is easier to see. The main robot is now centered in the glass cell.
+- Added a textured hierarchical technician in the control room to make the texture/shading course topics easier to present: procedural fabric, skin, helmet, bump texture, and a custom jacket shader.
 - Remaining check: final visual QA from every camera view and walk mode after Marco/Leo/Edo finish their parts.
 
 ## Marco - Robot Hierarchy and Robot Animation

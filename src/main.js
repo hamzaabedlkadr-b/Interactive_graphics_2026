@@ -7,11 +7,11 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.28;
+renderer.toneMappingExposure = 1.38;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x202b32);
-scene.fog = new THREE.Fog(0x202b32, 22, 46);
+scene.background = new THREE.Color(0x26333a);
+scene.fog = new THREE.Fog(0x26333a, 28, 58);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(9.4, 4.2, 10.4);
@@ -59,10 +59,10 @@ const ROBOT_CYCLE_DURATION = 8.4;
 
 const cameraViews = [
   { position: new THREE.Vector3(9.4, 4.2, 10.4), target: new THREE.Vector3(-0.65, 1.22, -0.35) },
-  { position: new THREE.Vector3(-8.0, 3.5, 4.65), target: new THREE.Vector3(-3.15, 1.35, -1.2) },
-  { position: new THREE.Vector3(1.8, 7.3, 8.0), target: new THREE.Vector3(0, 0.75, 0) },
-  { position: new THREE.Vector3(6.8, 3.25, -7.4), target: new THREE.Vector3(0.35, 1.35, -0.75) },
-  { position: new THREE.Vector3(13.8, 8.3, 13.2), target: new THREE.Vector3(0, 1.1, -0.15) },
+  { position: new THREE.Vector3(-7.25, 2.85, -0.65), target: new THREE.Vector3(-3.75, 1.22, -1.95) },
+  { position: new THREE.Vector3(0.4, 4.85, 5.95), target: new THREE.Vector3(0.0, 0.95, 0.15) },
+  { position: new THREE.Vector3(7.9, 2.85, -5.8), target: new THREE.Vector3(1.1, 1.18, -0.35) },
+  { position: new THREE.Vector3(10.8, 5.0, 10.5), target: new THREE.Vector3(0.0, 1.05, -0.1) },
 ];
 
 const roomViews = {
@@ -73,8 +73,8 @@ const roomViews = {
   },
   storage: {
     label: "Storage room",
-    position: new THREE.Vector3(-10.4, 3.7, 8.35),
-    target: new THREE.Vector3(-8.8, 1.18, 5.25),
+    position: new THREE.Vector3(-10.0, 3.05, 7.1),
+    target: new THREE.Vector3(-8.65, 1.05, 5.3),
   },
   control: {
     label: "Control room",
@@ -83,8 +83,8 @@ const roomViews = {
   },
   inspection: {
     label: "Inspection room",
-    position: new THREE.Vector3(-8.8, 4.0, -7.4),
-    target: new THREE.Vector3(-3.85, 1.35, -3.3),
+    position: new THREE.Vector3(-0.8, 2.65, -1.05),
+    target: new THREE.Vector3(-4.25, 1.15, -3.45),
   },
 };
 
@@ -236,6 +236,138 @@ function makeLabelTexture(text, background = "#f6c453", foreground = "#151515") 
   return texture;
 }
 
+function makeFabricTexture() {
+  const canvasTexture = document.createElement("canvas");
+  canvasTexture.width = 256;
+  canvasTexture.height = 256;
+  const context = canvasTexture.getContext("2d");
+  const gradient = context.createLinearGradient(0, 0, 256, 256);
+  gradient.addColorStop(0, "#173b4a");
+  gradient.addColorStop(0.55, "#245d70");
+  gradient.addColorStop(1, "#12313f");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 256, 256);
+
+  context.globalAlpha = 0.22;
+  context.strokeStyle = "#d9f2ef";
+  context.lineWidth = 1;
+  for (let x = -256; x < 512; x += 12) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x + 256, 256);
+    context.stroke();
+  }
+
+  context.globalAlpha = 0.9;
+  context.fillStyle = "#f0c342";
+  context.fillRect(34, 0, 16, 256);
+  context.fillRect(204, 0, 16, 256);
+  context.fillRect(0, 84, 256, 13);
+  context.fillStyle = "#f5efe0";
+  context.fillRect(39, 0, 5, 256);
+  context.fillRect(209, 0, 5, 256);
+
+  context.globalAlpha = 0.32;
+  context.fillStyle = "#0a171d";
+  for (let i = 0; i < 180; i += 1) {
+    context.fillRect(Math.random() * 256, Math.random() * 256, 1.5, 1.5);
+  }
+
+  const texture = new THREE.CanvasTexture(canvasTexture);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function makeFabricBumpTexture() {
+  const canvasTexture = document.createElement("canvas");
+  canvasTexture.width = 256;
+  canvasTexture.height = 256;
+  const context = canvasTexture.getContext("2d");
+  context.fillStyle = "#7c7c7c";
+  context.fillRect(0, 0, 256, 256);
+  context.strokeStyle = "#aaaaaa";
+  context.lineWidth = 1;
+  context.globalAlpha = 0.42;
+  for (let x = -256; x < 512; x += 8) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x + 256, 256);
+    context.stroke();
+  }
+  context.globalAlpha = 0.26;
+  context.strokeStyle = "#424242";
+  for (let y = 0; y < 256; y += 14) {
+    context.beginPath();
+    context.moveTo(0, y);
+    context.lineTo(256, y + 22);
+    context.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvasTexture);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
+function makeSkinTexture() {
+  const canvasTexture = document.createElement("canvas");
+  canvasTexture.width = 128;
+  canvasTexture.height = 128;
+  const context = canvasTexture.getContext("2d");
+  const gradient = context.createRadialGradient(52, 44, 8, 64, 64, 92);
+  gradient.addColorStop(0, "#f4c09a");
+  gradient.addColorStop(0.72, "#d89269");
+  gradient.addColorStop(1, "#a65e42");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 128, 128);
+  context.globalAlpha = 0.16;
+  context.fillStyle = "#5f2d22";
+  for (let i = 0; i < 42; i += 1) {
+    context.beginPath();
+    context.arc(Math.random() * 128, Math.random() * 128, 0.8 + Math.random() * 1.2, 0, Math.PI * 2);
+    context.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvasTexture);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function makeHelmetTexture() {
+  const canvasTexture = document.createElement("canvas");
+  canvasTexture.width = 256;
+  canvasTexture.height = 128;
+  const context = canvasTexture.getContext("2d");
+  const gradient = context.createLinearGradient(0, 0, 0, 128);
+  gradient.addColorStop(0, "#fff0a2");
+  gradient.addColorStop(0.46, "#f7c947");
+  gradient.addColorStop(1, "#bb7f1c");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 256, 128);
+  context.strokeStyle = "#6f4610";
+  context.lineWidth = 4;
+  context.globalAlpha = 0.5;
+  for (let x = 22; x < 256; x += 48) {
+    context.beginPath();
+    context.moveTo(x, 8);
+    context.lineTo(x + 22, 120);
+    context.stroke();
+  }
+  context.globalAlpha = 0.85;
+  context.fillStyle = "#f5efe0";
+  context.fillRect(0, 56, 256, 6);
+
+  const texture = new THREE.CanvasTexture(canvasTexture);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 const floorTexture = makeCheckerTexture("#505d5d", "#465252", 192, 12);
 floorTexture.repeat.set(12, 10);
 const beltTexture = makeStripeTexture("#202326", "#3d464b");
@@ -245,6 +377,12 @@ const floorScuffTexture = makeScuffTexture("#7a8482", "#2d3635", 256, 170);
 floorScuffTexture.repeat.set(10, 8);
 const wallScuffTexture = makeScuffTexture("#6b7478", "#273139", 256, 90);
 wallScuffTexture.repeat.set(6, 3);
+const operatorFabricTexture = makeFabricTexture();
+operatorFabricTexture.repeat.set(1.4, 1.1);
+const operatorFabricBumpTexture = makeFabricBumpTexture();
+operatorFabricBumpTexture.repeat.set(3, 4);
+const operatorSkinTexture = makeSkinTexture();
+const operatorHelmetTexture = makeHelmetTexture();
 
 const materials = {
   floor: new THREE.MeshStandardMaterial({
@@ -294,19 +432,21 @@ const materials = {
   belt: new THREE.MeshStandardMaterial({ map: beltTexture, roughness: 0.74, metalness: 0.05 }),
   glass: new THREE.MeshPhysicalMaterial({
     color: 0x9ad9ff,
-    roughness: 0.03,
+    roughness: 0.02,
     metalness: 0,
-    transmission: 0.28,
+    transmission: 0.42,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.38,
+    depthWrite: false,
   }),
   glassWall: new THREE.MeshPhysicalMaterial({
     color: 0xb8e7ff,
-    roughness: 0.08,
+    roughness: 0.04,
     metalness: 0,
-    transmission: 0.18,
+    transmission: 0.36,
     transparent: true,
-    opacity: 0.28,
+    opacity: 0.18,
+    depthWrite: false,
   }),
   crate: new THREE.MeshStandardMaterial({ color: 0xb56b43, roughness: 0.68 }),
   hazard: new THREE.MeshStandardMaterial({ map: hazardTexture, roughness: 0.52 }),
@@ -316,6 +456,79 @@ const materials = {
   glowGreen: new THREE.MeshStandardMaterial({ color: 0x68f5a0, emissive: 0x2dff85, emissiveIntensity: 1.6 }),
   glowRed: new THREE.MeshStandardMaterial({ color: 0xff665c, emissive: 0xff362b, emissiveIntensity: 1.4 }),
   glowBlue: new THREE.MeshStandardMaterial({ color: 0x9ad9ff, emissive: 0x4cb9ff, emissiveIntensity: 1.1 }),
+  operatorJacket: new THREE.ShaderMaterial({
+    uniforms: {
+      baseMap: { value: operatorFabricTexture },
+      lightDirection: { value: new THREE.Vector3(-0.35, 0.85, 0.42).normalize() },
+      ambientColor: { value: new THREE.Color(0x3a4d55) },
+      lightColor: { value: new THREE.Color(0xdaf7ff) },
+      rimColor: { value: new THREE.Color(0x8ee8ff) },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      varying vec3 vWorldNormal;
+      varying vec3 vWorldPosition;
+
+      void main() {
+        vUv = uv;
+        vWorldNormal = normalize(mat3(modelMatrix) * normal);
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * viewMatrix * worldPosition;
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D baseMap;
+      uniform vec3 lightDirection;
+      uniform vec3 ambientColor;
+      uniform vec3 lightColor;
+      uniform vec3 rimColor;
+      varying vec2 vUv;
+      varying vec3 vWorldNormal;
+      varying vec3 vWorldPosition;
+
+      void main() {
+        vec3 normalDirection = normalize(vWorldNormal);
+        vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
+        float diffuse = max(dot(normalDirection, normalize(lightDirection)), 0.0);
+        float rim = pow(1.0 - max(dot(normalDirection, viewDirection), 0.0), 2.6);
+        vec3 baseColor = texture2D(baseMap, vUv).rgb;
+        vec3 shadedColor = baseColor * (ambientColor + diffuse * lightColor) + rim * rimColor * 0.18;
+        gl_FragColor = vec4(shadedColor, 1.0);
+      }
+    `,
+  }),
+  operatorSuit: new THREE.MeshStandardMaterial({
+    map: operatorFabricTexture,
+    bumpMap: operatorFabricBumpTexture,
+    roughnessMap: operatorFabricBumpTexture,
+    bumpScale: 0.018,
+    metalness: 0.04,
+    roughness: 0.76,
+  }),
+  operatorSkin: new THREE.MeshStandardMaterial({
+    map: operatorSkinTexture,
+    color: 0xf0b184,
+    metalness: 0.02,
+    roughness: 0.58,
+  }),
+  operatorHelmet: new THREE.MeshPhysicalMaterial({
+    map: operatorHelmetTexture,
+    color: 0xffffff,
+    metalness: 0.08,
+    roughness: 0.24,
+    clearcoat: 0.42,
+    clearcoatRoughness: 0.18,
+  }),
+  operatorVisor: new THREE.MeshPhysicalMaterial({
+    color: 0x99d8ef,
+    metalness: 0.02,
+    roughness: 0.08,
+    transmission: 0.22,
+    transparent: true,
+    opacity: 0.62,
+  }),
+  tabletScreen: new THREE.MeshStandardMaterial({ color: 0x7be6ff, emissive: 0x1ab8ff, emissiveIntensity: 1.3 }),
   lampGlow: new THREE.MeshBasicMaterial({ color: 0xffe0a2 }),
 };
 
@@ -767,6 +980,139 @@ function createHandledPart(parent, position, accent = materials.battery) {
   return part;
 }
 
+function createTechnician(parent, position, rotationY = 0) {
+  const technician = new THREE.Group();
+  technician.position.set(...position);
+  technician.rotation.y = rotationY;
+  parent.add(technician);
+
+  const body = new THREE.Group();
+  technician.add(body);
+
+  const torso = addCylinder(body, 0.27, 0.33, 0.7, [0, 0.92, 0], materials.operatorJacket, 28);
+  torso.scale.z = 0.72;
+  addCylinder(body, 0.24, 0.3, 0.16, [0, 0.55, 0], materials.operatorSuit, 24).scale.z = 0.72;
+  addBox(body, [0.58, 0.12, 0.22], [0, 1.26, 0], materials.operatorSuit);
+  addBox(body, [0.08, 0.56, 0.035], [-0.13, 0.95, -0.235], materials.cautionPaint);
+  addBox(body, [0.08, 0.56, 0.035], [0.13, 0.95, -0.235], materials.cautionPaint);
+  addBox(body, [0.38, 0.055, 0.038], [0, 1.12, -0.238], materials.safetyWhite);
+
+  const badgeMaterial = new THREE.MeshStandardMaterial({
+    map: makeLabelTexture("QA", "#f5efe0", "#1d2528"),
+    roughness: 0.42,
+    metalness: 0.04,
+  });
+  const badge = shadow(new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.085), badgeMaterial));
+  badge.position.set(0.19, 1.03, -0.258);
+  badge.rotation.y = Math.PI;
+  body.add(badge);
+
+  addCylinder(body, 0.075, 0.08, 0.12, [0, 1.32, 0], materials.operatorSkin, 16);
+
+  const headPivot = new THREE.Group();
+  headPivot.position.set(0, 1.48, 0);
+  body.add(headPivot);
+  addSphere(headPivot, 0.19, [0, 0, 0], materials.operatorSkin, 28);
+  addSphere(headPivot, 0.018, [-0.062, 0.035, -0.178], materials.warningBlack, 10);
+  addSphere(headPivot, 0.018, [0.062, 0.035, -0.178], materials.warningBlack, 10);
+  addBox(headPivot, [0.2, 0.055, 0.025], [0, -0.035, -0.185], materials.operatorVisor);
+
+  const helmetCap = shadow(
+    new THREE.Mesh(
+      new THREE.SphereGeometry(0.23, 30, 14, 0, Math.PI * 2, 0, Math.PI * 0.58),
+      materials.operatorHelmet,
+    ),
+  );
+  helmetCap.position.set(0, 0.06, 0);
+  helmetCap.scale.set(1.08, 0.78, 1.0);
+  headPivot.add(helmetCap);
+  const brim = addCylinder(headPivot, 0.245, 0.245, 0.035, [0, 0.035, -0.015], materials.operatorHelmet, 28);
+  brim.scale.z = 0.76;
+
+  function createArm(side, shoulderZ) {
+    const shoulder = new THREE.Group();
+    shoulder.position.set(side * 0.35, 1.2, shoulderZ);
+    shoulder.rotation.z = -side * 0.22;
+    shoulder.rotation.x = -0.18;
+    body.add(shoulder);
+
+    addCylinder(shoulder, 0.054, 0.064, 0.42, [0, -0.21, 0], materials.operatorSuit, 16);
+    addSphere(shoulder, 0.072, [0, -0.43, 0], materials.darkSteel, 16);
+
+    const forearm = new THREE.Group();
+    forearm.position.set(0, -0.43, 0);
+    forearm.rotation.x = -0.92;
+    forearm.rotation.z = side * 0.1;
+    shoulder.add(forearm);
+
+    addCylinder(forearm, 0.044, 0.052, 0.36, [0, -0.18, 0], materials.operatorSuit, 16);
+    addSphere(forearm, 0.06, [0, -0.39, 0], materials.operatorSkin, 16);
+
+    return { shoulder, forearm };
+  }
+
+  const leftArm = createArm(-1, -0.015);
+  const rightArm = createArm(1, -0.02);
+
+  function createLeg(side) {
+    const hip = new THREE.Group();
+    hip.position.set(side * 0.14, 0.56, 0);
+    hip.rotation.z = side * 0.05;
+    body.add(hip);
+
+    addCylinder(hip, 0.07, 0.08, 0.48, [0, -0.24, 0], materials.operatorSuit, 16);
+    addSphere(hip, 0.072, [0, -0.5, 0], materials.darkSteel, 16);
+    addBox(hip, [0.17, 0.1, 0.34], [0, -0.62, -0.065], materials.rubber);
+
+    return hip;
+  }
+
+  const leftLeg = createLeg(-1);
+  const rightLeg = createLeg(1);
+
+  const tablet = new THREE.Group();
+  tablet.position.set(0, 0.78, -0.42);
+  tablet.rotation.x = -0.72;
+  body.add(tablet);
+  addBox(tablet, [0.46, 0.035, 0.32], [0, 0, 0], materials.warningBlack);
+  addBox(tablet, [0.34, 0.04, 0.21], [0, 0.022, 0], materials.tabletScreen);
+  addBox(tablet, [0.22, 0.043, 0.025], [0, 0.047, -0.06], materials.glowGreen);
+  addBox(tablet, [0.14, 0.043, 0.025], [0, 0.048, 0.01], materials.glowBlue);
+
+  addPipe(body, [-0.18, 1.18, 0.03], [-0.38, 1.45, 0.03], 0.018, materials.brushed);
+  addPipe(body, [0.18, 1.18, 0.03], [0.38, 1.45, 0.03], 0.018, materials.brushed);
+
+  technician.userData.body = body;
+  technician.userData.headPivot = headPivot;
+  technician.userData.leftArm = leftArm;
+  technician.userData.rightArm = rightArm;
+  technician.userData.leftLeg = leftLeg;
+  technician.userData.rightLeg = rightLeg;
+  technician.userData.tablet = tablet;
+
+  return technician;
+}
+
+function animateTechnician(technician, time) {
+  const { body, headPivot, leftArm, rightArm, leftLeg, rightLeg, tablet } = technician.userData;
+  const breathing = Math.sin(time * 1.35) * 0.012;
+  const handCheck = Math.sin(time * 2.1);
+
+  body.position.y = breathing;
+  body.rotation.y = Math.sin(time * 0.42) * 0.035;
+  headPivot.rotation.y = Math.sin(time * 0.8) * 0.18;
+  headPivot.rotation.x = 0.035 + Math.sin(time * 1.15) * 0.035;
+
+  leftArm.shoulder.rotation.set(-0.22 + handCheck * 0.025, 0, 0.25);
+  leftArm.forearm.rotation.set(-0.94 + Math.sin(time * 1.6) * 0.045, 0, -0.1);
+  rightArm.shoulder.rotation.set(-0.34 + handCheck * 0.04, 0, -0.28);
+  rightArm.forearm.rotation.set(-1.04 + Math.cos(time * 1.75) * 0.055, 0, 0.12);
+
+  leftLeg.rotation.z = -0.035 + Math.sin(time * 0.8) * 0.015;
+  rightLeg.rotation.z = 0.04 - Math.sin(time * 0.8) * 0.015;
+  tablet.rotation.x = -0.72 + Math.sin(time * 1.7) * 0.035;
+}
+
 const factory = new THREE.Group();
 scene.add(factory);
 
@@ -945,6 +1291,8 @@ addBox(roomGroup, [1.35, 0.05, 0.62], [8.45, 1.22, 4.72], materials.darkSteel);
 addSphere(roomGroup, 0.055, [8.02, 1.3, 4.42], materials.glowGreen, 12);
 addSphere(roomGroup, 0.055, [8.28, 1.3, 4.42], materials.glowBlue, 12);
 addSphere(roomGroup, 0.055, [8.54, 1.3, 4.42], materials.glowRed, 12);
+const technician = createTechnician(roomGroup, [6.35, 0, 3.72], -0.08);
+createFloorLabel(roomGroup, "OPERATOR", [6.35, 0.069, 3.06], [1.55, 0.38], 0, "#3a725f");
 
 // Inspection/service room: side glass panels plus an open guarded transfer window for the robot.
 createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-5.78, 0, -2.28], true);
@@ -1004,10 +1352,10 @@ const agvSegments = agvPath.map((point, index) => {
 const agvRouteLength = agvSegments.reduce((total, length) => total + length, 0);
 const agvDropDistance = agvSegments.slice(0, 7).reduce((total, length) => total + length, 0);
 
-const ambientLight = new THREE.HemisphereLight(0xdaf6ff, 0x2d3230, 0.82);
+const ambientLight = new THREE.HemisphereLight(0xe4f8ff, 0x303b38, 1.02);
 scene.add(ambientLight);
 
-const sun = new THREE.DirectionalLight(0xffffff, 1.45);
+const sun = new THREE.DirectionalLight(0xffffff, 1.58);
 sun.position.set(5, 8, 6);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -1031,7 +1379,7 @@ const ceilingLights = [];
   [4.8, 5.6, 2.7],
 ].forEach(([x, y, z]) => {
   addBox(factory, [1.7, 0.08, 0.28], [x, y, z], materials.lampGlow);
-  const light = new THREE.PointLight(0xfff1cb, 8.2, 11, 1.65);
+  const light = new THREE.PointLight(0xfff1cb, 9.0, 12.5, 1.58);
   light.position.set(x, y - 0.15, z);
   light.castShadow = true;
   light.shadow.bias = -0.00012;
@@ -1040,7 +1388,7 @@ const ceilingLights = [];
   scene.add(light);
 });
 
-const lampLight = new THREE.SpotLight(0xffc875, 38, 15, Math.PI / 5.5, 0.62, 1.1);
+const lampLight = new THREE.SpotLight(0xffc875, 42, 16, Math.PI / 5.5, 0.62, 1.1);
 lampLight.position.set(-4.7, 4.6, 1.7);
 lampLight.target.position.set(-0.6, 0.8, 0);
 lampLight.castShadow = true;
@@ -1501,11 +1849,11 @@ toggleAnimation.addEventListener("click", () => {
 toggleNight.addEventListener("click", () => {
   state.night = !state.night;
   toggleNight.textContent = state.night ? "Day" : "Night";
-  scene.background.set(state.night ? 0x080d12 : 0x202b32);
-  scene.fog.color.set(state.night ? 0x080d12 : 0x202b32);
-  ambientLight.intensity = state.night ? 0.32 : 0.82;
-  sun.intensity = state.night ? 0.08 : 1.45;
-  renderer.toneMappingExposure = state.night ? 1.02 : 1.28;
+  scene.background.set(state.night ? 0x080d12 : 0x26333a);
+  scene.fog.color.set(state.night ? 0x080d12 : 0x26333a);
+  ambientLight.intensity = state.night ? 0.32 : 1.02;
+  sun.intensity = state.night ? 0.08 : 1.58;
+  renderer.toneMappingExposure = state.night ? 1.04 : 1.38;
 });
 
 toggleLamp.addEventListener("click", () => {
@@ -1513,7 +1861,7 @@ toggleLamp.addEventListener("click", () => {
   setToggleState(toggleLamp, state.lampOn, "Lamp Off", "Lamp On");
   lampLight.visible = state.lampOn;
   ceilingLights.forEach((light, index) => {
-    light.intensity = state.lampOn ? 8.2 : index % 2 === 0 ? 1.5 : 0;
+    light.intensity = state.lampOn ? 9.0 : index % 2 === 0 ? 1.5 : 0;
   });
 });
 
@@ -1552,7 +1900,7 @@ cameraView.addEventListener("click", () => {
   state.cameraIndex = (state.cameraIndex + 1) % cameraViews.length;
   const view = cameraViews[state.cameraIndex];
   moveCameraTo(view);
-  cameraView.textContent = `Camera ${String.fromCharCode(65 + ((state.cameraIndex + 1) % cameraViews.length))}`;
+  cameraView.textContent = `Camera ${String.fromCharCode(65 + state.cameraIndex)}`;
 });
 
 speedControl.addEventListener("input", () => {
@@ -1944,10 +2292,11 @@ function animate() {
   });
   updateAgv(machineElapsed);
   updateSlidingDoors(delta);
+  animateTechnician(technician, elapsed);
 
   ceilingLights.forEach((light, index) => {
     const pulse = 1 + Math.sin(elapsed * 1.8 + index) * 0.05;
-    light.intensity = state.lampOn ? 8.2 * pulse : index % 2 === 0 ? 1.5 : 0;
+    light.intensity = state.lampOn ? 9.0 * pulse : index % 2 === 0 ? 1.5 : 0;
   });
 
   if (state.cameraTransition) {
