@@ -24,9 +24,11 @@ The project is implemented with Three.js and JavaScript. All models and animatio
 - Quadcopter-style drone with body, arms, propellers, sensor beam, scan ring, status lights, cargo clamp, cargo pickup, carry, and return sequence.
 - AGV transport cart moving on a marked road around the factory perimeter, with load/drop cargo states so it does not just drive through the scene empty.
 - Control-room technician character with hierarchical body/head/arms/legs/tablet parts, procedural skin/helmet/fabric textures, and animated idle/tablet motion.
+- Manual triangulated prototype mesh with explicit position, UV, index, and normal buffers, plus wireframe and normal-vector visualization.
+- Physics-based mass-spring cable simulation using positions, velocities, gravity, damping, spring forces, semi-implicit Euler integration, and simple floor collision.
 - User controls for pause/resume, speed, day/night mode, lamp toggle, machine toggle, scanner toggle, drone toggle, robot speed toggle, camera presets, room navigation, minimap navigation, walk mode, and orbit controls.
 - Improved camera presets and room views so the project can be presented from useful angles.
-- README, team notes, roadmap, and this project summary documenting features, responsibilities, and course requirement coverage.
+- README, team notes, roadmap, course concept map, and this project summary documenting features, responsibilities, and course requirement coverage.
 
 ## Course Requirements Covered
 
@@ -43,6 +45,7 @@ The project is implemented with Three.js and JavaScript. All models and animatio
 - Procedural textures are generated in JavaScript using canvas textures.
 - Texture/material examples include floor checker/scuff texture, wall panel texture, conveyor stripe texture, hazard stripe texture, labels, fabric texture, fabric bump texture, skin texture, helmet texture, glass material, metal materials, rubber materials, emissive materials, and oil/glass transparency.
 - The technician jacket uses a custom shader with texture sampling, diffuse lighting, and rim shading to demonstrate implemented shading logic.
+- The triangulated mesh exhibit uses manual `BufferGeometry` attributes to show UV mapping, indexed triangles, and computed normals.
 
 ### User Interaction
 
@@ -65,6 +68,7 @@ The project is implemented with Three.js and JavaScript. All models and animatio
 - Sliding doors animate when room navigation changes.
 - Ceiling lights pulse slightly.
 - The technician has idle body, head, arm, leg, and tablet motion.
+- A mass-spring cable uses physics-style state updates and collision response to demonstrate simulation concepts from the physics animation slides.
 
 ## Files Updated During the Project
 
@@ -75,6 +79,7 @@ The project is implemented with Three.js and JavaScript. All models and animatio
 - `TEAM_NOTES.md`: shared team rules, current coverage, responsibilities, and pre-push checklist.
 - `PROJECT_ROADMAP.md`: owner-by-owner roadmap, done criteria, remaining checks, and final presentation story.
 - `COURSE_SLIDES_NOTES.md`: local notes connecting the project to the course slides and requirements.
+- `COURSE_CONCEPT_MAP.md`: detailed slide-topic-to-project-feature mapping for the final presentation.
 - `PROJECT_SUMMARY.md`: this final overview file.
 
 ## How to Run Locally
@@ -108,5 +113,4 @@ http://localhost:5173
 
 - `node --check src/main.js` passes.
 - The local server responds at `http://127.0.0.1:5173`.
-- Latest pushed commit before this summary: `a207d6d Add textured control room operator`.
-
+- Latest checked local revision before this summary update: `3beb66a Fix robot conveyor pickup animation`, plus local course-concept additions.

@@ -14,6 +14,8 @@ The project is an interactive multi-room robot factory where hierarchical robot 
 - Enclosed factory floor with walls, partitions, doors, wall panels, ceiling beams, pipes, vents, storage racks, pallets, barrels, tool carts, electrical cabinets, floor labels, floor drains, maintenance panels, loading zones, oil stains, guard rails, bollards, hazard stripes, ceiling lamps, cable trays, and control desk.
 - Hierarchical factory technician character in the control room, with animated head/arms/tablet and procedural skin, helmet, and fabric textures.
 - Animated sliding doors, facility minimap navigation, and an autonomous transport cart moving on a marked AGV road around the factory with visible load/drop cargo stations.
+- Manual triangulated mesh/UV exhibit with vertex markers, wireframe overlay, and normal-vector rods to show the surfaces, triangle meshes, UV mapping, and normal lessons explicitly.
+- Physics-based mass-spring cable simulation with gravity, damping, wind force, semi-implicit Euler integration, and floor collision.
 - Directional light, hemisphere light, ceiling lights, emissive indicators, and toggleable factory lamps.
 - Procedural floor, wall, conveyor, hazard, label, scuff, fabric, skin, helmet, and bump-style textures generated in JavaScript.
 - User controls for pause/resume, day/night mode, lamp toggle, machine line toggle, scanner toggle, drone toggle, robot speed toggle, camera views, room navigation, minimap navigation, walk mode, orbit controls, and animation speed.
@@ -25,7 +27,7 @@ Every teammate should check their work against this list before pushing changes.
 - Hierarchical models: the project must include at least one complex hierarchical model. Our main examples are the robot arms, built from parent-child parts: base, waist, shoulder, elbow, wrist, and claw. The control-room technician is another hierarchy with body, head, shoulder, forearm, leg, helmet, and tablet child parts.
 - Lights and textures: the scene must include lights and different texture/material types. We currently use hemisphere, directional, point, and spot lights, plus procedural floor, wall, belt, hazard, label, fabric, skin, helmet, metal, glass, emissive, and rough/metal materials. The technician jacket also uses a small custom shader with texture sampling, diffuse lighting, and rim shading.
 - User interaction: the user must be able to interact with the scene. Current interactions include pause/resume, day/night mode, lamp toggle, machine line toggle, scanner visibility, drone visibility, robot speed control, camera presets, room navigation, minimap navigation, walk mode with keyboard controls, orbit controls, and animation speed.
-- Animations: most objects should be animated, especially hierarchical models. Current animations include staged robot pick/place motion, conveyor movement, varied production objects, scanner quality feedback, press machine, scanner beam, drone tracking, propellers, sliding doors, autonomous transport cart, technician idle/tablet motion, and light pulsing.
+- Animations: most objects should be animated, especially hierarchical models. Current animations include staged robot pick/place motion, conveyor movement, varied production objects, scanner quality feedback, press machine, scanner beam, drone tracking, propellers, sliding doors, autonomous transport cart, technician idle/tablet motion, spring-cable physics motion, and light pulsing.
 - Important rule: animations must be implemented by us in JavaScript. Do not import premade animations from online models.
 
 ## Team Contribution Rules
@@ -87,6 +89,10 @@ Progress: Leo's production-flow pass is mostly complete. The line now includes v
 - Final check: test the full project from a fresh browser tab and confirm it works without local-only files.
 
 Progress: Edo's interaction polish pass is in progress. Added machine line toggle, scanner visibility toggle, drone visibility toggle, robot speed toggle, and clearer active/inactive button states.
+
+## Course Concept Evidence
+
+See `COURSE_CONCEPT_MAP.md` for the detailed mapping between the professor's slide topics and the project implementation, including transformations, GPU/WebGL pipeline, textures, shading, triangle meshes, shadows, animation, physics-based simulation, and Three.js final considerations.
 
 ## Run Locally
 
