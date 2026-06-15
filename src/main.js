@@ -691,6 +691,23 @@ function setFirstPersonCameraBehindAvatar() {
   setFirstPersonCameraFromPosition(walkStartPosition);
 }
 
+function parkWalkAvatarForExit() {
+  const exitedFromFirstPerson = state.walkCameraMode === WALK_CAMERA_MODES.first;
+
+  if (state.walkCameraMode === WALK_CAMERA_MODES.third && walkAvatarHasPosition) {
+    walkAvatarYaw = state.walkYaw;
+  } else if (!walkAvatarHasPosition) {
+    placeWalkAvatar(camera.position, state.walkYaw);
+  }
+
+  showParkedWalkAvatar();
+  if (exitedFromFirstPerson && walkAvatarHasPosition) {
+    state.walkYaw = walkAvatarYaw;
+    updateWalkDirectionVectors();
+    setThirdPersonCameraFromAvatar(true);
+  }
+}
+
 function createWalkBlocker(centerX, centerZ, halfX, halfZ) {
   return {
     minX: centerX - halfX,
@@ -869,8 +886,9 @@ function setWalkCameraMode(mode) {
 
 function setWalkMode(enabled) {
   const orbitWalkYaw = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
-  if (!enabled && state.walkCameraMode === WALK_CAMERA_MODES.third && walkAvatarHasPosition) {
-    walkAvatarYaw = state.walkYaw;
+  const leavingWalkMode = state.walkMode && !enabled;
+  if (leavingWalkMode) {
+    parkWalkAvatarForExit();
   }
 
   state.walkMode = enabled;
