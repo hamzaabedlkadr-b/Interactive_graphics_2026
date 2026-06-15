@@ -8,19 +8,65 @@ export function createAgv(parent) {
   const agv = new THREE.Group();
   parent.add(agv);
 
-  addBox(agv, [0.92, 0.22, 0.62], [0, 0.28, 0], materials.darkSteel);
-  addBox(agv, [0.72, 0.18, 0.48], [0, 0.48, 0], materials.yellow);
-  const cargo = createCargoCrate(agv, [0.06, 0.7, 0], materials.crate);
-  agv.userData.cargo = cargo;
-  addSphere(agv, 0.075, [-0.34, 0.64, 0.22], materials.glowBlue, 12);
-  addSphere(agv, 0.055, [0.34, 0.62, -0.22], materials.glowGreen, 12);
+  const body = new THREE.Group();
+  body.position.y = 0.02;
+  agv.add(body);
 
-  [-0.32, 0.32].forEach((x) => {
-    [-0.24, 0.24].forEach((z) => {
-      const wheel = addCylinder(agv, 0.105, 0.105, 0.09, [x, 0.13, z], materials.rubber, 18);
-      wheel.rotation.z = Math.PI / 2;
-    });
+  addBox(body, [0.82, 0.25, 1.04], [0, 0.76, 0], materials.productShell);
+  addBox(body, [0.68, 0.09, 0.84], [0, 0.94, 0], materials.steel);
+  addBox(body, [0.48, 0.045, 0.62], [0, 1.02, -0.04], materials.rubber);
+  addSphere(body, 0.24, [0, 0.76, 0.54], materials.productShell, 18);
+  addSphere(body, 0.22, [0, 0.74, -0.52], materials.steel, 18);
+  addBox(body, [0.4, 0.16, 0.28], [0, 0.78, 0.72], materials.darkSteel);
+  addBox(body, [0.48, 0.2, 0.26], [0, 0.79, 0.88], materials.brushed);
+  addSphere(body, 0.07, [-0.17, 0.84, 1.02], materials.glowBlue, 12);
+  addSphere(body, 0.07, [0.17, 0.84, 1.02], materials.glowGreen, 12);
+  addBox(body, [0.06, 0.18, 0.72], [-0.46, 0.78, 0], materials.darkSteel);
+  addBox(body, [0.06, 0.18, 0.72], [0.46, 0.78, 0], materials.darkSteel);
+  addLocalCable(body, [
+    [-0.36, 0.95, -0.42],
+    [-0.48, 1.0, -0.08],
+    [-0.38, 0.96, 0.36],
+  ], 0.018);
+  addLocalCable(body, [
+    [0.36, 0.95, -0.42],
+    [0.48, 1.0, -0.08],
+    [0.38, 0.96, 0.36],
+  ], 0.018);
+
+  addBox(agv, [0.48, 0.055, 0.5], [0, 1.055, -0.06], materials.darkSteel);
+  const cargo = createCargoCrate(agv, [0.04, 1.16, -0.06], materials.crate);
+  cargo.scale.set(0.72, 0.58, 0.7);
+  agv.userData.cargo = cargo;
+  agv.userData.body = body;
+
+  const legs = [];
+  [
+    [-0.48, 0.42, 0],
+    [0.48, 0.42, Math.PI],
+    [-0.48, -0.42, Math.PI],
+    [0.48, -0.42, 0],
+  ].forEach(([x, z, phase]) => {
+    const hip = new THREE.Group();
+    hip.position.set(x, 0.66, z);
+    agv.add(hip);
+
+    addSphere(hip, 0.135, [0, 0, 0], materials.darkSteel, 16);
+    addCylinder(hip, 0.045, 0.05, 0.22, [0, 0, 0], materials.steel, 14).rotation.z = Math.PI / 2;
+    const upper = addCylinder(hip, 0.055, 0.065, 0.39, [0, -0.2, 0.06], materials.brushed, 14);
+    upper.rotation.x = 0.28;
+
+    const knee = new THREE.Group();
+    knee.position.set(0, -0.39, 0.12);
+    hip.add(knee);
+    addSphere(knee, 0.095, [0, 0, 0], materials.darkSteel, 14);
+    const lower = addCylinder(knee, 0.043, 0.052, 0.46, [0, -0.22, -0.08], materials.brushed, 14);
+    lower.rotation.x = -0.34;
+    addBox(knee, [0.22, 0.075, 0.18], [0, -0.45, -0.17], materials.rubber);
+
+    legs.push({ hip, knee, phase });
   });
+  agv.userData.legs = legs;
 
   return agv;
 }

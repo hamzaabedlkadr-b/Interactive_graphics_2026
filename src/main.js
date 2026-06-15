@@ -1553,7 +1553,16 @@ function updateAgv(time) {
   const cargoOnCart = !loadTransfer && !dropTransfer;
 
   agv.userData.cargo.visible = cargoOnCart;
-  agv.userData.cargo.position.y = 0.7 + Math.sin(time * 5) * 0.012;
+  agv.userData.cargo.position.y = 1.16 + Math.sin(time * 5) * 0.012;
+  if (agv.userData.body) {
+    agv.userData.body.position.y = 0.02 + Math.sin(time * 9) * 0.018;
+  }
+  agv.userData.legs?.forEach((leg, index) => {
+    const stride = Math.sin(time * 6.8 + leg.phase);
+    const lift = Math.max(0, stride);
+    leg.hip.rotation.x = stride * 0.34;
+    leg.knee.rotation.x = -0.18 - lift * 0.32 + Math.sin(time * 6.8 + index) * 0.05;
+  });
   agvLoadCrate.visible = loadTransfer;
   agvLoadCrate.scale.setScalar(loadTransfer ? 1 + Math.sin(time * 8) * 0.035 : 1);
   agvDropCrate.visible = dropTransfer;
