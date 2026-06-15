@@ -583,6 +583,8 @@ const walkStartPosition = new THREE.Vector3();
 const walkTestPosition = new THREE.Vector3();
 const thirdPersonCameraPosition = new THREE.Vector3();
 const thirdPersonCameraTarget = new THREE.Vector3();
+let walkAvatarHasPosition = false;
+let walkAvatarYaw = state.walkYaw;
 
 const walkCollisionBlockers = [
   createWalkBlocker(0, 0.2, 8.5, 2.05),
@@ -659,6 +661,34 @@ function activateRoom(roomKey) {
 function updateWalkDirectionVectors() {
   walkForward.set(-Math.sin(state.walkYaw), 0, -Math.cos(state.walkYaw));
   walkRight.set(Math.cos(state.walkYaw), 0, -Math.sin(state.walkYaw));
+}
+
+function placeWalkAvatar(position, yaw = state.walkYaw) {
+  walkAvatar.position.set(position.x, 0, position.z);
+  findWalkablePosition(walkAvatar.position);
+  walkAvatarYaw = yaw;
+  walkAvatar.rotation.y = walkAvatarYaw;
+  walkAvatar.visible = true;
+  walkAvatarHasPosition = true;
+}
+
+function showParkedWalkAvatar() {
+  walkAvatar.visible = walkAvatarHasPosition;
+  if (!walkAvatarHasPosition) return;
+
+  walkAvatar.position.y = 0;
+  walkAvatar.rotation.y = walkAvatarYaw;
+  animateWalkAvatar(walkAvatar, state.walkAnimTime, false);
+}
+
+function setFirstPersonCameraBehindAvatar() {
+  walkStartPosition.set(
+    walkAvatar.position.x - walkForward.x * 2.4,
+    0,
+    walkAvatar.position.z - walkForward.z * 2.4,
+  );
+  findWalkablePosition(walkStartPosition);
+  setFirstPersonCameraFromPosition(walkStartPosition);
 }
 
 function createWalkBlocker(centerX, centerZ, halfX, halfZ) {
@@ -799,27 +829,50 @@ function syncWalkCameraModeButton() {
 }
 
 function setWalkCameraMode(mode) {
+  const wasThirdPerson = state.walkCameraMode === WALK_CAMERA_MODES.third;
+  if (wasThirdPerson && walkAvatarHasPosition) {
+    walkAvatarYaw = state.walkYaw;
+  }
+
   state.walkCameraMode = mode;
   syncWalkCameraModeButton();
+  if (state.walkCameraMode === WALK_CAMERA_MODES.third && walkAvatarHasPosition) {
+    state.walkYaw = walkAvatarYaw;
+  }
   updateWalkDirectionVectors();
 
-  if (!state.walkMode) return;
+  if (!state.walkMode) {
+    showParkedWalkAvatar();
+    return;
+  }
 
   if (state.walkCameraMode === WALK_CAMERA_MODES.third) {
-    walkAvatar.position.set(camera.position.x, 0, camera.position.z);
-    findWalkablePosition(walkAvatar.position);
-    walkAvatar.rotation.y = state.walkYaw;
+    if (!walkAvatarHasPosition) {
+      placeWalkAvatar(camera.position, state.walkYaw);
+    } else {
+      walkAvatar.rotation.y = walkAvatarYaw;
+      walkAvatar.visible = true;
+    }
     walkAvatar.visible = true;
     setThirdPersonCameraFromAvatar(true);
     modeLabel.textContent = "Third-person walk";
   } else {
-    setFirstPersonCameraFromPosition(walkAvatar.position);
-    walkAvatar.visible = false;
+    if (walkAvatarHasPosition) {
+      state.walkYaw = walkAvatarYaw;
+      updateWalkDirectionVectors();
+      setFirstPersonCameraBehindAvatar();
+    }
+    showParkedWalkAvatar();
     modeLabel.textContent = "First-person walk";
   }
 }
 
 function setWalkMode(enabled) {
+  const orbitWalkYaw = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
+  if (!enabled && state.walkCameraMode === WALK_CAMERA_MODES.third && walkAvatarHasPosition) {
+    walkAvatarYaw = state.walkYaw;
+  }
+
   state.walkMode = enabled;
   state.cameraTransition = null;
   controls.enabled = !enabled;
@@ -829,22 +882,33 @@ function setWalkMode(enabled) {
   syncWalkCameraModeButton();
 
   if (enabled) {
-    state.walkYaw = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
-    updateWalkDirectionVectors();
-    const startPosition = getWalkStartPosition();
     if (state.walkCameraMode === WALK_CAMERA_MODES.third) {
-      walkAvatar.position.copy(startPosition);
-      walkAvatar.rotation.y = state.walkYaw;
+      if (walkAvatarHasPosition) {
+        state.walkYaw = walkAvatarYaw;
+        updateWalkDirectionVectors();
+      } else {
+        state.walkYaw = orbitWalkYaw;
+        updateWalkDirectionVectors();
+        placeWalkAvatar(getWalkStartPosition(), state.walkYaw);
+      }
       walkAvatar.visible = true;
       setThirdPersonCameraFromAvatar(true);
       modeLabel.textContent = "Third-person walk";
     } else {
-      walkAvatar.visible = false;
-      setFirstPersonCameraFromPosition(startPosition);
+      if (walkAvatarHasPosition) {
+        state.walkYaw = walkAvatarYaw;
+        updateWalkDirectionVectors();
+        setFirstPersonCameraBehindAvatar();
+      } else {
+        state.walkYaw = orbitWalkYaw;
+        updateWalkDirectionVectors();
+        setFirstPersonCameraFromPosition(getWalkStartPosition());
+      }
+      showParkedWalkAvatar();
       modeLabel.textContent = "First-person walk";
     }
   } else {
-    walkAvatar.visible = false;
+    showParkedWalkAvatar();
     modeLabel.textContent = state.running ? "Automatic cycle" : `Paused in ${roomViews[state.roomKey].label}`;
   }
 }
@@ -1171,15 +1235,18 @@ function updateWalkMode(delta) {
     isMoving = moveWalkSubject(subjectPosition, walkMovement);
   }
 
-  state.walkAnimTime += delta * (isMoving ? 1.0 : 0.42);
+  const activeAvatarIsMoving = isThirdPerson && isMoving;
+  state.walkAnimTime += delta * (activeAvatarIsMoving ? 1.0 : 0.42);
   if (isThirdPerson) {
+    walkAvatarHasPosition = true;
+    walkAvatarYaw = state.walkYaw;
     walkAvatar.visible = true;
     walkAvatar.position.y = 0;
-    walkAvatar.rotation.y = state.walkYaw;
-    animateWalkAvatar(walkAvatar, state.walkAnimTime, isMoving);
+    walkAvatar.rotation.y = walkAvatarYaw;
+    animateWalkAvatar(walkAvatar, state.walkAnimTime, activeAvatarIsMoving);
     setThirdPersonCameraFromAvatar(false, delta);
   } else {
-    walkAvatar.visible = false;
+    showParkedWalkAvatar();
     camera.position.y = WALK_EYE_HEIGHT;
     controls.target.set(
       camera.position.x + walkForward.x * 4,
@@ -1193,6 +1260,13 @@ function updateWalkMode(delta) {
   state.activeDoorKey = currentRoom;
   state.doorTimer = Math.max(state.doorTimer, 0.2);
   modeLabel.textContent = isThirdPerson ? "Third-person walk" : "First-person walk";
+}
+
+function updateParkedWalkAvatar(delta) {
+  if (state.walkMode || !walkAvatarHasPosition) return;
+
+  state.walkAnimTime += delta * 0.42;
+  showParkedWalkAvatar();
 }
 
 function resizeRenderer() {
@@ -1221,6 +1295,7 @@ function animate() {
     }
   }
   updateWalkMode(delta);
+  updateParkedWalkAvatar(delta);
 
   materials.belt.map.offset.x = -machineElapsed * 0.58;
   materials.hazard.map.offset.x = -machineElapsed * 0.08;
