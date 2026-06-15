@@ -169,7 +169,7 @@ export function createMassSpringCable(parent, position) {
   const spheres = [];
   for (let i = 0; i < count; i += 1) {
     const particle = {
-      position: new THREE.Vector3(Math.sin(i * 0.8) * 0.04, -0.18 - i * restLength, Math.cos(i * 0.65) * 0.035),
+      position: new THREE.Vector3(0, -0.18 - i * restLength, 0),
       velocity: new THREE.Vector3(),
       force: new THREE.Vector3(),
       fixed: i === 0,
@@ -194,38 +194,90 @@ export function createMassSpringCable(parent, position) {
   cable.userData.lineGeometry = lineGeometry;
   cable.userData.sensor = sensor;
   cable.userData.restLength = restLength;
-  cable.userData.stiffness = 34;
-  cable.userData.damping = 1.7;
+  cable.userData.stiffness = 44;
+  cable.userData.damping = 2.4;
+  cable.userData.airDrag = 0.42;
   cable.userData.mass = 0.18;
   cable.userData.floorY = -1.82;
+  cable.userData.active = false;
+  cable.userData.activityTime = 0;
+  cable.userData.sleepSpeed = 0.018;
   cable.userData.temp = {
     deltaVector: new THREE.Vector3(),
     relativeVelocity: new THREE.Vector3(),
-    gravity: new THREE.Vector3(0, -3.4, 0),
-    wind: new THREE.Vector3(),
+    gravity: new THREE.Vector3(0, -4.9, 0),
   };
+  syncMassSpringCableMeshes(cable, 0);
 
   return cable;
 }
 
+function syncMassSpringCableMeshes(cable, time) {
+  const particles = cable.userData.particles;
+
+  particles.forEach((particle, index) => {
+    cable.userData.spheres[index].position.copy(particle.position);
+  });
+
+  const lineAttribute = cable.userData.lineGeometry.getAttribute("position");
+  let cursor = 0;
+  for (let i = 0; i < particles.length - 1; i += 1) {
+    const a = particles[i].position;
+    const b = particles[i + 1].position;
+    lineAttribute.setXYZ(cursor, a.x, a.y, a.z);
+    lineAttribute.setXYZ(cursor + 1, b.x, b.y, b.z);
+    cursor += 2;
+  }
+  lineAttribute.needsUpdate = true;
+
+  const finalParticle = particles[cable.userData.sensor.userData.followIndex];
+  cable.userData.sensor.position.set(finalParticle.position.x, finalParticle.position.y - 0.13, finalParticle.position.z);
+  cable.userData.sensor.rotation.z = cable.userData.active ? Math.sin(time * 5.2) * 0.12 : 0;
+}
+
+export function kickMassSpringCable(cable, direction, strength = 1) {
+  if (!cable) return;
+
+  const push = direction.clone();
+  push.y = 0;
+  if (push.lengthSq() < 0.0001) {
+    push.set(1, 0, 0.35);
+  }
+  push.normalize();
+
+  cable.userData.active = true;
+  cable.userData.activityTime = 0;
+  cable.userData.particles.forEach((particle, index) => {
+    if (particle.fixed) return;
+    const weight = index / (cable.userData.particles.length - 1);
+    particle.velocity.addScaledVector(push, strength * (0.9 + weight * 1.45));
+    particle.velocity.y += strength * 0.18 * Math.sin(index * 0.85);
+  });
+}
+
 export function updateMassSpringCable(cable, delta, time) {
   if (delta <= 0) return;
+  if (!cable.userData.active) {
+    syncMassSpringCableMeshes(cable, time);
+    return;
+  }
 
   const particles = cable.userData.particles;
   const substeps = 3;
   const step = Math.min(delta, 1 / 30) / substeps;
-  const { deltaVector, relativeVelocity, gravity, wind } = cable.userData.temp;
-  wind.set(Math.sin(time * 1.7) * 0.85, 0, Math.cos(time * 1.1) * 0.45);
+  const { deltaVector, relativeVelocity, gravity } = cable.userData.temp;
+  let maxSpeed = 0;
+  cable.userData.activityTime += delta;
 
   for (let substep = 0; substep < substeps; substep += 1) {
-    particles[0].position.set(Math.sin(time * 1.2) * 0.08, -0.18 + Math.sin(time * 1.7) * 0.025, 0);
+    particles[0].position.set(0, -0.18, 0);
     particles[0].velocity.set(0, 0, 0);
 
     particles.forEach((particle, index) => {
       particle.force.set(0, 0, 0);
       if (!particle.fixed) {
         particle.force.addScaledVector(gravity, cable.userData.mass);
-        particle.force.addScaledVector(wind, 0.04 + index * 0.008);
+        particle.force.addScaledVector(particle.velocity, -cable.userData.airDrag);
       }
     });
 
@@ -238,6 +290,7 @@ export function updateMassSpringCable(cable, delta, time) {
       const stretch = length - cable.userData.restLength;
       relativeVelocity.subVectors(b.velocity, a.velocity);
       const dampingForce = cable.userData.damping * relativeVelocity.dot(direction);
+      // Hooke spring force plus viscous damping along each segment.
       const force = direction.multiplyScalar(cable.userData.stiffness * stretch + dampingForce);
 
       if (!a.fixed) a.force.add(force);
@@ -248,7 +301,7 @@ export function updateMassSpringCable(cable, delta, time) {
       if (particle.fixed) return;
       const acceleration = particle.force.multiplyScalar(1 / cable.userData.mass);
       particle.velocity.addScaledVector(acceleration, step);
-      particle.velocity.multiplyScalar(0.992);
+      particle.velocity.multiplyScalar(0.996);
       particle.position.addScaledVector(particle.velocity, step);
       if (particle.position.y < cable.userData.floorY) {
         particle.position.y = cable.userData.floorY;
@@ -256,23 +309,13 @@ export function updateMassSpringCable(cable, delta, time) {
         particle.velocity.x *= 0.8;
         particle.velocity.z *= 0.8;
       }
+      maxSpeed = Math.max(maxSpeed, particle.velocity.length());
     });
   }
 
-  particles.forEach((particle, index) => {
-    cable.userData.spheres[index].position.copy(particle.position);
-  });
-  const lineAttribute = cable.userData.lineGeometry.getAttribute("position");
-  let cursor = 0;
-  for (let i = 0; i < particles.length - 1; i += 1) {
-    const a = particles[i].position;
-    const b = particles[i + 1].position;
-    lineAttribute.setXYZ(cursor, a.x, a.y, a.z);
-    lineAttribute.setXYZ(cursor + 1, b.x, b.y, b.z);
-    cursor += 2;
+  if (cable.userData.activityTime > 3.2 && maxSpeed < cable.userData.sleepSpeed) {
+    cable.userData.active = false;
+    particles.forEach((particle) => particle.velocity.set(0, 0, 0));
   }
-  lineAttribute.needsUpdate = true;
-  const finalParticle = particles[cable.userData.sensor.userData.followIndex];
-  cable.userData.sensor.position.set(finalParticle.position.x, finalParticle.position.y - 0.13, finalParticle.position.z);
-  cable.userData.sensor.rotation.z = Math.sin(time * 2.2) * 0.16;
+  syncMassSpringCableMeshes(cable, time);
 }

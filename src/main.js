@@ -45,7 +45,7 @@ import { shadow, addBox, addCylinder, addSphere, addTorus, addCable, addLocalCab
 import { createVent, createFloorLabel, createOilStain, createFloorDrain, createSafetyBollard, createCableTray, createAgvLane, createDoorFrame, createSlidingDoor, createPartitionWall } from "./entities/environment.js";
 import { createWarningPanel, createBarrel, createStorageRack, createPallet, createToolCart, createElectricalCabinet, createMaintenancePanel } from "./entities/props.js";
 import { createTechnician, animateTechnician, createWalkAvatar, animateWalkAvatar } from "./entities/characters.js";
-import { createCargoCrate, createProductionItem, createHandledPart, createTriangulatedPrototype, createMassSpringCable, updateMassSpringCable } from "./entities/production.js";
+import { createCargoCrate, createProductionItem, createHandledPart, createTriangulatedPrototype, createMassSpringCable, kickMassSpringCable, updateMassSpringCable } from "./entities/production.js";
 import { createAgv, createParallelGripper, createRobot } from "./entities/machines.js";
 
 function tuneAnimatedObjectForPerformance(object) {
@@ -272,15 +272,7 @@ createFloorLabel(roomGroup, "OPERATOR", [6.35, 0.069, 3.06], [1.55, 0.38], 0, "#
 createElevatorLanding(roomGroup, [9.72, 0, 5.25], Math.PI / 2, "LIFT");
 createFloorLabel(roomGroup, "UPPER ROOM", [8.42, 0.071, 5.18], [1.58, 0.38], 0, "#3a725f");
 
-// Inspection/service room: side glass panels plus an open guarded transfer window for the robot.
-createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-5.78, 0, -2.28], true);
-createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-2.42, 0, -2.28], true);
-createPartitionWall(roomGroup, [0.16, 2.65, 3.95], [-6.75, 0, -4.2], true);
-createDoorFrame(roomGroup, [-4.1, 0, -2.28], 0, 1.85, STANDARD_DOOR_HEIGHT);
-addPipe(roomGroup, [-4.92, 0.8, -2.17], [-4.92, 2.35, -2.17], 0.018, materials.glowBlue);
-addPipe(roomGroup, [-4.52, 0.8, -2.17], [-4.52, 2.35, -2.17], 0.018, materials.glowBlue);
-addPipe(roomGroup, [-3.68, 0.8, -2.17], [-3.68, 2.35, -2.17], 0.018, materials.glowBlue);
-addPipe(roomGroup, [-3.28, 0.8, -2.17], [-3.28, 2.35, -2.17], 0.018, materials.glowBlue);
+// Inspection/service room: open transfer area so the robot arm path stays clear.
 createFloorLabel(roomGroup, "INSPECT", [-4.1, 0.068, -5.75], [1.85, 0.56], 0, "#f6c453");
 createFloorDrain(roomGroup, [-5.75, 0.077, -5.18], -0.35);
 createSafetyBollard(roomGroup, [-6.05, 0, -2.58], 0.82);
@@ -597,7 +589,8 @@ addSphere(pressMachine, 0.1, [-0.22, 2.9, 0.62], materials.glowBlue, 16);
 addSphere(pressMachine, 0.1, [0.08, 2.9, 0.62], materials.glowRed, 16);
 
 const scanner = new THREE.Group();
-scanner.position.set(-4.55, 0, -3.35);
+scanner.position.set(-4.55, 0, 0.2);
+scanner.rotation.y = Math.PI / 2;
 scene.add(scanner);
 addBox(scanner, [0.24, 2.5, 0.24], [-0.7, 1.55, 0], materials.darkSteel);
 addBox(scanner, [0.24, 2.5, 0.24], [0.7, 1.55, 0], materials.darkSteel);
@@ -755,6 +748,8 @@ const walkStartPosition = new THREE.Vector3();
 const walkTestPosition = new THREE.Vector3();
 const thirdPersonCameraPosition = new THREE.Vector3();
 const thirdPersonCameraTarget = new THREE.Vector3();
+const springCableWorldPosition = new THREE.Vector3();
+const springCableKickDirection = new THREE.Vector3();
 let walkAvatarHasPosition = false;
 let walkAvatarYaw = state.walkYaw;
 let elevatorStopIndex = 0;
@@ -785,7 +780,6 @@ const walkCollisionBlockers = [
   createWalkBlocker(-4.1, -3.35, 1.35, 1.25),
   createWalkBlocker(5.05, -4.55, 1.45, 1.15),
   createWalkBlocker(1.35, -4.15, 1.15, 0.85),
-  createWalkBlocker(-4.55, -3.35, 1.05, 0.85),
   createWalkBlocker(-7.26, -3.48, 0.82, 0.58),
   createWalkBlocker(5.95, -1.45, 0.68, 0.55),
   createWalkBlocker(-4.9, 1.72, 0.68, 0.55),
@@ -798,9 +792,6 @@ const walkCollisionBlockers = [
   createWalkBlocker(7.25, 1.45, 2.65, 0.12),
   createWalkBlocker(4.65, 4.82, 0.12, 1.48),
   createWalkBlocker(9.85, 3.7, 0.12, 2.3),
-  createWalkBlocker(-5.78, -2.28, 0.68, 0.12),
-  createWalkBlocker(-2.42, -2.28, 0.68, 0.12),
-  createWalkBlocker(-6.75, -4.2, 0.12, 1.98),
   createWalkBlocker(-8.8, 4.8, 1.05, 0.72),
   createWalkBlocker(-7.2, 4.8, 1.05, 0.72),
   createWalkBlocker(13.0, -5.75, 1.05, 0.72),
@@ -1371,20 +1362,39 @@ function openNearestDoor() {
   const { door: nearestDoor, distance: nearestDistance } = getNearestDoor();
 
   if (!nearestDoor || nearestDistance > 2.35) {
-    modeLabel.textContent = "No door nearby";
-    return;
+    return false;
   }
 
   state.activeDoorKey = nearestDoor.roomKey;
   state.doorTimer = 2.4;
   modeLabel.textContent = `Opening ${roomViews[nearestDoor.roomKey]?.label ?? "door"}`;
+  return true;
+}
+
+function getSpringCableDistance(subjectPosition = getWalkSubjectPosition()) {
+  springCable.getWorldPosition(springCableWorldPosition);
+  return Math.hypot(
+    subjectPosition.x - springCableWorldPosition.x,
+    subjectPosition.z - springCableWorldPosition.z,
+  );
+}
+
+function kickNearestSpringCable() {
+  const subjectPosition = getWalkSubjectPosition();
+  const distance = getSpringCableDistance(subjectPosition);
+  if (distance > 2.25) return false;
+
+  springCableKickDirection.subVectors(springCableWorldPosition, subjectPosition);
+  kickMassSpringCable(springCable, springCableKickDirection, 1.05);
+  modeLabel.textContent = "Cable oscillating: Hooke + gravity + damping";
+  return true;
 }
 
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
   if (key === "f" && state.walkMode) {
-    if (!useNearestElevator()) {
-      openNearestDoor();
+    if (!useNearestElevator() && !openNearestDoor() && !kickNearestSpringCable()) {
+      modeLabel.textContent = "No interaction nearby";
     }
     event.preventDefault();
     return;
@@ -1658,10 +1668,13 @@ function updateWalkMode(delta) {
   if (state.doorTimer === 0) {
     const { distance: nearestElevatorDistance } = getNearestElevatorStop(subjectPosition);
     const { distance: nearestDoorDistance } = getNearestDoor(subjectPosition);
+    const springCableDistance = getSpringCableDistance(subjectPosition);
     if (nearestElevatorDistance <= 1.75) {
       modeLabel.textContent = "Press F for elevator";
     } else if (nearestDoorDistance <= 2.35) {
       modeLabel.textContent = "Press F to open door";
+    } else if (springCableDistance <= 2.25) {
+      modeLabel.textContent = springCable.userData.active ? "Cable oscillating" : "Press F to swing cable";
     } else {
       modeLabel.textContent = isThirdPerson ? "Third-person walk" : "First-person walk";
     }
@@ -1693,6 +1706,7 @@ let robotElapsed = 0;
 function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), MAX_FRAME_DELTA);
+  const realTime = clock.elapsedTime;
   if (state.running) {
     elapsed += delta * state.speed;
     if (state.machinesOn) {
@@ -1847,7 +1861,7 @@ function animate() {
   updateAgv(machineElapsed);
   updateSlidingDoors(delta);
   animateTechnician(technician, elapsed);
-  updateMassSpringCable(springCable, state.running ? delta * state.speed : 0, elapsed);
+  updateMassSpringCable(springCable, delta, realTime);
 
   ceilingLights.forEach((light, index) => {
     const pulse = 1 + Math.sin(elapsed * 1.8 + index) * 0.05;

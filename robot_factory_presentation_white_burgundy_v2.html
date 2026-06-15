@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Robot Factory Assembly Line — Technical Presentation</title>
+  <style>
+:root {
+  --bg: #ffffff;
+  --paper: #ffffff;
+  --ink: #151515;
+  --muted: #55565c;
+  --soft: #f8f5f6;
+  --soft2: #fbfafb;
+  --line: #ded6d9;
+  --accent: #800020;
+  --accent-dark: #5f0018;
+  --accent-soft: #f4e8ec;
+  --code-bg: #f7f7f7;
+  --code-border: #d6c7cc;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: Inter, Aptos, Segoe UI, Arial, sans-serif; }
+body { overflow: hidden; }
+.deck { height: 100vh; width: 100vw; display: grid; place-items: center; background: #fff; }
+.slide { width: min(1280px, 96vw); height: min(720px, 96vh); background: var(--paper); border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.08); padding: 46px 58px 50px; position: relative; display: none; overflow: hidden; }
+.slide.active { display: block; }
+.slide::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 13px; background: var(--accent); }
+.slide::after { content: ''; position: absolute; left: 58px; right: 58px; bottom: 32px; border-bottom: 2px solid var(--accent); opacity: .24; }
+h1 { margin: 0; color: var(--accent); font-size: 42px; line-height: 1.06; font-weight: 800; letter-spacing: -0.025em; max-width: 1050px; }
+h2 { margin: 10px 0 24px; font-size: 21px; color: var(--muted); font-weight: 500; line-height: 1.25; }
+.lead { font-size: 25px; line-height: 1.35; color: #2c2c31; margin: 6px 0 22px; max-width: 1060px; }
+.body { font-size: 20px; line-height: 1.34; }
+ul { list-style: none; margin: 12px 0 0; padding: 0; }
+li { margin: 10px 0; padding-left: 25px; position: relative; }
+li::before { content: ''; width: 8px; height: 8px; background: var(--accent); position: absolute; left: 2px; top: .58em; }
+table { width: 100%; border-collapse: collapse; font-size: 17.5px; margin-top: 12px; }
+th { background: var(--accent); color: #fff; text-align: left; padding: 10px 12px; font-weight: 700; }
+td { border: 1px solid var(--line); padding: 9px 12px; vertical-align: top; }
+tr:nth-child(even) td { background: var(--soft2); }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: start; }
+.visual-box { border: 2px dashed var(--accent); background: var(--accent-soft); padding: 18px 20px; min-height: 132px; margin-top: 24px; display: flex; flex-direction: column; justify-content: center; }
+.visual-label { color: var(--accent); font-size: 24px; font-weight: 800; }
+.visual-notes { margin-top: 8px; color: #4b3e42; font-size: 18px; }
+.code-slot { margin-top: 18px; border: 1px solid var(--code-border); background: var(--code-bg); }
+.slot-title { background: var(--accent); color: white; font-weight: 700; padding: 8px 12px; font-size: 15px; letter-spacing: .01em; }
+pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 205px; font-size: 15px; line-height: 1.35; }
+code { font-family: Consolas, Monaco, 'Courier New', monospace; color: #1b1b1b; }
+.slide-num { position: absolute; top: 22px; right: 34px; color: var(--accent); font-weight: 800; font-size: 15px; }
+.footer { position: absolute; left: 58px; bottom: 16px; color: var(--muted); font-size: 13px; }
+.nav { position: fixed; bottom: 16px; right: 20px; display: flex; gap: 8px; z-index: 10; }
+.nav button { border: 1px solid var(--accent); background: white; color: var(--accent); padding: 8px 12px; border-radius: 4px; font-weight: 700; cursor: pointer; }
+.nav button:hover { background: var(--accent); color: white; }
+.progress { position: fixed; left: 0; right: 0; top: 0; height: 5px; background: #eee; z-index: 20; }
+.progress > div { height: 100%; width: 0%; background: var(--accent); transition: width .2s ease; }
+.compact .body { font-size: 17px; }
+@media print {
+  body { overflow: visible; }
+  .deck { display: block; height: auto; }
+  .slide { display: block !important; page-break-after: always; width: 1280px; height: 720px; box-shadow: none; margin: 0; }
+  .nav, .progress { display: none; }
+}
+</style>
+</head>
+<body>
+  <div class='progress'><div></div></div>
+  <main class='deck'>
+    <section class='slide' data-title='Robot Factory Assembly Line'>
+<div class='slide-num'>01/46</div>
+<h1>Robot Factory Assembly Line</h1>
+<h2>Interactive Graphics Course Project — Three.js, WebGL, JavaScript</h2>
+<div class='body'><p class='lead'>A real-time browser-based 3D factory where robots, conveyor systems, a drone, a quadruped logistics robot, doors, elevator navigation, lights, textures, shadows, and simulation run inside one coherent interactive scene.</p><ul><li>Theme: connected industrial robot factory</li><li>Implementation: static web application with Three.js modules</li><li>Focus: graphics fundamentals made visible through interaction and animation</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Screenshot placeholder</div><div class='visual-notes'>Full assembly overview with title overlay</div></div>
+</section><section class='slide' data-title='Presentation Strategy'>
+<div class='slide-num'>02/46</div>
+<h1>Presentation Strategy</h1>
+<h2>From visible experience to technical graphics systems</h2>
+<div class='body'><ul><li>First show what the user sees and controls.</li><li>Then explain which graphics concept enables each visible behavior.</li><li>Avoid a file-by-file code reading; use systems: scene graph, geometry, textures, rendering, animation, interaction, simulation.</li><li>Use live demo moments to prove that each requirement is implemented.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Demo flow image</div><div class='visual-notes'>Overview → robot → drone → walk mode → mesh exhibit → night mode</div></div>
+</section><section class='slide' data-title='Course Requirement Coverage'>
+<div class='slide-num'>03/46</div>
+<h1>Course Requirement Coverage</h1>
+<h2>Direct mapping to the project requirements</h2>
+<div class='body'><table><tr><th>Requirement</th><th>Project evidence</th></tr><tr><td>Hierarchical models</td><td>Robot arms, technician, drone, quadruped, doors, avatar.</td></tr><tr><td>Lights and textures</td><td>Hemisphere, directional, point, spot lights; procedural CanvasTexture maps, glass, emissive screens, material variation.</td></tr><tr><td>User interaction</td><td>Room buttons, camera presets, walk mode, minimap, F-key door/elevator/cable interaction, toggles, speed slider.</td></tr><tr><td>Animations</td><td>All animations authored in JavaScript: robot poses, conveyor flow, drone patrol, quadruped gait, doors, lights, cable.</td></tr><tr><td>Physics / simulation</td><td>Interactive mass-spring cable using gravity, Hooke force, damping, drag, and sleeping when energy dissipates.</td></tr></table></div>
+<div class='visual-box'><div class='visual-label'>Requirement proof screenshot</div><div class='visual-notes'>UI panel + active animated factory</div></div>
+</section><section class='slide' data-title='Technology Stack'>
+<div class='slide-num'>04/46</div>
+<h1>Technology Stack</h1>
+<h2>Browser-native real-time graphics</h2>
+<div class='body'><ul><li>Three.js 0.164.1 for scene graph, cameras, lights, meshes, materials, renderer, and math utilities.</li><li>WebGL renderer targets the browser GPU through a canvas.</li><li>JavaScript modules organize the application into scene construction, state, helpers, entities, animation, and interaction logic.</li><li>HTML and CSS provide HUD, control panel, minimap, layout, and responsive presentation.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Environment / run command</div><pre><code>python -m http.server 5173
+# Open http://127.0.0.1:5173</code></pre></div>
+</section><section class='slide' data-title='Static Application Architecture'>
+<div class='slide-num'>05/46</div>
+<h1>Static Application Architecture</h1>
+<h2>No backend required</h2>
+<div class='body'><table><tr><th>File</th><th>Role</th></tr><tr><td>index.html</td><td>Canvas, import map, HUD, buttons, minimap.</td></tr><tr><td>src/main.js</td><td>Renderer, scene setup, rooms, interactions, animation loop.</td></tr><tr><td>src/state.js</td><td>Runtime state: running, speed, camera mode, walk state, presets.</td></tr><tr><td>src/geometry.js</td><td>Reusable mesh helpers and shadow setup.</td></tr><tr><td>src/materials.js / textures.js</td><td>Materials and procedural CanvasTexture generation.</td></tr><tr><td>src/entities/*</td><td>Environment, props, machines, characters, production systems.</td></tr></table></div>
+<div class='visual-box'><div class='visual-label'>Architecture diagram placeholder</div><div class='visual-notes'>index.html → src/main.js → state/helpers/entities → WebGLRenderer</div></div>
+</section><section class='slide' data-title='Runtime Initialization'>
+<div class='slide-num'>06/46</div>
+<h1>Runtime Initialization</h1>
+<h2>How the scene starts</h2>
+<div class='body'><ul><li>Create renderer, scene, fog, camera, OrbitControls, lights, and shared state.</li><li>Build rooms, machines, robot arms, production objects, drone, quadruped, technician, avatar, doors, elevator, and cable simulation.</li><li>Attach UI references and input handlers.</li><li>Start requestAnimationFrame loop.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Setup snippet</div><pre><code>const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.shadowMap.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(
+  50, window.innerWidth / window.innerHeight, 0.1, 100
+);</code></pre></div>
+</section><section class='slide' data-title='Frame Update Loop'>
+<div class='slide-num'>07/46</div>
+<h1>Frame Update Loop</h1>
+<h2>One loop coordinates rendering, animation, simulation, and input</h2>
+<div class='body'><ul><li>requestAnimationFrame drives all frame updates.</li><li>Delta time is capped for stability.</li><li>Global speed and pause state control timing.</li><li>Each subsystem updates its own state: walking, robots, production line, drone, quadruped, doors, cable, minimap, camera interpolation.</li><li>Renderer draws the final scene after state updates.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Actual loop structure</div><pre><code>function animate() {
+  requestAnimationFrame(animate);
+  const delta = Math.min(clock.getDelta(), MAX_FRAME_DELTA);
+  updateWalkMode(delta);
+  updateSlidingDoors(delta);
+  updateMassSpringCable(springCable, delta, clock.elapsedTime);
+  controls.update();
+  renderer.render(scene, camera);
+}</code></pre></div>
+</section><section class='slide' data-title='Connected Factory Environment'>
+<div class='slide-num'>08/46</div>
+<h1>Connected Factory Environment</h1>
+<h2>A map, not a single isolated room</h2>
+<div class='body'><ul><li>Assembly room: conveyor, robot arms, scanner, press, production flow.</li><li>Storage room: racks, pallets, barrels, quadruped load zone.</li><li>Control room: glass booth, technician, desk, screens.</li><li>Inspection room: open robot-clear transfer area, mesh exhibit, and scanner-related visuals.</li><li>Fabrication lab and testing chamber extend the technical world through the annex corridor.</li><li>Elevator landings connect vertical navigation points.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Map screenshot placeholder</div><div class='visual-notes'>Wide factory map or minimap overlay</div></div>
+</section><section class='slide' data-title='Scene Graph and Parent–Child Transformations'>
+<div class='slide-num'>09/46</div>
+<h1>Scene Graph and Parent–Child Transformations</h1>
+<h2>The central modeling idea</h2>
+<div class='body'><ul><li>Complex objects are nested THREE.Group structures.</li><li>Moving a parent automatically transforms all child meshes.</li><li>Pivots are placed at meaningful mechanical joints.</li><li>This reduces manual world-space updates and makes animation structurally correct.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Hierarchy diagram placeholder</div><div class='visual-notes'>Root → base → joint → limb → gripper → carried object</div></div>
+</section><section class='slide' data-title='3D Transformations in the Project'>
+<div class='slide-num'>10/46</div>
+<h1>3D Transformations in the Project</h1>
+<h2>Translation, rotation, scale, and local coordinate systems</h2>
+<div class='body'><table><tr><th>Transformation</th><th>Visible evidence</th></tr><tr><td>Translation</td><td>Conveyor parts, drone path, doors sliding, elevator stops, walking avatar.</td></tr><tr><td>Rotation</td><td>Robot joints, drone propellers, quadruped hips/knees, camera yaw.</td></tr><tr><td>Scale</td><td>Reusable objects adapted for walls, rails, boxes, signs, and props.</td></tr><tr><td>Local transforms</td><td>Gripper jaws and carried object follow wrist coordinates.</td></tr></table></div>
+<div class='code-slot'><div class='slot-title'>Transform snippet</div><pre><code>joint.rotation.z = angle;
+child.position.set(localX, localY, localZ);
+parent.add(child);</code></pre></div>
+</section><section class='slide' data-title='Industrial Robot Arm Hierarchy'>
+<div class='slide-num'>11/46</div>
+<h1>Industrial Robot Arm Hierarchy</h1>
+<h2>The strongest articulated model</h2>
+<div class='body'><ul><li>Base and waist pivot rotate the upper robot.</li><li>Shoulder and elbow pivots define reach.</li><li>Wrist pivot orients the gripper.</li><li>Left and right jaws open and close in local space.</li><li>Carried object is attached inside the wrist/gripper hierarchy.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Robot arm screenshot placeholder</div><div class='visual-notes'>Robot arm holding or placing an object</div></div>
+</section><section class='slide' data-title='Robot Pick-and-Place Animation'>
+<div class='slide-num'>12/46</div>
+<h1>Robot Pick-and-Place Animation</h1>
+<h2>Authored JavaScript interpolation, not imported animation</h2>
+<div class='body'><ul><li>The robot moves through staged poses: approach, grip, lift, rotate, lower, release, return.</li><li>Each pose stores meaningful joint values.</li><li>Smooth easing interpolates between pose states.</li><li>The belt object visibility and carried-object visibility are synchronized.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Pose interpolation snippet</div><pre><code>const pose = interpolatePose(start, end, localT);
+robotRig.waistPivot.rotation.y = pose.waist;
+robotRig.shoulderPivot.rotation.z = pose.shoulder;
+robotRig.elbowPivot.rotation.z = pose.elbow;
+robotRig.clawLeft.position.z = pose.claw * 0.42;</code></pre></div>
+</section><section class='slide' data-title='Quadruped Logistics Robot'>
+<div class='slide-num'>13/46</div>
+<h1>Quadruped Logistics Robot</h1>
+<h2>Route animation plus hierarchical leg motion</h2>
+<div class='body'><ul><li>Body shell, front sensor head, glowing eyes, side rails, cable details, and cargo platform.</li><li>Four hip groups and four knee groups form a leg hierarchy.</li><li>The whole robot follows a closed factory road route.</li><li>Legs use phase offsets so diagonal pairs alternate.</li><li>Cargo visibility changes near load and drop stations.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Quadruped screenshot placeholder</div><div class='visual-notes'>Robot on AGV route with cargo platform visible</div></div>
+</section><section class='slide' data-title='Drone Inspection System'>
+<div class='slide-num'>14/46</div>
+<h1>Drone Inspection System</h1>
+<h2>Another animated hierarchy</h2>
+<div class='body'><ul><li>Drone body, arms, rotors, sensor, cargo clamp, scan beam, status lights, and carried sample are grouped.</li><li>Propellers rotate continuously as local child transforms.</li><li>Drone follows a patrol route across production zones.</li><li>Scan beam and ring are activated by state.</li><li>Sample is temporarily parented under the drone during carry phases.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Drone screenshot placeholder</div><div class='visual-notes'>Drone scanning or carrying a sample</div></div>
+</section><section class='slide' data-title='Technician and Walk Avatar'>
+<div class='slide-num'>15/46</div>
+<h1>Technician and Walk Avatar</h1>
+<h2>Character modeling without imported animated assets</h2>
+<div class='body'><ul><li>Technician contains body, head, helmet, visor, arms, legs, tablet, and idle pivots.</li><li>Third-person avatar is a visible controllable robot-like character.</li><li>Avatar position and yaw persist after exiting walk mode.</li><li>Re-entering third-person walk resumes from the saved position.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Character screenshot placeholder</div><div class='visual-notes'>Control room technician or third-person walk avatar</div></div>
+</section><section class='slide' data-title='Camera Systems and Projection'>
+<div class='slide-num'>16/46</div>
+<h1>Camera Systems and Projection</h1>
+<h2>Multiple views over the same 3D world</h2>
+<div class='body'><ul><li>PerspectiveCamera gives natural depth projection.</li><li>OrbitControls provide mouse orbit, pan, and zoom outside walk mode.</li><li>Authored camera presets frame overview and room-specific views.</li><li>Room buttons transition camera position and target through interpolation.</li><li>Walk mode switches between first-person camera and third-person follow camera.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Camera interpolation snippet</div><pre><code>const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+camera.position.lerp(targetPosition, alpha);
+controls.target.lerp(targetLookAt, alpha);</code></pre></div>
+</section><section class='slide' data-title='Walk Mode and Navigation'>
+<div class='slide-num'>17/46</div>
+<h1>Walk Mode and Navigation</h1>
+<h2>Interactive exploration as a graphics requirement</h2>
+<div class='body'><ul><li>Keyboard movement: W/S or arrows for forward/back, A/D for strafe, Q/E or arrows for turning, Shift for faster movement.</li><li>Walk 3rd / Walk 1st button changes camera mode.</li><li>Minimap tracks the active subject or parked avatar.</li><li>Walk mode makes the factory inspectable from human scale.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Walk mode screenshot placeholder</div><div class='visual-notes'>Avatar and minimap marker visible</div></div>
+</section><section class='slide' data-title='Collision, Doors, Elevator, and Cable'>
+<div class='slide-num'>18/46</div>
+<h1>Collision, Doors, Elevator, and Cable</h1>
+<h2>Lightweight interaction constraints</h2>
+<div class='body'><ul><li>Movement is clamped to factory bounds.</li><li>Walls, machines, racks, conveyor, desks, annex structures, and doors are represented as blocking volumes.</li><li>Closed doors block movement until they open enough.</li><li>F is a contextual interaction key: elevator first, then doors, then cable simulation.</li><li>Diagonal movement tests separate axes so the user can slide along obstacles.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Actual F-key priority</div><pre><code>if (key === "f" &amp;&amp; state.walkMode) {
+  if (!useNearestElevator() &amp;&amp;
+      !openNearestDoor() &amp;&amp;
+      !kickNearestSpringCable()) {
+    modeLabel.textContent = "No interaction nearby";
+  }
+}</code></pre></div>
+</section><section class='slide' data-title='User Interface and Live Controls'>
+<div class='slide-num'>19/46</div>
+<h1>User Interface and Live Controls</h1>
+<h2>Scene state exposed through controls</h2>
+<div class='body'><table><tr><th>Control</th><th>Effect</th></tr><tr><td>Pause / Resume</td><td>Stops or continues animated timing.</td></tr><tr><td>Night</td><td>Changes background, fog, light intensity, and emissive emphasis.</td></tr><tr><td>Lamp</td><td>Toggles inspection and ceiling lamp groups.</td></tr><tr><td>Machines</td><td>Stops or resumes production-line machine timing.</td></tr><tr><td>Scanner / Drone</td><td>Shows or hides those systems.</td></tr><tr><td>Speed slider</td><td>Changes global animation speed.</td></tr></table></div>
+<div class='visual-box'><div class='visual-label'>UI screenshot placeholder</div><div class='visual-notes'>Control panel with active factory visible</div></div>
+</section><section class='slide' data-title='Conveyor and Production Line Geometry'>
+<div class='slide-num'>20/46</div>
+<h1>Conveyor and Production Line Geometry</h1>
+<h2>Primitives composed into a machine</h2>
+<div class='body'><ul><li>Belt deck, side rails, lower frame, rollers, end drums, supports, cross bars, and safety details.</li><li>Built from boxes, cylinders, planes, and grouped helper meshes.</li><li>Production objects move above the belt through staged zones.</li><li>Scanner and press elements provide visual feedback.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Conveyor close-up placeholder</div><div class='visual-notes'>Belt, rollers, production object, scanner/press</div></div>
+</section><section class='slide' data-title='Conveyor Motion and Production State'>
+<div class='slide-num'>21/46</div>
+<h1>Conveyor Motion and Production State</h1>
+<h2>Texture motion plus object path animation</h2>
+<div class='body'><ul><li>The belt appears to move by offsetting its texture coordinates over time.</li><li>Objects follow position updates along a scripted production path.</li><li>Object state determines scanner feedback, press timing, accept/reject direction, and pickup visibility.</li><li>Robot pickup is synchronized with production object location.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Texture offset snippet</div><pre><code>beltTexture.wrapS = THREE.RepeatWrapping;
+beltTexture.wrapT = THREE.RepeatWrapping;
+materials.belt.map.offset.x = -machineElapsed * 0.58;</code></pre></div>
+</section><section class='slide' data-title='Geometry Construction Strategy'>
+<div class='slide-num'>22/46</div>
+<h1>Geometry Construction Strategy</h1>
+<h2>Code-built geometry instead of imported models</h2>
+<div class='body'><ul><li>Most visible objects use Three.js primitives: boxes, cylinders, spheres, torus shapes, planes, and tubes.</li><li>Reusable helper functions enforce consistent material assignment and shadow settings.</li><li>Environment details include pipes, cable trays, labels, bollards, drains, racks, pallets, carts, panels, doors, and machines.</li><li>This makes the project self-contained and easy to explain technically.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Primitive-to-object diagram placeholder</div><div class='visual-notes'>Primitive parts → grouped factory model</div></div>
+</section><section class='slide' data-title='Manual TRI MESH Exhibit'>
+<div class='slide-num'>23/46</div>
+<h1>Manual TRI MESH Exhibit</h1>
+<h2>Low-level polygonal mesh evidence</h2>
+<div class='body'><ul><li>Custom THREE.BufferGeometry is manually defined.</li><li>Position buffer stores vertices.</li><li>UV buffer stores texture coordinates.</li><li>Index buffer defines triangular connectivity.</li><li>computeVertexNormals() calculates normals.</li><li>Wireframe, vertex markers, normal rods, and checker texture make mesh data visible.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>TRI MESH screenshot placeholder</div><div class='visual-notes'>Wireframe overlay, vertex markers, normal rods</div></div>
+</section><section class='slide' data-title='BufferGeometry Data Layout'>
+<div class='slide-num'>24/46</div>
+<h1>BufferGeometry Data Layout</h1>
+<h2>What primitives normally hide</h2>
+<div class='body'><div class='cols'><div><ul><li>Vertex positions define the surface points.</li><li>Indices reuse vertices across triangles.</li><li>UVs map 2D texture coordinates to 3D triangles.</li><li>Normals support lighting calculations.</li></ul></div><div><div class='code-slot'><div class='slot-title'>BufferGeometry snippet</div><pre><code>const geometry = new THREE.BufferGeometry();
+geometry.setAttribute(&quot;position&quot;, new THREE.BufferAttribute(vertices, 3));
+geometry.setAttribute(&quot;uv&quot;, new THREE.BufferAttribute(uvs, 2));
+geometry.setIndex(indices);
+geometry.computeVertexNormals();</code></pre></div></div></div></div>
+</section><section class='slide' data-title='Textures and UV Mapping'>
+<div class='slide-num'>25/46</div>
+<h1>Textures and UV Mapping</h1>
+<h2>Raster images placed onto 3D surfaces</h2>
+<div class='body'><ul><li>Floor checkers, wall panels, conveyor stripes, hazard stripes, labels, fabric, skin, and helmet colors are generated with canvas.</li><li>Textures are converted to THREE.CanvasTexture and sampled by materials.</li><li>Repeat wrapping allows floor, wall, and belt patterns to tile correctly.</li><li>UV coordinates determine how the texture lands on the TRI MESH exhibit.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Texture close-up placeholder</div><div class='visual-notes'>Floor/wall/belt/hazard/label examples</div></div>
+</section><section class='slide' data-title='Textures on the GPU'>
+<div class='slide-num'>26/46</div>
+<h1>Textures on the GPU</h1>
+<h2>CanvasTexture, wrapping, offset, filtering, sampling</h2>
+<div class='body'><ul><li>Canvas-generated images are uploaded to GPU memory as textures.</li><li>The moving belt demonstrates animated texture offset.</li><li>Repeated maps prevent large surfaces from looking flat.</li><li>The custom shader samples a texture directly through a sampler uniform.</li><li>Different material maps and roughness values make surfaces visually distinct.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>CanvasTexture snippet</div><pre><code>const tex = new THREE.CanvasTexture(canvas);
+tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+tex.repeat.set(8, 8);
+material.map = tex;</code></pre></div>
+</section><section class='slide' data-title='Material System'>
+<div class='slide-num'>27/46</div>
+<h1>Material System</h1>
+<h2>Different surfaces behave differently</h2>
+<div class='body'><table><tr><th>Surface</th><th>Material behavior</th></tr><tr><td>Metal robots/machines</td><td>Higher metalness, controlled roughness, specular response.</td></tr><tr><td>Rubber feet/belts</td><td>Darker, rougher material.</td></tr><tr><td>Glass rooms/doors</td><td>Transparent physical material with opacity/transmission-style parameters.</td></tr><tr><td>Screens/indicators</td><td>Emissive materials for visible lights and status feedback.</td></tr><tr><td>Fabric/plastic</td><td>Rougher non-metal materials with generated texture detail.</td></tr></table></div>
+<div class='visual-box'><div class='visual-label'>Material comparison placeholder</div><div class='visual-notes'>Glass, metal, rubber, emissive, plastic close-ups</div></div>
+</section><section class='slide' data-title='Custom ShaderMaterial'>
+<div class='slide-num'>28/46</div>
+<h1>Custom ShaderMaterial</h1>
+<h2>Direct shader-style logic beyond built-in materials</h2>
+<div class='body'><ul><li>Technician jacket uses custom ShaderMaterial.</li><li>The shader samples fabric texture.</li><li>It combines ambient, diffuse, and rim-light terms.</li><li>World normal, light direction, and camera direction affect final color.</li><li>This demonstrates lower-level shading control in the WebGL pipeline.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Shader snippet</div><pre><code>vec3 N = normalize(vWorldNormal);
+vec3 L = normalize(lightDirection);
+float diffuse = max(dot(N, L), 0.0);
+float rim = pow(1.0 - max(dot(N, V), 0.0), 2.0);
+vec3 color = texColor * (ambient + diffuse) + rimColor * rim;</code></pre></div>
+</section><section class='slide' data-title='Shading Transformations and Normals'>
+<div class='slide-num'>29/46</div>
+<h1>Shading Transformations and Normals</h1>
+<h2>Correct lighting depends on transformed normals</h2>
+<div class='body'><ul><li>The manual mesh computes vertex normals so lighting can respond to its shape.</li><li>Normal rods in the TRI MESH exhibit make normals visible.</li><li>The jacket shader uses world-space normals and view direction.</li><li>Normals are essential for diffuse response, rim lighting, and perceived shape.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Normals screenshot placeholder</div><div class='visual-notes'>TRI MESH normal rods or shader object close-up</div></div>
+</section><section class='slide' data-title='Lighting System'>
+<div class='slide-num'>30/46</div>
+<h1>Lighting System</h1>
+<h2>Multiple light types for readable real-time scenes</h2>
+<div class='body'><table><tr><th>Light type</th><th>Role</th></tr><tr><td>Hemisphere light</td><td>Broad ambient fill from sky/ground colors.</td></tr><tr><td>Directional light</td><td>Main factory light source and shadow casting.</td></tr><tr><td>Point lights</td><td>Ceiling lamps and localized room lighting.</td></tr><tr><td>Spot light</td><td>Focused inspection lamp.</td></tr><tr><td>Emissive materials</td><td>Machine indicators, scanner beams, screens, robot eyes.</td></tr></table></div>
+<div class='visual-box'><div class='visual-label'>Lighting comparison placeholder</div><div class='visual-notes'>Day/night and lamp toggles</div></div>
+</section><section class='slide' data-title='Shadows and Contact'>
+<div class='slide-num'>31/46</div>
+<h1>Shadows and Contact</h1>
+<h2>Depth cues through shadow mapping</h2>
+<div class='body'><ul><li>Renderer uses PCF soft shadow maps.</li><li>Important meshes cast and receive shadows.</li><li>Shadows ground robots, crates, machines, racks, and walls against the floor.</li><li>Shadow camera and shadow settings are tuned for the factory scale.</li><li>This is a real-time approximation, not path-traced global illumination.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Shadow setup snippet</div><pre><code>renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+mesh.castShadow = true;
+mesh.receiveShadow = true;</code></pre></div>
+</section><section class='slide' data-title='Rendering Pipeline and Rasterization'>
+<div class='slide-num'>32/46</div>
+<h1>Rendering Pipeline and Rasterization</h1>
+<h2>What happens every frame</h2>
+<div class='body'><ul><li>Three.js sends scene graph, geometry buffers, textures, materials, lights, and camera matrices to WebGL.</li><li>The GPU rasterizes triangles into fragments on the canvas.</li><li>Depth testing determines visible surfaces.</li><li>Antialiasing and capped device pixel ratio balance image quality and performance.</li><li>Tone mapping improves final brightness and contrast.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Pipeline diagram placeholder</div><div class='visual-notes'>Scene graph → buffers/materials/lights/camera → WebGL → canvas</div></div>
+</section><section class='slide' data-title='Sampling and Antialiasing'>
+<div class='slide-num'>33/46</div>
+<h1>Sampling and Antialiasing</h1>
+<h2>Course concept represented in practical real-time form</h2>
+<div class='body'><ul><li>The renderer is created with antialiasing enabled.</li><li>Device pixel ratio is capped to keep frame rate stable.</li><li>Texture filtering and mipmapping are handled by Three.js for CanvasTexture objects.</li><li>The project does not implement Monte Carlo sampling or path tracing; it uses the interactive rasterization path.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Renderer quality snippet</div><pre><code>const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;</code></pre></div>
+</section><section class='slide' data-title='Animation Systems Overview'>
+<div class='slide-num'>34/46</div>
+<h1>Animation Systems Overview</h1>
+<h2>State-driven JavaScript motion</h2>
+<div class='body'><ul><li>Robot arms: key-pose interpolation.</li><li>Conveyor: belt texture offset and object path updates.</li><li>Drone: route interpolation, rotor spin, scan/carry states.</li><li>Quadruped: route progress plus phase-offset leg motion.</li><li>Doors: interpolated panel offsets.</li><li>Technician: procedural idle motion.</li><li>Cable: physics-style mass-spring simulation.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Animation collage placeholder</div><div class='visual-notes'>Robot, drone, conveyor, quadruped, doors, cable</div></div>
+</section><section class='slide' data-title='Easing and Interpolation'>
+<div class='slide-num'>35/46</div>
+<h1>Easing and Interpolation</h1>
+<h2>Manual easing and interpolation</h2>
+<div class='body'><ul><li>The project uses manual interpolation with the same conceptual goal as tweening: move smoothly from one state to another.</li><li>Instead of importing animation files, JavaScript computes intermediate values each frame.</li><li>SmoothStep/easing avoids robotic linear jumps.</li><li>This is used for robot joints, doors, cameras, and some UI-visible transitions.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Actual easing helper</div><pre><code>function smoothStep(value) {
+  return value * value * (3 - 2 * value);
+}
+
+const t = smoothStep(amount);
+joint.rotation.z = THREE.MathUtils.lerp(a, b, t);</code></pre></div>
+</section><section class='slide' data-title='Mass-Spring Cable Simulation'>
+<div class='slide-num'>36/46</div>
+<h1>Mass-Spring Cable Simulation</h1>
+<h2>Physics-based animation evidence</h2>
+<div class='body'><ul><li>Cable is represented as particles connected by springs.</li><li>Each particle stores position, velocity, force, and fixed/free status.</li><li>The cable starts still and only moves after the player presses F nearby.</li><li>Forces include gravity, Hooke spring force, damping along the cable, and air drag.</li><li>Semi-implicit Euler integration advances motion, then the simulation sleeps when energy dissipates.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Interaction impulse</div><pre><code>kickMassSpringCable(springCable, direction, 1.05);
+
+particle.velocity.addScaledVector(push, strength * weight);
+particle.velocity.y += strength * 0.18;</code></pre></div>
+</section><section class='slide' data-title='Simulation Update Details'>
+<div class='slide-num'>37/46</div>
+<h1>Simulation Update Details</h1>
+<h2>Small custom physics instead of a full engine</h2>
+<div class='body'><div class='cols'><div><ul><li>No Cannon.js, Ammo.js, or Physijs is required.</li><li>The simulation is intentionally small enough to run every frame.</li><li>It demonstrates position/velocity state, force accumulation, numerical integration, damping, and collision response.</li><li>This matches the course physics topic without slowing the project.</li></ul></div><div><div class='code-slot'><div class='slot-title'>Mass-spring core</div><pre><code>stretch = length - restLength;
+dampingForce = damping * relativeVelocity.dot(direction);
+force = direction * (stiffness * stretch + dampingForce);
+
+velocity += (force / mass) * dt;
+velocity *= 0.996;
+position += velocity * dt;</code></pre></div></div></div></div>
+</section><section class='slide' data-title='Transparency, Alpha, and Glass'>
+<div class='slide-num'>38/46</div>
+<h1>Transparency, Alpha, and Glass</h1>
+<h2>Rasterization-friendly transparent materials</h2>
+<div class='body'><ul><li>Glass rooms, doors, visor, and inspection panels use transparent materials.</li><li>Opacity and depth behavior must be chosen carefully in real-time rendering.</li><li>Glass separates areas while keeping the factory visually connected.</li><li>This represents raster images/alpha and material transparency topics from the course.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Glass screenshot placeholder</div><div class='visual-notes'>Control room or sliding glass door close-up</div></div>
+</section><section class='slide' data-title='Emissive Feedback and Night Mode'>
+<div class='slide-num'>39/46</div>
+<h1>Emissive Feedback and Night Mode</h1>
+<h2>Readable status and lighting contrast</h2>
+<div class='body'><ul><li>Emissive screens, status lamps, scanner beams, robot eyes, and indicators remain visible in darker lighting.</li><li>Night mode changes background, fog, light intensities, and emissive emphasis.</li><li>Lamp toggle shows local lighting contribution.</li><li>These controls prove that lighting is not static decoration.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Night mode placeholder</div><div class='visual-notes'>Same view in day and night mode</div></div>
+</section><section class='slide' data-title='Validation and Testing'>
+<div class='slide-num'>40/46</div>
+<h1>Validation and Testing</h1>
+<h2>What should be verified before submission</h2>
+<div class='body'><ul><li>Run local server and confirm canvas renders.</li><li>Check browser console for module/runtime errors.</li><li>Test all camera presets and room buttons.</li><li>Test walk mode, first/third person, doors, elevator, F-key cable interaction, and collision volumes.</li><li>Toggle day/night, lamps, machines, scanner, drone, speed, and pause/resume.</li><li>Observe robot pickup, conveyor, scanner/press, drone, quadruped, technician idle, and cable simulation.</li></ul></div>
+<div class='code-slot'><div class='slot-title'>Quick checks</div><pre><code>node --check src/main.js
+python -m http.server 5173</code></pre></div>
+</section><section class='slide' data-title='Deployment and Repository Requirements'>
+<div class='slide-num'>41/46</div>
+<h1>Deployment and Repository Requirements</h1>
+<h2>Course submission alignment</h2>
+<div class='body'><ul><li>Repository should contain all source code and documentation.</li><li>GitHub Pages should be enabled in the main directory.</li><li>README should contain the executable public link.</li><li>The project is static and does not require a backend.</li><li>Current import map loads Three.js from unpkg.com; for strict offline repository completeness, vendor Three.js locally and update the import map.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>GitHub Pages placeholder</div><div class='visual-notes'>Repository + README + live link screenshot</div></div>
+</section><section class='slide' data-title='Honest Scope Limits'>
+<div class='slide-num'>42/46</div>
+<h1>Honest Scope Limits</h1>
+<h2>What the project does not claim</h2>
+<div class='body'><table><tr><th>Topic</th><th>How to present it</th></tr><tr><td>Ray tracing / path tracing</td><td>Not implemented. The project uses real-time WebGL rasterization, shadow maps, and material approximations.</td></tr><tr><td>Full rigid-body physics</td><td>Not implemented. The cable is a focused mass-spring simulation; collision is lightweight and interaction-oriented.</td></tr><tr><td>Cloth / fluid simulation</td><td>Not implemented; outside project scope.</td></tr><tr><td>Imported animations</td><td>Not used. Animations are authored in JavaScript, satisfying the course rule.</td></tr><tr><td>Imported models</td><td>Not required; geometry is intentionally code-built.</td></tr></table></div>
+</section><section class='slide' data-title='Course Concept Map Summary'>
+<div class='slide-num'>43/46</div>
+<h1>Course Concept Map Summary</h1>
+<h2>How the project covers the professor’s slides</h2>
+<div class='body'><table><tr><th>Course topic</th><th>Project coverage</th></tr><tr><td>3D transformations</td><td>Robot pivots, doors, drone rotors, quadruped legs, cameras.</td></tr><tr><td>GPU/WebGL pipeline</td><td>WebGLRenderer, canvas, shaders, buffers, textures.</td></tr><tr><td>Surfaces / meshes</td><td>Primitive models and manual TRI MESH BufferGeometry.</td></tr><tr><td>Textures</td><td>CanvasTexture maps, UVs, repeat wrapping, animated offset.</td></tr><tr><td>Shading</td><td>Standard/Physical materials and custom ShaderMaterial.</td></tr><tr><td>Lighting/shadows</td><td>Multiple light types and PCF soft shadow maps.</td></tr><tr><td>Animation</td><td>Key-pose interpolation and procedural state updates.</td></tr><tr><td>Physics/simulation</td><td>Mass-spring cable with Euler integration.</td></tr></table></div>
+</section><section class='slide' data-title='Live Demo Sequence'>
+<div class='slide-num'>44/46</div>
+<h1>Live Demo Sequence</h1>
+<h2>Recommended order for the exam presentation</h2>
+<div class='body'><ul><li>Start in assembly overview and explain the concept.</li><li>Show conveyor, scanner, press, and robot pickup.</li><li>Toggle Machines and Scanner.</li><li>Show drone inspection and toggle Drone.</li><li>Move to Storage and show the quadruped route.</li><li>Enter Walk Mode, switch first/third person, show minimap.</li><li>Open a door with F, use elevator with F, then trigger the hanging cable with F.</li><li>Toggle Night and Lamp.</li><li>Go to TRI MESH exhibit and explain vertices, UVs, indices, normals.</li><li>End on wide view and summarize course concepts.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Demo path placeholder</div><div class='visual-notes'>Numbered route screenshot or simple map</div></div>
+</section><section class='slide' data-title='Best Screenshots to Insert'>
+<div class='slide-num'>45/46</div>
+<h1>Best Screenshots to Insert</h1>
+<h2>Placeholders used throughout the deck</h2>
+<div class='body'><ul><li>Full assembly overview.</li><li>Conveyor close-up with production objects.</li><li>Robot arm holding/placing object with the open robot-clear inspection area.</li><li>Drone scanning/carrying sample.</li><li>Quadruped on marked road.</li><li>Third-person walk avatar and minimap.</li><li>Door/elevator/cable interaction prompts.</li><li>Control room technician.</li><li>TRI MESH exhibit.</li><li>Night mode and glass/material close-ups.</li><li>Mass-spring cable before and after pressing F.</li></ul></div>
+</section><section class='slide' data-title='Conclusion'>
+<div class='slide-num'>46/46</div>
+<h1>Conclusion</h1>
+<h2>Technical contribution</h2>
+<div class='body'><p class='lead'>Robot Factory Assembly Line combines the main ideas of the Interactive Graphics course into a single real-time WebGL application.</p><ul><li>Explorable connected factory world.</li><li>Code-built geometry and manual BufferGeometry exhibit.</li><li>Hierarchical animated robots, drone, technician, avatar, and quadruped.</li><li>Procedural textures, GPU texture sampling, materials, transparency, and custom shader logic.</li><li>Real-time lighting, shadow mapping, cameras, interactions, and live controls.</li><li>JavaScript-authored animations plus a focused mass-spring simulation.</li></ul></div>
+<div class='visual-box'><div class='visual-label'>Final screenshot placeholder</div><div class='visual-notes'>Wide assembly view for closing slide</div></div>
+</section>
+  </main>
+  <div class='nav'><button onclick='prev()'>Prev</button><button onclick='next()'>Next</button></div>
+  <script>
+let current = 0;
+const slides = [...document.querySelectorAll('.slide')];
+const bar = document.querySelector('.progress > div');
+function show(i) {
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+  bar.style.width = ((current + 1) / slides.length * 100) + '%';
+  location.hash = String(current + 1).padStart(2, '0');
+}
+function next(){ show(current + 1); }
+function prev(){ show(current - 1); }
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','PageDown',' '].includes(e.key)) next();
+  if (['ArrowLeft','PageUp','Backspace'].includes(e.key)) prev();
+  if (e.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+});
+const start = parseInt(location.hash.replace('#',''), 10);
+show(Number.isFinite(start) ? start - 1 : 0);
+</script>
+</body>
+</html>
