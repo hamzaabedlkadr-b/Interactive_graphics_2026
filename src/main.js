@@ -256,8 +256,104 @@ createFloorLabel(roomGroup, "ROBOT CLEAR", [-4.1, 0.073, -2.05], [1.55, 0.34], 0
 createTriangulatedPrototype(roomGroup, [-2.85, 0, -5.05], 0.16);
 createFloorLabel(roomGroup, "TRI MESH", [-2.65, 0.074, -5.82], [1.35, 0.32], 0, "#5a93a7");
 
+// Annex tunnel and two separated work rooms. Walk mode can roam through the tunnel into both rooms.
+const annexFloorMaterial = materials.floor.clone();
+annexFloorMaterial.map = materials.floor.map;
+annexFloorMaterial.bumpMap = materials.floor.bumpMap;
+annexFloorMaterial.needsUpdate = true;
+addBox(roomGroup, [5.4, 0.04, 2.45], [17.55, 0.02, 5.75], annexFloorMaterial);
+addBox(roomGroup, [3.75, 0.04, 10.8], [19.25, 0.021, 0.35], annexFloorMaterial);
+addBox(roomGroup, [10.2, 0.04, 8.1], [25.15, 0.022, 5.78], annexFloorMaterial);
+addBox(roomGroup, [10.2, 0.04, 7.25], [25.15, 0.023, -4.85], annexFloorMaterial);
+
+addBox(roomGroup, [5.2, 3.1, 0.16], [17.55, 1.55, 4.42], materials.glassWall);
+addBox(roomGroup, [5.2, 3.1, 0.16], [17.55, 1.55, 7.08], materials.glassWall);
+addBox(roomGroup, [0.16, 2.9, 10.55], [17.32, 1.45, 0.42], materials.wall);
+[-0.85, 0.85].forEach((offset) => {
+  addBox(roomGroup, [5.0, 0.24, 0.12], [17.55, 0.36, 5.75 + offset * 1.22], materials.darkSteel);
+  addBox(roomGroup, [5.0, 0.08, 0.1], [17.55, 3.12, 5.75 + offset * 1.22], materials.brushed);
+});
+for (let x = 15.2; x <= 19.1; x += 1.3) {
+  addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 4.42], materials.darkSteel);
+  addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 7.08], materials.darkSteel);
+  addBox(roomGroup, [0.18, 0.08, 2.55], [x, 3.28, 5.75], materials.cableTray);
+}
+for (let z = -4.7; z <= 5.0; z += 1.6) {
+  addBox(roomGroup, [0.18, 2.65, 0.08], [17.32, 1.52, z], materials.darkSteel);
+  addBox(roomGroup, [3.4, 0.08, 0.14], [19.25, 3.34, z], materials.cableTray);
+}
+addBox(roomGroup, [5.25, 0.045, 0.08], [17.55, 0.074, 4.62], materials.cautionPaint);
+addBox(roomGroup, [5.25, 0.045, 0.08], [17.55, 0.075, 6.88], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.045, 10.3], [17.72, 0.076, 0.42], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.045, 10.3], [20.78, 0.077, 0.42], materials.cautionPaint);
+addBox(roomGroup, [0.12, 0.12, 2.25], [20.92, 0.84, 0.2], materials.darkSteel);
+addBox(roomGroup, [0.12, 0.12, 2.25], [20.92, 1.58, 0.2], materials.brushed);
+addBox(roomGroup, [0.18, 0.08, 4.2], [18.35, 3.42, 2.65], materials.lampGlow);
+addBox(roomGroup, [0.18, 0.08, 4.2], [20.15, 3.42, -2.8], materials.lampGlow);
+addBox(roomGroup, [2.45, 0.08, 0.18], [16.72, 3.42, 5.75], materials.lampGlow);
+addPipe(roomGroup, [17.86, 3.58, 5.52], [17.86, 3.58, -4.85], 0.035, materials.pipeBlue);
+addPipe(roomGroup, [20.72, 3.38, 5.2], [20.72, 3.38, -5.2], 0.032, materials.pipeRed);
+createVent(roomGroup, [17.42, 2.05, -1.85], Math.PI / 2);
+createVent(roomGroup, [20.88, 2.05, 2.55], -Math.PI / 2);
+createDoorFrame(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.9, 2.55);
+slidingDoors.push(createSlidingDoor(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.65, "assembly"));
+createFloorLabel(roomGroup, "ANNEX TUNNEL", [17.4, 0.071, 5.75], [2.75, 0.44], 0, "#2f6984");
+createFloorLabel(roomGroup, "ROOMS", [19.25, 0.072, 0.25], [1.32, 0.38], Math.PI / 2, "#f6c453");
+
+// Fabrication lab: prototyping, 3D printing, and CNC prep.
+addBox(roomGroup, [0.18, 3.35, 2.13], [20.0, 1.68, 2.79], materials.wall);
+addBox(roomGroup, [0.18, 3.35, 2.19], [20.0, 1.68, 8.74], materials.wall);
+addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, 1.72], materials.wall);
+addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, 9.84], materials.wall);
+addBox(roomGroup, [0.18, 3.35, 8.1], [30.25, 1.68, 5.78], materials.wall);
+createDoorFrame(roomGroup, [20.0, 0, 5.75], Math.PI / 2, 3.3, 2.55);
+slidingDoors.push(createSlidingDoor(roomGroup, [20.0, 0, 5.75], Math.PI / 2, 3.0, "fabrication"));
+createFloorLabel(roomGroup, "FABRICATION", [24.35, 0.071, 9.05], [2.55, 0.6], 0, "#5a93a7");
+addBox(roomGroup, [2.75, 0.18, 1.05], [24.8, 0.72, 5.55], materials.darkSteel);
+addBox(roomGroup, [2.46, 0.06, 0.82], [24.8, 0.88, 5.55], materials.brushed);
+createTriangulatedPrototype(roomGroup, [24.8, 0.18, 5.55], 0.4);
+createFloorLabel(roomGroup, "3D PRINT", [22.15, 0.072, 7.72], [1.45, 0.38], 0, "#3a725f");
+[-0.55, 0.55].forEach((offset) => {
+  addBox(roomGroup, [0.78, 1.1, 0.72], [22.15 + offset, 0.62, 7.0], materials.darkSteel);
+  addBox(roomGroup, [0.58, 0.04, 0.48], [22.15 + offset, 1.04, 7.0], materials.glass);
+  addSphere(roomGroup, 0.055, [21.9 + offset, 1.22, 7.32], materials.glowGreen, 12);
+});
+addBox(roomGroup, [2.2, 0.12, 0.9], [27.62, 0.78, 7.2], materials.brushed);
+addCylinder(roomGroup, 0.34, 0.34, 0.72, [27.62, 1.16, 7.2], materials.productShell, 32);
+addPipe(roomGroup, [26.62, 1.35, 7.2], [28.62, 1.35, 7.2], 0.035, materials.pipeGreen);
+createStorageRack(roomGroup, [28.35, 0, 3.25], 0);
+createToolCart(roomGroup, [22.3, 0, 3.25], 0.25);
+createElectricalCabinet(roomGroup, [29.75, 0, 8.72], -Math.PI / 2);
+
+// Testing chamber: stress tests, diagnostics, and reject validation.
+addBox(roomGroup, [0.18, 3.35, 1.78], [20.0, 1.68, -7.6], materials.wall);
+addBox(roomGroup, [0.18, 3.35, 1.78], [20.0, 1.68, -2.1], materials.wall);
+addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, -8.48], materials.wall);
+addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, -1.22], materials.wall);
+addBox(roomGroup, [0.18, 3.35, 7.25], [30.25, 1.68, -4.85], materials.wall);
+createDoorFrame(roomGroup, [20.0, 0, -4.85], Math.PI / 2, 3.3, 2.55);
+slidingDoors.push(createSlidingDoor(roomGroup, [20.0, 0, -4.85], Math.PI / 2, 3.0, "testing"));
+createFloorLabel(roomGroup, "TESTING", [24.35, 0.071, -7.72], [1.9, 0.58], 0, "#b86538");
+addBox(roomGroup, [3.9, 0.04, 2.8], [24.95, 0.058, -4.85], materials.hazard);
+addBox(roomGroup, [2.55, 0.2, 1.35], [24.95, 0.78, -4.85], materials.darkSteel);
+addBox(roomGroup, [2.2, 0.06, 1.05], [24.95, 0.95, -4.85], materials.zoneBlue);
+addBox(roomGroup, [0.16, 1.9, 0.16], [23.72, 1.65, -5.48], materials.brushed);
+addBox(roomGroup, [0.16, 1.9, 0.16], [26.18, 1.65, -5.48], materials.brushed);
+addBox(roomGroup, [2.7, 0.18, 0.18], [24.95, 2.56, -5.48], materials.brushed);
+addCylinder(roomGroup, 0.18, 0.18, 0.8, [24.95, 2.12, -5.48], materials.pipeRed, 24);
+addBox(roomGroup, [0.82, 0.34, 0.62], [24.95, 1.15, -4.85], materials.reject);
+addSphere(roomGroup, 0.08, [24.55, 1.32, -4.48], materials.glowRed, 12);
+addSphere(roomGroup, 0.08, [25.35, 1.32, -4.48], materials.glowGreen, 12);
+createMaintenancePanel(roomGroup, [29.95, 1.8, -3.25], -Math.PI / 2, materials.glowRed);
+createFloorDrain(roomGroup, [22.35, 0.078, -6.75], -0.2);
+createBarrel(roomGroup, [28.6, 0, -7.24], materials.pipeRed);
+createBarrel(roomGroup, [28.05, 0, -7.15], materials.pipeBlue);
+createFloorLabel(roomGroup, "STRESS RIG", [24.95, 0.074, -2.72], [1.65, 0.38], 0, "#f6c453");
+
 addPipe(roomGroup, [-6.62, 2.85, -2.55], [-6.62, 2.85, -5.25], 0.035, materials.pipeBlue);
 addPipe(roomGroup, [5.28, 2.95, 1.75], [9.25, 2.95, 1.75], 0.035, materials.pipeGreen);
+addPipe(roomGroup, [14.95, 3.1, 5.75], [20.1, 3.1, 5.75], 0.04, materials.pipeBlue);
+addPipe(roomGroup, [19.25, 3.0, 5.2], [19.25, 3.0, -5.2], 0.04, materials.pipeGreen);
 addCable(scene, [
   [5.35, 3.05, 1.85],
   [6.4, 2.75, 1.65],
@@ -662,8 +758,6 @@ function activateRoom(roomKey) {
   }
 
   state.roomKey = roomKey;
-  state.activeDoorKey = roomKey;
-  state.doorTimer = 2.4;
   roomLabel.textContent = view.label;
   modeLabel.textContent = state.running ? `Moving to ${view.label}` : `Paused in ${view.label}`;
   roomButtons.forEach((button) => {
@@ -1033,8 +1127,54 @@ walkCameraMode.addEventListener("click", () => {
 });
 syncWalkCameraModeButton();
 
+function getWalkSubjectPosition() {
+  return state.walkCameraMode === WALK_CAMERA_MODES.third ? walkAvatar.position : camera.position;
+}
+
+function getDoorDistance(door, subjectPosition) {
+  return Math.hypot(
+    subjectPosition.x - door.triggerPosition.x,
+    subjectPosition.z - door.triggerPosition.z,
+  );
+}
+
+function getNearestDoor(subjectPosition = getWalkSubjectPosition()) {
+  let nearestDoor = null;
+  let nearestDistance = Infinity;
+
+  slidingDoors.forEach((door) => {
+    if (!door.triggerPosition) return;
+    const distance = getDoorDistance(door, subjectPosition);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestDoor = door;
+    }
+  });
+
+  return { door: nearestDoor, distance: nearestDistance };
+}
+
+function openNearestDoor() {
+  const { door: nearestDoor, distance: nearestDistance } = getNearestDoor();
+
+  if (!nearestDoor || nearestDistance > 2.35) {
+    modeLabel.textContent = "No door nearby";
+    return;
+  }
+
+  state.activeDoorKey = nearestDoor.roomKey;
+  state.doorTimer = 2.4;
+  modeLabel.textContent = `Opening ${roomViews[nearestDoor.roomKey]?.label ?? "door"}`;
+}
+
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
+  if (key === "f" && state.walkMode) {
+    openNearestDoor();
+    event.preventDefault();
+    return;
+  }
+
   if (["w", "a", "s", "d", "q", "e", "shift", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key)) {
     pressedKeys.add(key);
     if (state.walkMode) {
@@ -1220,6 +1360,8 @@ function updateAgv(time) {
 }
 
 function getRoomForPosition(position) {
+  if (position.x > 20.0 && position.z > 1.72) return "fabrication";
+  if (position.x > 20.0 && position.z < -1.22) return "testing";
   if (position.x < -6.35 && position.z > 2.15) return "storage";
   if (position.x > 4.65 && position.z > 1.45) return "control";
   if (position.x < -3.0 && position.z < -1.35) return "inspection";
@@ -1292,9 +1434,12 @@ function updateWalkMode(delta) {
 
   const currentRoom = getRoomForPosition(subjectPosition);
   syncRoomUi(currentRoom);
-  state.activeDoorKey = currentRoom;
-  state.doorTimer = Math.max(state.doorTimer, 0.2);
-  modeLabel.textContent = isThirdPerson ? "Third-person walk" : "First-person walk";
+  if (state.doorTimer === 0) {
+    const { distance: nearestDoorDistance } = getNearestDoor(subjectPosition);
+    modeLabel.textContent = nearestDoorDistance <= 2.35
+      ? "Press F to open door"
+      : isThirdPerson ? "Third-person walk" : "First-person walk";
+  }
 }
 
 function updateParkedWalkAvatar(delta) {

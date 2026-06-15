@@ -104,7 +104,7 @@ h1 {
   top: 108px;
   right: 20px;
   display: grid;
-  grid-template-columns: repeat(2, 108px);
+  grid-template-columns: repeat(3, 104px);
   gap: 8px;
   padding: 10px;
   border: 1px solid rgb(255 255 255 / 0.16);
@@ -157,10 +157,10 @@ h1 {
   right: 20px;
   bottom: 20px;
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
-  width: min(1180px, calc(100% - 40px));
+  width: min(1260px, calc(100% - 40px));
   padding: 12px;
   border-radius: 8px;
   z-index: 2;
@@ -168,6 +168,7 @@ h1 {
 
 .room-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-left: auto;
 }

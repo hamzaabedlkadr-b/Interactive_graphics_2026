@@ -139,6 +139,12 @@ export function createSlidingDoor(parent, position, rotationY = 0, width = 1.45,
   const panelWidth = width / 2;
   const left = addBox(door, [panelWidth, 1.6, 0.065], [-panelWidth / 2, 1.05, 0.055], materials.glassWall);
   const right = addBox(door, [panelWidth, 1.6, 0.065], [panelWidth / 2, 1.05, 0.055], materials.glassWall);
+  addBox(left, [0.045, 1.5, 0.035], [panelWidth / 2 - 0.035, 0, 0.055], materials.darkSteel);
+  addBox(left, [panelWidth - 0.08, 0.055, 0.035], [0, 0.54, 0.055], materials.brushed);
+  addBox(left, [panelWidth - 0.08, 0.055, 0.035], [0, -0.54, 0.055], materials.brushed);
+  addBox(right, [0.045, 1.5, 0.035], [-panelWidth / 2 + 0.035, 0, 0.055], materials.darkSteel);
+  addBox(right, [panelWidth - 0.08, 0.055, 0.035], [0, 0.54, 0.055], materials.brushed);
+  addBox(right, [panelWidth - 0.08, 0.055, 0.035], [0, -0.54, 0.055], materials.brushed);
   addBox(door, [width + 0.22, 0.08, 0.1], [0, 1.92, 0.08], materials.darkSteel);
   addSphere(door, 0.055, [-width / 2 - 0.16, 1.82, 0.1], materials.glowGreen, 10);
   addSphere(door, 0.055, [width / 2 + 0.16, 1.82, 0.1], materials.glowRed, 10);
@@ -148,9 +154,10 @@ export function createSlidingDoor(parent, position, rotationY = 0, width = 1.45,
     width,
     left,
     right,
+    triggerPosition: new THREE.Vector3(position[0], 1.65, position[2]),
     closedLeftX: -panelWidth / 2,
     closedRightX: panelWidth / 2,
-    openOffset: 0.62,
+    openOffset: Math.max(0.62, width * 0.46),
   };
 }
 

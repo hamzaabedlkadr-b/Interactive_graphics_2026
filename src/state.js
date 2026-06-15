@@ -23,9 +23,9 @@ export const state = {
 export const pressedKeys = new Set();
 export const walkBounds = {
   minX: -14.0,
-  maxX: 14.0,
-  minZ: -8.4,
-  maxZ: 8.6,
+  maxX: 30.8,
+  minZ: -8.65,
+  maxZ: 10.05,
 };
 export const WALK_EYE_HEIGHT = 1.65;
 export const WALK_COLLISION_RADIUS = 0.34;
@@ -68,5 +68,15 @@ export const roomViews = {
     label: "Inspection room",
     position: new THREE.Vector3(-0.8, 2.65, -1.05),
     target: new THREE.Vector3(-4.25, 1.15, -3.45),
+  },
+  fabrication: {
+    label: "Fabrication lab",
+    position: new THREE.Vector3(29.4, 4.2, 10.3),
+    target: new THREE.Vector3(24.7, 1.05, 5.85),
+  },
+  testing: {
+    label: "Testing chamber",
+    position: new THREE.Vector3(29.2, 3.85, -8.2),
+    target: new THREE.Vector3(24.6, 1.08, -4.95),
   },
 };
