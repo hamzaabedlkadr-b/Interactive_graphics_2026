@@ -266,19 +266,21 @@ addBox(roomGroup, [3.75, 0.04, 10.8], [19.25, 0.021, 0.35], annexFloorMaterial);
 addBox(roomGroup, [10.2, 0.04, 8.1], [25.15, 0.022, 5.78], annexFloorMaterial);
 addBox(roomGroup, [10.2, 0.04, 7.25], [25.15, 0.023, -4.85], annexFloorMaterial);
 
-addBox(roomGroup, [5.2, 3.1, 0.16], [17.55, 1.55, 4.42], materials.glassWall);
+addBox(roomGroup, [3.25, 3.1, 0.16], [16.58, 1.55, 4.42], materials.glassWall);
 addBox(roomGroup, [5.2, 3.1, 0.16], [17.55, 1.55, 7.08], materials.glassWall);
-addBox(roomGroup, [0.16, 2.9, 10.55], [17.32, 1.45, 0.42], materials.wall);
+addBox(roomGroup, [0.16, 2.9, 9.2], [17.32, 1.45, -0.25], materials.wall);
 [-0.85, 0.85].forEach((offset) => {
   addBox(roomGroup, [5.0, 0.24, 0.12], [17.55, 0.36, 5.75 + offset * 1.22], materials.darkSteel);
   addBox(roomGroup, [5.0, 0.08, 0.1], [17.55, 3.12, 5.75 + offset * 1.22], materials.brushed);
 });
 for (let x = 15.2; x <= 19.1; x += 1.3) {
-  addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 4.42], materials.darkSteel);
+  if (x <= 17.8) {
+    addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 4.42], materials.darkSteel);
+  }
   addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 7.08], materials.darkSteel);
   addBox(roomGroup, [0.18, 0.08, 2.55], [x, 3.28, 5.75], materials.cableTray);
 }
-for (let z = -4.7; z <= 5.0; z += 1.6) {
+for (let z = -4.7; z <= 3.7; z += 1.6) {
   addBox(roomGroup, [0.18, 2.65, 0.08], [17.32, 1.52, z], materials.darkSteel);
   addBox(roomGroup, [3.4, 0.08, 0.14], [19.25, 3.34, z], materials.cableTray);
 }
@@ -735,6 +737,27 @@ const walkCollisionBlockers = [
   createWalkBlocker(-10.78, 0.7, 0.65, 0.45),
   createWalkBlocker(-10.85, 7.82, 0.8, 0.55),
   createWalkBlocker(10.85, 7.82, 0.8, 0.55),
+  createWalkBlocker(16.58, 4.42, 1.63, 0.12),
+  createWalkBlocker(17.55, 7.08, 2.6, 0.12),
+  createWalkBlocker(17.32, -0.25, 0.12, 4.6),
+  createWalkBlocker(20.0, 2.79, 0.12, 1.06),
+  createWalkBlocker(20.0, 8.74, 0.12, 1.1),
+  createWalkBlocker(25.15, 1.72, 5.1, 0.12),
+  createWalkBlocker(25.15, 9.84, 5.1, 0.12),
+  createWalkBlocker(30.25, 5.78, 0.12, 4.05),
+  createWalkBlocker(20.0, -7.6, 0.12, 0.9),
+  createWalkBlocker(20.0, -2.1, 0.12, 0.9),
+  createWalkBlocker(25.15, -8.48, 5.1, 0.12),
+  createWalkBlocker(25.15, -1.22, 5.1, 0.12),
+  createWalkBlocker(30.25, -4.85, 0.12, 3.62),
+  createWalkBlocker(24.8, 5.55, 1.45, 1.0),
+  createWalkBlocker(22.15, 7.0, 1.15, 0.7),
+  createWalkBlocker(27.62, 7.2, 1.25, 0.65),
+  createWalkBlocker(28.35, 3.25, 1.05, 0.72),
+  createWalkBlocker(22.3, 3.25, 0.85, 0.55),
+  createWalkBlocker(29.75, 8.72, 0.65, 0.45),
+  createWalkBlocker(24.95, -4.85, 1.55, 1.05),
+  createWalkBlocker(28.3, -7.2, 0.8, 0.5),
 ];
 
 function setToggleState(button, isActive, activeText, inactiveText) {
@@ -843,12 +866,39 @@ function clampWalkPosition(position) {
 }
 
 function isWalkBlocked(position) {
-  return walkCollisionBlockers.some((blocker) => (
+  return walkCollisionBlockers.some((blocker) => isPositionInsideWalkBlocker(position, blocker)) ||
+    slidingDoors.some((door) => isClosedDoorBlockingPosition(door, position));
+}
+
+function isPositionInsideWalkBlocker(position, blocker) {
+  return (
     position.x >= blocker.minX - WALK_COLLISION_RADIUS &&
     position.x <= blocker.maxX + WALK_COLLISION_RADIUS &&
     position.z >= blocker.minZ - WALK_COLLISION_RADIUS &&
     position.z <= blocker.maxZ + WALK_COLLISION_RADIUS
-  ));
+  );
+}
+
+function isDoorOpenEnough(door) {
+  const openAmount = Math.abs(door.left.position.x - door.closedLeftX);
+  return openAmount >= Math.min(door.openOffset * 0.82, WALK_COLLISION_RADIUS + 0.42);
+}
+
+function isClosedDoorBlockingPosition(door, position) {
+  if (!door.triggerPosition || isDoorOpenEnough(door)) return false;
+
+  const rotated = Math.abs(Math.sin(door.rotationY)) > 0.5;
+  const halfLongSide = door.width / 2 + 0.14;
+  const halfShortSide = 0.16;
+  const halfX = rotated ? halfShortSide : halfLongSide;
+  const halfZ = rotated ? halfLongSide : halfShortSide;
+
+  return (
+    position.x >= door.triggerPosition.x - halfX - WALK_COLLISION_RADIUS &&
+    position.x <= door.triggerPosition.x + halfX + WALK_COLLISION_RADIUS &&
+    position.z >= door.triggerPosition.z - halfZ - WALK_COLLISION_RADIUS &&
+    position.z <= door.triggerPosition.z + halfZ + WALK_COLLISION_RADIUS
+  );
 }
 
 function findWalkablePosition(position) {

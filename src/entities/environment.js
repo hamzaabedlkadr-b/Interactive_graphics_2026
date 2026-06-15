@@ -152,6 +152,7 @@ export function createSlidingDoor(parent, position, rotationY = 0, width = 1.45,
   return {
     roomKey,
     width,
+    rotationY,
     left,
     right,
     triggerPosition: new THREE.Vector3(position[0], 1.65, position[2]),
