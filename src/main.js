@@ -32,6 +32,7 @@ import {
   robotSpeedOptions,
   ROBOT_CYCLE_DURATION,
   WALK_CAMERA_MODES,
+  WALK_COLLISION_RADIUS,
   WALK_EYE_HEIGHT,
   cameraViews,
   roomViews,
@@ -577,9 +578,49 @@ const walkHelp = document.querySelector("#walk-help");
 const walkForward = new THREE.Vector3();
 const walkRight = new THREE.Vector3();
 const walkMovement = new THREE.Vector3();
+const walkCandidatePosition = new THREE.Vector3();
 const walkStartPosition = new THREE.Vector3();
+const walkTestPosition = new THREE.Vector3();
 const thirdPersonCameraPosition = new THREE.Vector3();
 const thirdPersonCameraTarget = new THREE.Vector3();
+
+const walkCollisionBlockers = [
+  createWalkBlocker(0, 0.2, 8.5, 2.05),
+  createWalkBlocker(-4.1, -3.35, 1.35, 1.25),
+  createWalkBlocker(5.05, -4.55, 1.45, 1.15),
+  createWalkBlocker(1.35, -4.15, 1.15, 0.85),
+  createWalkBlocker(-4.55, -3.35, 1.05, 0.85),
+  createWalkBlocker(-7.26, -3.48, 0.82, 0.58),
+  createWalkBlocker(5.95, -1.45, 0.68, 0.55),
+  createWalkBlocker(-4.9, 1.72, 0.68, 0.55),
+  createWalkBlocker(6.7, 2.7, 1.18, 0.82),
+  createWalkBlocker(6.35, 3.72, 0.5, 0.5),
+  createWalkBlocker(-2.85, -5.05, 1.05, 0.75),
+  createWalkBlocker(-6.35, 4.9, 0.12, 2.7),
+  createWalkBlocker(-9.45, 2.18, 0.92, 0.12),
+  createWalkBlocker(-6.5, 2.18, 0.22, 0.12),
+  createWalkBlocker(7.25, 1.45, 2.65, 0.12),
+  createWalkBlocker(4.65, 4.82, 0.12, 1.48),
+  createWalkBlocker(9.85, 3.7, 0.12, 2.3),
+  createWalkBlocker(-5.78, -2.28, 0.68, 0.12),
+  createWalkBlocker(-2.42, -2.28, 0.68, 0.12),
+  createWalkBlocker(-6.75, -4.2, 0.12, 1.98),
+  createWalkBlocker(-8.8, 4.8, 1.05, 0.72),
+  createWalkBlocker(-7.2, 4.8, 1.05, 0.72),
+  createWalkBlocker(13.0, -5.75, 1.05, 0.72),
+  createWalkBlocker(-13.25, -5.35, 0.9, 0.72),
+  createWalkBlocker(-12.85, -6.8, 0.9, 0.72),
+  createWalkBlocker(5.15, 4.7, 0.9, 0.72),
+  createWalkBlocker(-10.4, 6.35, 0.9, 0.72),
+  createWalkBlocker(-8.6, 6.55, 0.9, 0.72),
+  createWalkBlocker(-7.25, 5.35, 0.9, 0.72),
+  createWalkBlocker(7.25, 4.05, 0.85, 0.55),
+  createWalkBlocker(-9.4, -0.7, 0.85, 0.55),
+  createWalkBlocker(10.55, -7.05, 0.65, 0.45),
+  createWalkBlocker(-10.78, 0.7, 0.65, 0.45),
+  createWalkBlocker(-10.85, 7.82, 0.8, 0.55),
+  createWalkBlocker(10.85, 7.82, 0.8, 0.55),
+];
 
 function setToggleState(button, isActive, activeText, inactiveText) {
   button.textContent = isActive ? activeText : inactiveText;
@@ -620,10 +661,95 @@ function updateWalkDirectionVectors() {
   walkRight.set(Math.cos(state.walkYaw), 0, -Math.sin(state.walkYaw));
 }
 
+function createWalkBlocker(centerX, centerZ, halfX, halfZ) {
+  return {
+    minX: centerX - halfX,
+    maxX: centerX + halfX,
+    minZ: centerZ - halfZ,
+    maxZ: centerZ + halfZ,
+  };
+}
+
 function clampWalkPosition(position) {
-  position.x = THREE.MathUtils.clamp(position.x, walkBounds.minX, walkBounds.maxX);
-  position.z = THREE.MathUtils.clamp(position.z, walkBounds.minZ, walkBounds.maxZ);
+  position.x = THREE.MathUtils.clamp(
+    position.x,
+    walkBounds.minX + WALK_COLLISION_RADIUS,
+    walkBounds.maxX - WALK_COLLISION_RADIUS,
+  );
+  position.z = THREE.MathUtils.clamp(
+    position.z,
+    walkBounds.minZ + WALK_COLLISION_RADIUS,
+    walkBounds.maxZ - WALK_COLLISION_RADIUS,
+  );
   return position;
+}
+
+function isWalkBlocked(position) {
+  return walkCollisionBlockers.some((blocker) => (
+    position.x >= blocker.minX - WALK_COLLISION_RADIUS &&
+    position.x <= blocker.maxX + WALK_COLLISION_RADIUS &&
+    position.z >= blocker.minZ - WALK_COLLISION_RADIUS &&
+    position.z <= blocker.maxZ + WALK_COLLISION_RADIUS
+  ));
+}
+
+function findWalkablePosition(position) {
+  clampWalkPosition(position);
+  if (!isWalkBlocked(position)) return position;
+
+  const originX = position.x;
+  const originZ = position.z;
+  for (let radius = 0.45; radius <= 6.3; radius += 0.45) {
+    const steps = Math.max(10, Math.ceil(radius * 12));
+    for (let step = 0; step < steps; step += 1) {
+      const angle = (step / steps) * Math.PI * 2;
+      walkTestPosition.set(
+        originX + Math.cos(angle) * radius,
+        position.y,
+        originZ + Math.sin(angle) * radius,
+      );
+      clampWalkPosition(walkTestPosition);
+      if (!isWalkBlocked(walkTestPosition)) {
+        position.copy(walkTestPosition);
+        return position;
+      }
+    }
+  }
+
+  walkTestPosition.set(camera.position.x, position.y, camera.position.z);
+  clampWalkPosition(walkTestPosition);
+  if (!isWalkBlocked(walkTestPosition)) {
+    position.copy(walkTestPosition);
+  }
+
+  return position;
+}
+
+function moveWalkSubject(position, movement) {
+  const startX = position.x;
+  const startZ = position.z;
+
+  walkCandidatePosition.copy(position).add(movement);
+  clampWalkPosition(walkCandidatePosition);
+  if (!isWalkBlocked(walkCandidatePosition)) {
+    position.x = walkCandidatePosition.x;
+    position.z = walkCandidatePosition.z;
+    return Math.abs(position.x - startX) > 0.0001 || Math.abs(position.z - startZ) > 0.0001;
+  }
+
+  walkCandidatePosition.set(position.x + movement.x, position.y, position.z);
+  clampWalkPosition(walkCandidatePosition);
+  if (!isWalkBlocked(walkCandidatePosition)) {
+    position.x = walkCandidatePosition.x;
+  }
+
+  walkCandidatePosition.set(position.x, position.y, position.z + movement.z);
+  clampWalkPosition(walkCandidatePosition);
+  if (!isWalkBlocked(walkCandidatePosition)) {
+    position.z = walkCandidatePosition.z;
+  }
+
+  return Math.abs(position.x - startX) > 0.0001 || Math.abs(position.z - startZ) > 0.0001;
 }
 
 function getWalkStartPosition() {
@@ -631,7 +757,7 @@ function getWalkStartPosition() {
   if (!Number.isFinite(walkStartPosition.x) || !Number.isFinite(walkStartPosition.z)) {
     walkStartPosition.set(camera.position.x, 0, camera.position.z);
   }
-  return clampWalkPosition(walkStartPosition);
+  return findWalkablePosition(walkStartPosition);
 }
 
 function setFirstPersonCameraFromPosition(position) {
@@ -681,7 +807,7 @@ function setWalkCameraMode(mode) {
 
   if (state.walkCameraMode === WALK_CAMERA_MODES.third) {
     walkAvatar.position.set(camera.position.x, 0, camera.position.z);
-    clampWalkPosition(walkAvatar.position);
+    findWalkablePosition(walkAvatar.position);
     walkAvatar.rotation.y = state.walkYaw;
     walkAvatar.visible = true;
     setThirdPersonCameraFromAvatar(true);
@@ -1035,14 +1161,14 @@ function updateWalkMode(delta) {
   if (pressedKeys.has("d")) walkMovement.add(walkRight);
   if (pressedKeys.has("a")) walkMovement.sub(walkRight);
 
-  const isMoving = walkMovement.lengthSq() > 0;
+  const wantsToMove = walkMovement.lengthSq() > 0;
+  let isMoving = false;
   const isThirdPerson = state.walkCameraMode === WALK_CAMERA_MODES.third;
   const subjectPosition = isThirdPerson ? walkAvatar.position : camera.position;
 
-  if (isMoving) {
+  if (wantsToMove) {
     walkMovement.normalize().multiplyScalar(moveSpeed * delta);
-    subjectPosition.add(walkMovement);
-    clampWalkPosition(subjectPosition);
+    isMoving = moveWalkSubject(subjectPosition, walkMovement);
   }
 
   state.walkAnimTime += delta * (isMoving ? 1.0 : 0.42);

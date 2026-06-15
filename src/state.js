@@ -28,6 +28,7 @@ export const walkBounds = {
   maxZ: 8.6,
 };
 export const WALK_EYE_HEIGHT = 1.65;
+export const WALK_COLLISION_RADIUS = 0.34;
 export const WALK_CAMERA_MODES = {
   first: "first",
   third: "third",
