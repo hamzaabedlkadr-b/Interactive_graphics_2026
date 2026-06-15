@@ -211,12 +211,37 @@ const slidingDoors = [];
 const STANDARD_DOOR_HEIGHT = 2.7;
 const ANNEX_DOOR_HEIGHT = 3.15;
 
+function createElevatorLanding(parent, position, rotationY, label) {
+  const lift = new THREE.Group();
+  lift.position.set(...position);
+  lift.rotation.y = rotationY;
+  parent.add(lift);
+
+  addBox(lift, [1.85, 2.75, 0.16], [0, 1.38, 0], materials.darkSteel);
+  addBox(lift, [0.12, 2.95, 0.24], [-1.02, 1.48, -0.02], materials.yellow);
+  addBox(lift, [0.12, 2.95, 0.24], [1.02, 1.48, -0.02], materials.yellow);
+  addBox(lift, [2.16, 0.14, 0.26], [0, 2.94, -0.02], materials.yellow);
+  addBox(lift, [0.82, 2.12, 0.07], [-0.41, 1.23, -0.1], materials.glassWall);
+  addBox(lift, [0.82, 2.12, 0.07], [0.41, 1.23, -0.1], materials.glassWall);
+  addBox(lift, [1.62, 0.08, 0.08], [0, 2.28, -0.16], materials.brushed);
+  addBox(lift, [1.62, 0.08, 0.08], [0, 0.46, -0.16], materials.brushed);
+  addBox(lift, [1.86, 0.045, 0.72], [0, 0.068, -0.58], materials.zoneBlue);
+  addBox(lift, [1.96, 0.06, 0.12], [0, 0.08, -0.94], materials.hazard);
+  addSphere(lift, 0.06, [1.18, 1.64, -0.16], materials.glowGreen, 12);
+  addSphere(lift, 0.045, [1.18, 1.42, -0.16], materials.glowBlue, 12);
+  createFloorLabel(lift, label, [0, 0.076, -1.06], [1.2, 0.34], 0, "#f6c453");
+
+  return lift;
+}
+
 // Storage room: separated from the assembly floor by partial walls and a door.
 createPartitionWall(roomGroup, [0.18, 3.0, 5.4], [-6.35, 0, 4.9], false);
 createPartitionWall(roomGroup, [4.1, 3.0, 0.18], [-8.35, 0, 2.18], false);
 createDoorFrame(roomGroup, [-7.05, 0, 2.2], 0, 1.65, STANDARD_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [-7.05, 0, 2.2], 0, 1.46, "storage"));
+createElevatorLanding(roomGroup, [-6.52, 0, 3.65], -Math.PI / 2, "LIFT");
 createFloorLabel(roomGroup, "STORAGE", [-8.95, 0.065, 6.45], [2.05, 0.62], 0, "#b86538");
+createFloorLabel(roomGroup, "LOWER STORE", [-7.85, 0.066, 3.58], [1.58, 0.38], 0, "#b86538");
 createPallet(roomGroup, [-10.4, 0, 6.35], Math.PI / 2);
 createPallet(roomGroup, [-8.6, 0, 6.55], Math.PI / 2);
 createPallet(roomGroup, [-7.25, 0, 5.35], Math.PI / 2);
@@ -244,6 +269,8 @@ addSphere(roomGroup, 0.055, [8.28, 1.3, 4.42], materials.glowBlue, 12);
 addSphere(roomGroup, 0.055, [8.54, 1.3, 4.42], materials.glowRed, 12);
 const technician = createTechnician(roomGroup, [6.35, 0, 3.72], -0.08);
 createFloorLabel(roomGroup, "OPERATOR", [6.35, 0.069, 3.06], [1.55, 0.38], 0, "#3a725f");
+createElevatorLanding(roomGroup, [9.72, 0, 5.25], Math.PI / 2, "LIFT");
+createFloorLabel(roomGroup, "UPPER ROOM", [8.42, 0.071, 5.18], [1.58, 0.38], 0, "#3a725f");
 
 // Inspection/service room: side glass panels plus an open guarded transfer window for the robot.
 createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-5.78, 0, -2.28], true);
@@ -315,6 +342,7 @@ createVent(roomGroup, [17.42, 2.05, -1.85], Math.PI / 2);
 createVent(roomGroup, [20.88, 2.05, 2.55], -Math.PI / 2);
 createDoorFrame(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.9, ANNEX_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.65, "assembly"));
+createElevatorLanding(roomGroup, [17.24, 0, 0.14], Math.PI / 2, "LIFT");
 createFloorLabel(roomGroup, "ANNEX TUNNEL", [17.4, 0.071, 5.75], [2.75, 0.44], 0, "#2f6984");
 createFloorLabel(roomGroup, "ROOMS", [19.25, 0.072, 0.25], [1.32, 0.38], Math.PI / 2, "#f6c453");
 
@@ -716,6 +744,28 @@ const thirdPersonCameraPosition = new THREE.Vector3();
 const thirdPersonCameraTarget = new THREE.Vector3();
 let walkAvatarHasPosition = false;
 let walkAvatarYaw = state.walkYaw;
+let elevatorStopIndex = 0;
+
+const elevatorStops = [
+  {
+    label: "Annex lift",
+    roomKey: "assembly",
+    position: new THREE.Vector3(16.08, 0, 0.14),
+    yaw: -Math.PI / 2,
+  },
+  {
+    label: "Lower storage",
+    roomKey: "storage",
+    position: new THREE.Vector3(-7.55, 0, 3.65),
+    yaw: Math.PI / 2,
+  },
+  {
+    label: "Upper service room",
+    roomKey: "control",
+    position: new THREE.Vector3(8.55, 0, 5.25),
+    yaw: Math.PI / 2,
+  },
+];
 
 const walkCollisionBlockers = [
   createWalkBlocker(0, 0.2, 8.5, 2.05),
@@ -755,6 +805,9 @@ const walkCollisionBlockers = [
   createWalkBlocker(10.85, 7.82, 0.8, 0.55),
   createWalkBlocker(14.9, -4.6, 0.14, 3.6),
   createWalkBlocker(14.9, 2.55, 0.14, 1.25),
+  createWalkBlocker(17.24, 0.14, 0.12, 0.68),
+  createWalkBlocker(-6.52, 3.65, 0.12, 0.72),
+  createWalkBlocker(9.72, 5.25, 0.12, 0.72),
   createWalkBlocker(15.85, 4.42, 0.9, 0.12),
   createWalkBlocker(17.55, 7.08, 2.6, 0.12),
   createWalkBlocker(17.32, -2.93, 0.12, 1.93),
@@ -1193,6 +1246,59 @@ function getWalkSubjectPosition() {
   return state.walkCameraMode === WALK_CAMERA_MODES.third ? walkAvatar.position : camera.position;
 }
 
+function getNearestElevatorStop(subjectPosition = getWalkSubjectPosition()) {
+  let nearestStop = null;
+  let nearestDistance = Infinity;
+
+  elevatorStops.forEach((stop) => {
+    const distance = Math.hypot(subjectPosition.x - stop.position.x, subjectPosition.z - stop.position.z);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestStop = stop;
+    }
+  });
+
+  return { stop: nearestStop, distance: nearestDistance };
+}
+
+function syncElevatorRoomUi(stop) {
+  state.roomKey = stop.roomKey;
+  roomLabel.textContent = stop.label;
+  roomButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.room === stop.roomKey);
+  });
+}
+
+function moveWalkSubjectToElevatorStop(stop) {
+  state.walkYaw = stop.yaw;
+  updateWalkDirectionVectors();
+
+  if (state.walkCameraMode === WALK_CAMERA_MODES.third) {
+    placeWalkAvatar(stop.position, stop.yaw);
+    setThirdPersonCameraFromAvatar(true);
+  } else {
+    setFirstPersonCameraFromPosition(stop.position);
+    if (walkAvatarHasPosition) {
+      walkAvatarYaw = stop.yaw;
+      showParkedWalkAvatar();
+    }
+  }
+
+  syncElevatorRoomUi(stop);
+  modeLabel.textContent = `Elevator: ${stop.label}`;
+}
+
+function useNearestElevator() {
+  const { stop: nearestStop, distance: nearestDistance } = getNearestElevatorStop();
+
+  if (!nearestStop || nearestDistance > 1.75) return false;
+
+  const currentStopIndex = elevatorStops.indexOf(nearestStop);
+  elevatorStopIndex = (currentStopIndex + 1) % elevatorStops.length;
+  moveWalkSubjectToElevatorStop(elevatorStops[elevatorStopIndex]);
+  return true;
+}
+
 function getMinimapSubjectPosition() {
   if (state.walkMode) return getWalkSubjectPosition();
   if (walkAvatarHasPosition) return walkAvatar.position;
@@ -1264,7 +1370,9 @@ function openNearestDoor() {
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
   if (key === "f" && state.walkMode) {
-    openNearestDoor();
+    if (!useNearestElevator()) {
+      openNearestDoor();
+    }
     event.preventDefault();
     return;
   }
@@ -1526,10 +1634,15 @@ function updateWalkMode(delta) {
   const currentRoom = getRoomForPosition(subjectPosition);
   syncRoomUi(currentRoom);
   if (state.doorTimer === 0) {
+    const { distance: nearestElevatorDistance } = getNearestElevatorStop(subjectPosition);
     const { distance: nearestDoorDistance } = getNearestDoor(subjectPosition);
-    modeLabel.textContent = nearestDoorDistance <= 2.35
-      ? "Press F to open door"
-      : isThirdPerson ? "Third-person walk" : "First-person walk";
+    if (nearestElevatorDistance <= 1.75) {
+      modeLabel.textContent = "Press F for elevator";
+    } else if (nearestDoorDistance <= 2.35) {
+      modeLabel.textContent = "Press F to open door";
+    } else {
+      modeLabel.textContent = isThirdPerson ? "Third-person walk" : "First-person walk";
+    }
   }
 }
 

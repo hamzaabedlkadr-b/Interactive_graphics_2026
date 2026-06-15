@@ -29,21 +29,24 @@
             <span id="speed-label">1.0x</span>
           </div>
         </div>
-        <div class="facility-map" aria-label="Factory minimap">
+        <div class="facility-map" aria-label="Factory floor plan">
           <div class="minimap-grid">
-            <span class="mini-room mini-assembly"></span>
-            <span class="mini-room mini-storage"></span>
-            <span class="mini-room mini-control"></span>
-            <span class="mini-room mini-inspection"></span>
-            <span class="mini-room mini-fabrication"></span>
-            <span class="mini-room mini-testing"></span>
-            <span class="mini-link mini-main-link"></span>
-            <span class="mini-link mini-annex-link"></span>
+            <span class="map-room-zone map-assembly">Assembly</span>
+            <span class="map-room-zone map-storage">Storage</span>
+            <span class="map-room-zone map-control">Control</span>
+            <span class="map-room-zone map-inspection">Inspection</span>
+            <span class="map-room-zone map-fabrication">Fab Lab</span>
+            <span class="map-room-zone map-testing">Testing</span>
+            <span class="map-corridor map-main-corridor"></span>
+            <span class="map-corridor map-annex-corridor"></span>
+            <span class="map-elevator map-elevator-ground">L</span>
+            <span class="map-elevator map-elevator-storage">L</span>
+            <span class="map-elevator map-elevator-upper">L</span>
             <span class="minimap-player" id="minimap-player"></span>
           </div>
         </div>
         <div class="walk-help" id="walk-help">
-          Walk: WASD / arrows - Turn: Q / E - Open door: F - Exit: Walk Mode
+          Walk: WASD / arrows - Turn: Q / E - Use door/elevator: F - Exit: Walk Mode
         </div>
         <div class="controls" aria-label="Scene controls">
           <button id="toggle-animation" type="button">Pause</button>
