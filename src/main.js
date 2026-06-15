@@ -290,6 +290,7 @@ annexFloorMaterial.bumpMap = materials.floor.bumpMap;
 annexFloorMaterial.needsUpdate = true;
 addBox(roomGroup, [5.4, 0.04, 2.45], [17.55, 0.02, 5.75], annexFloorMaterial);
 addBox(roomGroup, [3.75, 0.04, 10.8], [19.25, 0.021, 0.35], annexFloorMaterial);
+addBox(roomGroup, [3.75, 0.04, 1.7], [19.25, 0.02, -5.9], annexFloorMaterial);
 addBox(roomGroup, [2.65, 0.04, 2.32], [16.12, 0.022, 0.15], annexFloorMaterial);
 addBox(roomGroup, [10.2, 0.04, 8.1], [25.15, 0.022, 5.78], annexFloorMaterial);
 addBox(roomGroup, [10.2, 0.04, 7.25], [25.15, 0.023, -4.85], annexFloorMaterial);
@@ -297,7 +298,11 @@ addBox(roomGroup, [10.2, 0.04, 7.25], [25.15, 0.023, -4.85], annexFloorMaterial)
 addBox(roomGroup, [1.8, 3.1, 0.16], [15.85, 1.55, 4.42], materials.glassWall);
 addBox(roomGroup, [5.2, 3.1, 0.16], [17.55, 1.55, 7.08], materials.glassWall);
 addBox(roomGroup, [0.16, 2.9, 3.85], [17.32, 1.45, -2.93], materials.wall);
+addBox(roomGroup, [0.16, 2.9, 1.72], [17.32, 1.45, -5.72], materials.wall);
 addBox(roomGroup, [0.16, 2.9, 3.05], [17.32, 1.45, 2.83], materials.wall);
+createPartitionWall(roomGroup, [2.65, 3.1, 0.18], [18.66, 0, -6.76], false);
+createPartitionWall(roomGroup, [0.18, 3.1, 7.2], [14.88, 0, -4.6], false);
+createPartitionWall(roomGroup, [0.18, 3.1, 3.05], [14.88, 0, 2.78], false);
 [-0.85, 0.85].forEach((offset) => {
   const isLowerRail = offset < 0;
   const railWidth = isLowerRail ? 1.8 : 5.0;
@@ -318,10 +323,14 @@ for (let z = -4.7; z <= 3.7; z += 1.6) {
   }
   addBox(roomGroup, [3.4, 0.08, 0.14], [19.25, 3.34, z], materials.cableTray);
 }
+addBox(roomGroup, [0.18, 2.65, 0.08], [17.32, 1.52, -6.45], materials.darkSteel);
+addBox(roomGroup, [3.4, 0.08, 0.14], [19.25, 3.34, -6.45], materials.cableTray);
 addBox(roomGroup, [5.25, 0.045, 0.08], [17.55, 0.074, 4.62], materials.cautionPaint);
 addBox(roomGroup, [5.25, 0.045, 0.08], [17.55, 0.075, 6.88], materials.cautionPaint);
 addBox(roomGroup, [0.08, 0.045, 10.3], [17.72, 0.076, 0.42], materials.cautionPaint);
 addBox(roomGroup, [0.08, 0.045, 10.3], [20.78, 0.077, 0.42], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.045, 1.55], [17.72, 0.076, -5.62], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.045, 1.55], [20.78, 0.077, -5.62], materials.cautionPaint);
 addBox(roomGroup, [2.45, 0.045, 0.08], [16.1, 0.078, -0.96], materials.cautionPaint);
 addBox(roomGroup, [2.45, 0.045, 0.08], [16.1, 0.079, 1.25], materials.cautionPaint);
 addBox(roomGroup, [0.08, 0.045, 2.15], [14.95, 0.08, 0.16], materials.cautionPaint);
@@ -330,6 +339,8 @@ addBox(roomGroup, [0.18, 0.08, 4.2], [20.15, 3.42, -2.8], materials.lampGlow);
 addBox(roomGroup, [2.45, 0.08, 0.18], [16.72, 3.42, 5.75], materials.lampGlow);
 addPipe(roomGroup, [17.86, 3.58, 5.52], [17.86, 3.58, -4.85], 0.035, materials.pipeBlue);
 addPipe(roomGroup, [20.72, 3.38, 5.2], [20.72, 3.38, -5.2], 0.032, materials.pipeRed);
+addPipe(roomGroup, [17.86, 3.58, -4.85], [17.86, 3.58, -6.55], 0.035, materials.pipeBlue);
+addPipe(roomGroup, [20.72, 3.38, -5.2], [20.72, 3.38, -6.55], 0.032, materials.pipeRed);
 createVent(roomGroup, [17.42, 2.05, -1.85], Math.PI / 2);
 createVent(roomGroup, [20.88, 2.05, 2.55], -Math.PI / 2);
 createDoorFrame(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.9, ANNEX_DOOR_HEIGHT);
@@ -339,6 +350,7 @@ createFloorLabel(roomGroup, "ANNEX TUNNEL", [17.4, 0.071, 5.75], [2.75, 0.44], 0
 createFloorLabel(roomGroup, "ROOMS", [19.25, 0.072, 0.25], [1.32, 0.38], Math.PI / 2, "#f6c453");
 
 // Fabrication lab: prototyping, 3D printing, and CNC prep.
+createPartitionWall(roomGroup, [0.18, 3.35, 2.95], [20.0, 0, 0.25], false);
 addBox(roomGroup, [0.18, 3.35, 2.13], [20.0, 1.68, 2.79], materials.wall);
 addBox(roomGroup, [0.18, 3.35, 2.19], [20.0, 1.68, 8.74], materials.wall);
 addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, 1.72], materials.wall);
@@ -808,14 +820,17 @@ const walkCollisionBlockers = [
   createWalkBlocker(-10.85, 7.82, 0.8, 0.55),
   createWalkBlocker(10.85, 7.82, 0.8, 0.55),
   createWalkBlocker(14.9, -4.6, 0.14, 3.6),
-  createWalkBlocker(14.9, 2.55, 0.14, 1.25),
+  createWalkBlocker(14.9, 2.78, 0.14, 1.53),
   createWalkBlocker(17.24, 0.14, 0.12, 0.68),
   createWalkBlocker(-6.52, 3.65, 0.12, 0.72),
   createWalkBlocker(9.72, 5.25, 0.12, 0.72),
   createWalkBlocker(15.85, 4.42, 0.9, 0.12),
   createWalkBlocker(17.55, 7.08, 2.6, 0.12),
   createWalkBlocker(17.32, -2.93, 0.12, 1.93),
+  createWalkBlocker(17.32, -5.72, 0.12, 0.86),
   createWalkBlocker(17.32, 2.83, 0.12, 1.53),
+  createWalkBlocker(18.66, -6.76, 1.33, 0.12),
+  createWalkBlocker(20.0, 0.25, 0.12, 1.48),
   createWalkBlocker(20.0, 2.79, 0.12, 1.06),
   createWalkBlocker(20.0, 8.74, 0.12, 1.1),
   createWalkBlocker(25.15, 1.72, 5.1, 0.12),
