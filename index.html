@@ -29,13 +29,18 @@
             <span id="speed-label">1.0x</span>
           </div>
         </div>
-        <div class="facility-map" aria-label="Factory room map">
-          <button class="map-room active" type="button" data-room="assembly">Assembly</button>
-          <button class="map-room" type="button" data-room="storage">Storage</button>
-          <button class="map-room" type="button" data-room="control">Control</button>
-          <button class="map-room" type="button" data-room="inspection">Inspection</button>
-          <button class="map-room" type="button" data-room="fabrication">Fab Lab</button>
-          <button class="map-room" type="button" data-room="testing">Testing</button>
+        <div class="facility-map" aria-label="Factory minimap">
+          <div class="minimap-grid">
+            <span class="mini-room mini-assembly"></span>
+            <span class="mini-room mini-storage"></span>
+            <span class="mini-room mini-control"></span>
+            <span class="mini-room mini-inspection"></span>
+            <span class="mini-room mini-fabrication"></span>
+            <span class="mini-room mini-testing"></span>
+            <span class="mini-link mini-main-link"></span>
+            <span class="mini-link mini-annex-link"></span>
+            <span class="minimap-player" id="minimap-player"></span>
+          </div>
         </div>
         <div class="walk-help" id="walk-help">
           Walk: WASD / arrows - Turn: Q / E - Open door: F - Exit: Walk Mode

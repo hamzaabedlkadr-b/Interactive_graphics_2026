@@ -65,14 +65,20 @@ factory.add(floor);
 
 const backWall = addBox(factory, [30, 6.2, 0.28], [0, 3.1, -9.1], materials.wall);
 const leftWall = addBox(factory, [0.28, 6.2, 22], [-14.9, 3.1, 0], materials.wall);
-const rightServiceWall = addBox(factory, [0.28, 4.4, 12], [14.9, 2.2, -2.2], materials.wall);
+const rightServiceWall = [
+  addBox(factory, [0.28, 4.4, 7.2], [14.9, 2.2, -4.6], materials.wall),
+  addBox(factory, [0.28, 4.4, 2.5], [14.9, 2.2, 2.55], materials.wall),
+];
 leftWall.material = materials.wall;
 backWall.receiveShadow = true;
-rightServiceWall.receiveShadow = true;
+rightServiceWall.forEach((wall) => {
+  wall.receiveShadow = true;
+});
 
 addBox(factory, [30, 0.18, 0.4], [0, 5.95, -8.7], materials.darkSteel);
 addBox(factory, [0.4, 0.18, 22], [-14.5, 5.95, 0], materials.darkSteel);
-addBox(factory, [0.4, 0.18, 12], [14.5, 4.28, -2.2], materials.darkSteel);
+addBox(factory, [0.4, 0.18, 7.2], [14.5, 4.28, -4.6], materials.darkSteel);
+addBox(factory, [0.4, 0.18, 2.5], [14.5, 4.28, 2.55], materials.darkSteel);
 for (let x = -13; x <= 13; x += 3.25) {
   addBox(factory, [0.12, 5.4, 0.18], [x, 2.75, -8.82], materials.darkSteel);
 }
@@ -202,11 +208,13 @@ createCableTray(factory, [
 const roomGroup = new THREE.Group();
 factory.add(roomGroup);
 const slidingDoors = [];
+const STANDARD_DOOR_HEIGHT = 2.7;
+const ANNEX_DOOR_HEIGHT = 3.15;
 
 // Storage room: separated from the assembly floor by partial walls and a door.
 createPartitionWall(roomGroup, [0.18, 3.0, 5.4], [-6.35, 0, 4.9], false);
 createPartitionWall(roomGroup, [4.1, 3.0, 0.18], [-8.35, 0, 2.18], false);
-createDoorFrame(roomGroup, [-7.05, 0, 2.2], 0, 1.65, 2.15);
+createDoorFrame(roomGroup, [-7.05, 0, 2.2], 0, 1.65, STANDARD_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [-7.05, 0, 2.2], 0, 1.46, "storage"));
 createFloorLabel(roomGroup, "STORAGE", [-8.95, 0.065, 6.45], [2.05, 0.62], 0, "#b86538");
 createPallet(roomGroup, [-10.4, 0, 6.35], Math.PI / 2);
@@ -224,7 +232,7 @@ addBox(roomGroup, [0.08, 0.04, 1.75], [-8.15, 0.055, 4.72], materials.cautionPai
 createPartitionWall(roomGroup, [5.3, 2.8, 0.16], [7.25, 0, 1.45], true);
 createPartitionWall(roomGroup, [0.16, 2.8, 4.6], [4.65, 0, 3.7], true);
 createPartitionWall(roomGroup, [0.16, 2.8, 4.6], [9.85, 0, 3.7], true);
-createDoorFrame(roomGroup, [4.65, 0, 2.35], Math.PI / 2, 1.45, 2.1);
+createDoorFrame(roomGroup, [4.65, 0, 2.35], Math.PI / 2, 1.45, STANDARD_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [4.65, 0, 2.35], Math.PI / 2, 1.32, "control"));
 createFloorLabel(roomGroup, "CONTROL", [7.25, 0.067, 5.75], [2.0, 0.62], 0, "#3a725f");
 addBox(roomGroup, [3.1, 0.08, 0.42], [7.25, 1.52, 1.58], materials.brushed);
@@ -241,7 +249,7 @@ createFloorLabel(roomGroup, "OPERATOR", [6.35, 0.069, 3.06], [1.55, 0.38], 0, "#
 createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-5.78, 0, -2.28], true);
 createPartitionWall(roomGroup, [1.35, 2.65, 0.16], [-2.42, 0, -2.28], true);
 createPartitionWall(roomGroup, [0.16, 2.65, 3.95], [-6.75, 0, -4.2], true);
-createDoorFrame(roomGroup, [-4.1, 0, -2.28], 0, 1.85, 2.12);
+createDoorFrame(roomGroup, [-4.1, 0, -2.28], 0, 1.85, STANDARD_DOOR_HEIGHT);
 addPipe(roomGroup, [-4.92, 0.8, -2.17], [-4.92, 2.35, -2.17], 0.018, materials.glowBlue);
 addPipe(roomGroup, [-4.52, 0.8, -2.17], [-4.52, 2.35, -2.17], 0.018, materials.glowBlue);
 addPipe(roomGroup, [-3.68, 0.8, -2.17], [-3.68, 2.35, -2.17], 0.018, materials.glowBlue);
@@ -263,33 +271,41 @@ annexFloorMaterial.bumpMap = materials.floor.bumpMap;
 annexFloorMaterial.needsUpdate = true;
 addBox(roomGroup, [5.4, 0.04, 2.45], [17.55, 0.02, 5.75], annexFloorMaterial);
 addBox(roomGroup, [3.75, 0.04, 10.8], [19.25, 0.021, 0.35], annexFloorMaterial);
+addBox(roomGroup, [2.65, 0.04, 2.32], [16.12, 0.022, 0.15], annexFloorMaterial);
 addBox(roomGroup, [10.2, 0.04, 8.1], [25.15, 0.022, 5.78], annexFloorMaterial);
 addBox(roomGroup, [10.2, 0.04, 7.25], [25.15, 0.023, -4.85], annexFloorMaterial);
 
-addBox(roomGroup, [3.25, 3.1, 0.16], [16.58, 1.55, 4.42], materials.glassWall);
+addBox(roomGroup, [1.8, 3.1, 0.16], [15.85, 1.55, 4.42], materials.glassWall);
 addBox(roomGroup, [5.2, 3.1, 0.16], [17.55, 1.55, 7.08], materials.glassWall);
-addBox(roomGroup, [0.16, 2.9, 9.2], [17.32, 1.45, -0.25], materials.wall);
+addBox(roomGroup, [0.16, 2.9, 3.85], [17.32, 1.45, -2.93], materials.wall);
+addBox(roomGroup, [0.16, 2.9, 3.05], [17.32, 1.45, 2.83], materials.wall);
 [-0.85, 0.85].forEach((offset) => {
-  addBox(roomGroup, [5.0, 0.24, 0.12], [17.55, 0.36, 5.75 + offset * 1.22], materials.darkSteel);
-  addBox(roomGroup, [5.0, 0.08, 0.1], [17.55, 3.12, 5.75 + offset * 1.22], materials.brushed);
+  const isLowerRail = offset < 0;
+  const railWidth = isLowerRail ? 1.8 : 5.0;
+  const railX = isLowerRail ? 15.85 : 17.55;
+  addBox(roomGroup, [railWidth, 0.24, 0.12], [railX, 0.36, 5.75 + offset * 1.22], materials.darkSteel);
+  addBox(roomGroup, [railWidth, 0.08, 0.1], [railX, 3.12, 5.75 + offset * 1.22], materials.brushed);
 });
 for (let x = 15.2; x <= 19.1; x += 1.3) {
-  if (x <= 17.8) {
+  if (x <= 16.5) {
     addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 4.42], materials.darkSteel);
   }
   addBox(roomGroup, [0.08, 2.55, 0.18], [x, 1.52, 7.08], materials.darkSteel);
   addBox(roomGroup, [0.18, 0.08, 2.55], [x, 3.28, 5.75], materials.cableTray);
 }
 for (let z = -4.7; z <= 3.7; z += 1.6) {
-  addBox(roomGroup, [0.18, 2.65, 0.08], [17.32, 1.52, z], materials.darkSteel);
+  if (z < -1.0 || z > 1.3) {
+    addBox(roomGroup, [0.18, 2.65, 0.08], [17.32, 1.52, z], materials.darkSteel);
+  }
   addBox(roomGroup, [3.4, 0.08, 0.14], [19.25, 3.34, z], materials.cableTray);
 }
 addBox(roomGroup, [5.25, 0.045, 0.08], [17.55, 0.074, 4.62], materials.cautionPaint);
 addBox(roomGroup, [5.25, 0.045, 0.08], [17.55, 0.075, 6.88], materials.cautionPaint);
 addBox(roomGroup, [0.08, 0.045, 10.3], [17.72, 0.076, 0.42], materials.cautionPaint);
 addBox(roomGroup, [0.08, 0.045, 10.3], [20.78, 0.077, 0.42], materials.cautionPaint);
-addBox(roomGroup, [0.12, 0.12, 2.25], [20.92, 0.84, 0.2], materials.darkSteel);
-addBox(roomGroup, [0.12, 0.12, 2.25], [20.92, 1.58, 0.2], materials.brushed);
+addBox(roomGroup, [2.45, 0.045, 0.08], [16.1, 0.078, -0.96], materials.cautionPaint);
+addBox(roomGroup, [2.45, 0.045, 0.08], [16.1, 0.079, 1.25], materials.cautionPaint);
+addBox(roomGroup, [0.08, 0.045, 2.15], [14.95, 0.08, 0.16], materials.cautionPaint);
 addBox(roomGroup, [0.18, 0.08, 4.2], [18.35, 3.42, 2.65], materials.lampGlow);
 addBox(roomGroup, [0.18, 0.08, 4.2], [20.15, 3.42, -2.8], materials.lampGlow);
 addBox(roomGroup, [2.45, 0.08, 0.18], [16.72, 3.42, 5.75], materials.lampGlow);
@@ -297,7 +313,7 @@ addPipe(roomGroup, [17.86, 3.58, 5.52], [17.86, 3.58, -4.85], 0.035, materials.p
 addPipe(roomGroup, [20.72, 3.38, 5.2], [20.72, 3.38, -5.2], 0.032, materials.pipeRed);
 createVent(roomGroup, [17.42, 2.05, -1.85], Math.PI / 2);
 createVent(roomGroup, [20.88, 2.05, 2.55], -Math.PI / 2);
-createDoorFrame(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.9, 2.55);
+createDoorFrame(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.9, ANNEX_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [14.88, 0, 5.75], Math.PI / 2, 2.65, "assembly"));
 createFloorLabel(roomGroup, "ANNEX TUNNEL", [17.4, 0.071, 5.75], [2.75, 0.44], 0, "#2f6984");
 createFloorLabel(roomGroup, "ROOMS", [19.25, 0.072, 0.25], [1.32, 0.38], Math.PI / 2, "#f6c453");
@@ -308,7 +324,7 @@ addBox(roomGroup, [0.18, 3.35, 2.19], [20.0, 1.68, 8.74], materials.wall);
 addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, 1.72], materials.wall);
 addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, 9.84], materials.wall);
 addBox(roomGroup, [0.18, 3.35, 8.1], [30.25, 1.68, 5.78], materials.wall);
-createDoorFrame(roomGroup, [20.0, 0, 5.75], Math.PI / 2, 3.3, 2.55);
+createDoorFrame(roomGroup, [20.0, 0, 5.75], Math.PI / 2, 3.3, ANNEX_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [20.0, 0, 5.75], Math.PI / 2, 3.0, "fabrication"));
 createFloorLabel(roomGroup, "FABRICATION", [24.35, 0.071, 9.05], [2.55, 0.6], 0, "#5a93a7");
 addBox(roomGroup, [2.75, 0.18, 1.05], [24.8, 0.72, 5.55], materials.darkSteel);
@@ -333,7 +349,7 @@ addBox(roomGroup, [0.18, 3.35, 1.78], [20.0, 1.68, -2.1], materials.wall);
 addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, -8.48], materials.wall);
 addBox(roomGroup, [10.2, 3.35, 0.18], [25.15, 1.68, -1.22], materials.wall);
 addBox(roomGroup, [0.18, 3.35, 7.25], [30.25, 1.68, -4.85], materials.wall);
-createDoorFrame(roomGroup, [20.0, 0, -4.85], Math.PI / 2, 3.3, 2.55);
+createDoorFrame(roomGroup, [20.0, 0, -4.85], Math.PI / 2, 3.3, ANNEX_DOOR_HEIGHT);
 slidingDoors.push(createSlidingDoor(roomGroup, [20.0, 0, -4.85], Math.PI / 2, 3.0, "testing"));
 createFloorLabel(roomGroup, "TESTING", [24.35, 0.071, -7.72], [1.9, 0.58], 0, "#b86538");
 addBox(roomGroup, [3.9, 0.04, 2.8], [24.95, 0.058, -4.85], materials.hazard);
@@ -686,7 +702,7 @@ const modeLabel = document.querySelector("#mode-label");
 const roomLabel = document.querySelector("#room-label");
 const speedLabel = document.querySelector("#speed-label");
 const roomButtons = document.querySelectorAll(".room-button");
-const mapRooms = document.querySelectorAll(".map-room");
+const minimapPlayer = document.querySelector("#minimap-player");
 const toggleWalk = document.querySelector("#toggle-walk");
 const walkCameraMode = document.querySelector("#walk-camera-mode");
 const walkHelp = document.querySelector("#walk-help");
@@ -737,9 +753,12 @@ const walkCollisionBlockers = [
   createWalkBlocker(-10.78, 0.7, 0.65, 0.45),
   createWalkBlocker(-10.85, 7.82, 0.8, 0.55),
   createWalkBlocker(10.85, 7.82, 0.8, 0.55),
-  createWalkBlocker(16.58, 4.42, 1.63, 0.12),
+  createWalkBlocker(14.9, -4.6, 0.14, 3.6),
+  createWalkBlocker(14.9, 2.55, 0.14, 1.25),
+  createWalkBlocker(15.85, 4.42, 0.9, 0.12),
   createWalkBlocker(17.55, 7.08, 2.6, 0.12),
-  createWalkBlocker(17.32, -0.25, 0.12, 4.6),
+  createWalkBlocker(17.32, -2.93, 0.12, 1.93),
+  createWalkBlocker(17.32, 2.83, 0.12, 1.53),
   createWalkBlocker(20.0, 2.79, 0.12, 1.06),
   createWalkBlocker(20.0, 8.74, 0.12, 1.1),
   createWalkBlocker(25.15, 1.72, 5.1, 0.12),
@@ -784,9 +803,6 @@ function activateRoom(roomKey) {
   roomLabel.textContent = view.label;
   modeLabel.textContent = state.running ? `Moving to ${view.label}` : `Paused in ${view.label}`;
   roomButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.room === roomKey);
-  });
-  mapRooms.forEach((button) => {
     button.classList.toggle("active", button.dataset.room === roomKey);
   });
   moveCameraTo(view);
@@ -1164,10 +1180,6 @@ roomButtons.forEach((button) => {
   button.addEventListener("click", () => activateRoom(button.dataset.room));
 });
 
-mapRooms.forEach((button) => {
-  button.addEventListener("click", () => activateRoom(button.dataset.room));
-});
-
 toggleWalk.addEventListener("click", () => setWalkMode(!state.walkMode));
 walkCameraMode.addEventListener("click", () => {
   const nextMode = state.walkCameraMode === WALK_CAMERA_MODES.third
@@ -1179,6 +1191,38 @@ syncWalkCameraModeButton();
 
 function getWalkSubjectPosition() {
   return state.walkCameraMode === WALK_CAMERA_MODES.third ? walkAvatar.position : camera.position;
+}
+
+function getMinimapSubjectPosition() {
+  if (state.walkMode) return getWalkSubjectPosition();
+  if (walkAvatarHasPosition) return walkAvatar.position;
+  return roomViews[state.roomKey]?.target ?? controls.target;
+}
+
+function getMinimapYaw() {
+  if (state.walkMode || walkAvatarHasPosition) return state.walkMode ? state.walkYaw : walkAvatarYaw;
+  return Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
+}
+
+function updateMinimap() {
+  if (!minimapPlayer) return;
+
+  const subject = getMinimapSubjectPosition();
+  const xPercent = THREE.MathUtils.clamp(
+    ((subject.x - walkBounds.minX) / (walkBounds.maxX - walkBounds.minX)) * 100,
+    7,
+    93,
+  );
+  const yPercent = THREE.MathUtils.clamp(
+    ((walkBounds.maxZ - subject.z) / (walkBounds.maxZ - walkBounds.minZ)) * 100,
+    7,
+    93,
+  );
+  const rotation = THREE.MathUtils.radToDeg(getMinimapYaw()) + 180;
+
+  minimapPlayer.style.setProperty("--player-x", `${xPercent.toFixed(1)}%`);
+  minimapPlayer.style.setProperty("--player-y", `${yPercent.toFixed(1)}%`);
+  minimapPlayer.style.setProperty("--player-rot", `${rotation.toFixed(1)}deg`);
 }
 
 function getDoorDistance(door, subjectPosition) {
@@ -1426,9 +1470,6 @@ function syncRoomUi(roomKey) {
   roomButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.room === roomKey);
   });
-  mapRooms.forEach((button) => {
-    button.classList.toggle("active", button.dataset.room === roomKey);
-  });
 }
 
 function updateWalkMode(delta) {
@@ -1526,6 +1567,7 @@ function animate() {
   }
   updateWalkMode(delta);
   updateParkedWalkAvatar(delta);
+  updateMinimap();
 
   materials.belt.map.offset.x = -machineElapsed * 0.58;
   materials.hazard.map.offset.x = -machineElapsed * 0.08;
