@@ -31,6 +31,8 @@ import {
   walkBounds,
   robotSpeedOptions,
   ROBOT_CYCLE_DURATION,
+  WALK_CAMERA_MODES,
+  WALK_EYE_HEIGHT,
   cameraViews,
   roomViews,
 } from "./state.js";
@@ -39,7 +41,7 @@ import { shadow, addBox, addCylinder, addSphere, addTorus, addCable, addLocalCab
 
 import { createVent, createFloorLabel, createOilStain, createFloorDrain, createSafetyBollard, createCableTray, createAgvLane, createDoorFrame, createSlidingDoor, createPartitionWall } from "./entities/environment.js";
 import { createWarningPanel, createBarrel, createStorageRack, createPallet, createToolCart, createElectricalCabinet, createMaintenancePanel } from "./entities/props.js";
-import { createTechnician, animateTechnician } from "./entities/characters.js";
+import { createTechnician, animateTechnician, createWalkAvatar, animateWalkAvatar } from "./entities/characters.js";
 import { createCargoCrate, createProductionItem, createHandledPart, createTriangulatedPrototype, createMassSpringCable, updateMassSpringCable } from "./entities/production.js";
 import { createAgv, createParallelGripper, createRobot } from "./entities/machines.js";
 
@@ -534,6 +536,7 @@ droneReturnSample.visible = false;
 
 const springCable = createMassSpringCable(scene, [-2.85, 3.1, -5.05]);
 createFloorLabel(scene, "SPRING SIM", [-2.85, 0.073, -6.22], [1.55, 0.34], 0, "#f6c453");
+const walkAvatar = createWalkAvatar(scene);
 
 for (let x = -8.5; x <= 8.5; x += 2.4) {
   addBox(factory, [0.09, 2.2, 0.09], [x, 1.1, 4.1], materials.darkSteel);
@@ -569,7 +572,14 @@ const speedLabel = document.querySelector("#speed-label");
 const roomButtons = document.querySelectorAll(".room-button");
 const mapRooms = document.querySelectorAll(".map-room");
 const toggleWalk = document.querySelector("#toggle-walk");
+const walkCameraMode = document.querySelector("#walk-camera-mode");
 const walkHelp = document.querySelector("#walk-help");
+const walkForward = new THREE.Vector3();
+const walkRight = new THREE.Vector3();
+const walkMovement = new THREE.Vector3();
+const walkStartPosition = new THREE.Vector3();
+const thirdPersonCameraPosition = new THREE.Vector3();
+const thirdPersonCameraTarget = new THREE.Vector3();
 
 function setToggleState(button, isActive, activeText, inactiveText) {
   button.textContent = isActive ? activeText : inactiveText;
@@ -605,6 +615,84 @@ function activateRoom(roomKey) {
   moveCameraTo(view);
 }
 
+function updateWalkDirectionVectors() {
+  walkForward.set(-Math.sin(state.walkYaw), 0, -Math.cos(state.walkYaw));
+  walkRight.set(Math.cos(state.walkYaw), 0, -Math.sin(state.walkYaw));
+}
+
+function clampWalkPosition(position) {
+  position.x = THREE.MathUtils.clamp(position.x, walkBounds.minX, walkBounds.maxX);
+  position.z = THREE.MathUtils.clamp(position.z, walkBounds.minZ, walkBounds.maxZ);
+  return position;
+}
+
+function getWalkStartPosition() {
+  walkStartPosition.set(controls.target.x, 0, controls.target.z);
+  if (!Number.isFinite(walkStartPosition.x) || !Number.isFinite(walkStartPosition.z)) {
+    walkStartPosition.set(camera.position.x, 0, camera.position.z);
+  }
+  return clampWalkPosition(walkStartPosition);
+}
+
+function setFirstPersonCameraFromPosition(position) {
+  camera.position.set(position.x, WALK_EYE_HEIGHT, position.z);
+  controls.target.set(
+    position.x + walkForward.x * 4,
+    1.55,
+    position.z + walkForward.z * 4,
+  );
+}
+
+function setThirdPersonCameraFromAvatar(snap = false, delta = 1 / 60) {
+  thirdPersonCameraPosition.set(
+    walkAvatar.position.x - walkForward.x * 4.2,
+    2.55,
+    walkAvatar.position.z - walkForward.z * 4.2,
+  );
+  thirdPersonCameraTarget.set(
+    walkAvatar.position.x + walkForward.x * 1.2,
+    1.28,
+    walkAvatar.position.z + walkForward.z * 1.2,
+  );
+
+  if (snap) {
+    camera.position.copy(thirdPersonCameraPosition);
+    controls.target.copy(thirdPersonCameraTarget);
+    return;
+  }
+
+  const blend = 1 - Math.pow(0.004, delta);
+  camera.position.lerp(thirdPersonCameraPosition, blend);
+  controls.target.lerp(thirdPersonCameraTarget, blend);
+}
+
+function syncWalkCameraModeButton() {
+  const isThirdPerson = state.walkCameraMode === WALK_CAMERA_MODES.third;
+  walkCameraMode.textContent = isThirdPerson ? "Walk 3rd" : "Walk 1st";
+  walkCameraMode.classList.toggle("active", isThirdPerson);
+}
+
+function setWalkCameraMode(mode) {
+  state.walkCameraMode = mode;
+  syncWalkCameraModeButton();
+  updateWalkDirectionVectors();
+
+  if (!state.walkMode) return;
+
+  if (state.walkCameraMode === WALK_CAMERA_MODES.third) {
+    walkAvatar.position.set(camera.position.x, 0, camera.position.z);
+    clampWalkPosition(walkAvatar.position);
+    walkAvatar.rotation.y = state.walkYaw;
+    walkAvatar.visible = true;
+    setThirdPersonCameraFromAvatar(true);
+    modeLabel.textContent = "Third-person walk";
+  } else {
+    setFirstPersonCameraFromPosition(walkAvatar.position);
+    walkAvatar.visible = false;
+    modeLabel.textContent = "First-person walk";
+  }
+}
+
 function setWalkMode(enabled) {
   state.walkMode = enabled;
   state.cameraTransition = null;
@@ -612,17 +700,25 @@ function setWalkMode(enabled) {
   toggleWalk.classList.toggle("active", enabled);
   toggleWalk.textContent = enabled ? "Exit Walk" : "Walk Mode";
   walkHelp.classList.toggle("visible", enabled);
+  syncWalkCameraModeButton();
 
   if (enabled) {
     state.walkYaw = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
-    camera.position.y = 1.65;
-    controls.target.set(
-      camera.position.x - Math.sin(state.walkYaw) * 4,
-      1.55,
-      camera.position.z - Math.cos(state.walkYaw) * 4,
-    );
-    modeLabel.textContent = "Walk mode";
+    updateWalkDirectionVectors();
+    const startPosition = getWalkStartPosition();
+    if (state.walkCameraMode === WALK_CAMERA_MODES.third) {
+      walkAvatar.position.copy(startPosition);
+      walkAvatar.rotation.y = state.walkYaw;
+      walkAvatar.visible = true;
+      setThirdPersonCameraFromAvatar(true);
+      modeLabel.textContent = "Third-person walk";
+    } else {
+      walkAvatar.visible = false;
+      setFirstPersonCameraFromPosition(startPosition);
+      modeLabel.textContent = "First-person walk";
+    }
   } else {
+    walkAvatar.visible = false;
     modeLabel.textContent = state.running ? "Automatic cycle" : `Paused in ${roomViews[state.roomKey].label}`;
   }
 }
@@ -704,6 +800,13 @@ mapRooms.forEach((button) => {
 });
 
 toggleWalk.addEventListener("click", () => setWalkMode(!state.walkMode));
+walkCameraMode.addEventListener("click", () => {
+  const nextMode = state.walkCameraMode === WALK_CAMERA_MODES.third
+    ? WALK_CAMERA_MODES.first
+    : WALK_CAMERA_MODES.third;
+  setWalkCameraMode(nextMode);
+});
+syncWalkCameraModeButton();
 
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
@@ -924,34 +1027,46 @@ function updateWalkMode(delta) {
     state.walkYaw -= turnSpeed * delta;
   }
 
-  const forward = new THREE.Vector3(-Math.sin(state.walkYaw), 0, -Math.cos(state.walkYaw));
-  const right = new THREE.Vector3(Math.cos(state.walkYaw), 0, -Math.sin(state.walkYaw));
-  const movement = new THREE.Vector3();
+  updateWalkDirectionVectors();
+  walkMovement.set(0, 0, 0);
 
-  if (pressedKeys.has("w") || pressedKeys.has("arrowup")) movement.add(forward);
-  if (pressedKeys.has("s") || pressedKeys.has("arrowdown")) movement.sub(forward);
-  if (pressedKeys.has("d")) movement.add(right);
-  if (pressedKeys.has("a")) movement.sub(right);
+  if (pressedKeys.has("w") || pressedKeys.has("arrowup")) walkMovement.add(walkForward);
+  if (pressedKeys.has("s") || pressedKeys.has("arrowdown")) walkMovement.sub(walkForward);
+  if (pressedKeys.has("d")) walkMovement.add(walkRight);
+  if (pressedKeys.has("a")) walkMovement.sub(walkRight);
 
-  if (movement.lengthSq() > 0) {
-    movement.normalize().multiplyScalar(moveSpeed * delta);
-    camera.position.add(movement);
-    camera.position.x = THREE.MathUtils.clamp(camera.position.x, walkBounds.minX, walkBounds.maxX);
-    camera.position.z = THREE.MathUtils.clamp(camera.position.z, walkBounds.minZ, walkBounds.maxZ);
+  const isMoving = walkMovement.lengthSq() > 0;
+  const isThirdPerson = state.walkCameraMode === WALK_CAMERA_MODES.third;
+  const subjectPosition = isThirdPerson ? walkAvatar.position : camera.position;
+
+  if (isMoving) {
+    walkMovement.normalize().multiplyScalar(moveSpeed * delta);
+    subjectPosition.add(walkMovement);
+    clampWalkPosition(subjectPosition);
   }
 
-  camera.position.y = 1.65;
-  controls.target.set(
-    camera.position.x + forward.x * 4,
-    1.55,
-    camera.position.z + forward.z * 4,
-  );
+  state.walkAnimTime += delta * (isMoving ? 1.0 : 0.42);
+  if (isThirdPerson) {
+    walkAvatar.visible = true;
+    walkAvatar.position.y = 0;
+    walkAvatar.rotation.y = state.walkYaw;
+    animateWalkAvatar(walkAvatar, state.walkAnimTime, isMoving);
+    setThirdPersonCameraFromAvatar(false, delta);
+  } else {
+    walkAvatar.visible = false;
+    camera.position.y = WALK_EYE_HEIGHT;
+    controls.target.set(
+      camera.position.x + walkForward.x * 4,
+      1.55,
+      camera.position.z + walkForward.z * 4,
+    );
+  }
 
-  const currentRoom = getRoomForPosition(camera.position);
+  const currentRoom = getRoomForPosition(subjectPosition);
   syncRoomUi(currentRoom);
   state.activeDoorKey = currentRoom;
   state.doorTimer = Math.max(state.doorTimer, 0.2);
-  modeLabel.textContent = "Walk mode";
+  modeLabel.textContent = isThirdPerson ? "Third-person walk" : "First-person walk";
 }
 
 function resizeRenderer() {

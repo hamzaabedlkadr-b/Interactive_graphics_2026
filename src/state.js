@@ -11,7 +11,9 @@ export const state = {
   activeDoorKey: null,
   doorTimer: 0,
   walkMode: false,
+  walkCameraMode: "third",
   walkYaw: -0.78,
+  walkAnimTime: 0,
   machinesOn: true,
   scannerOn: true,
   droneOn: true,
@@ -24,6 +26,11 @@ export const walkBounds = {
   maxX: 14.0,
   minZ: -8.4,
   maxZ: 8.6,
+};
+export const WALK_EYE_HEIGHT = 1.65;
+export const WALK_CAMERA_MODES = {
+  first: "first",
+  third: "third",
 };
 export const robotSpeedOptions = [
   { label: "Robot 0.5x", value: 0.5 },

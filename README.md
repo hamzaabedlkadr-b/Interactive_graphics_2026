@@ -108,6 +108,8 @@ Then open:
 http://localhost:5173
 ```
 
+Walk mode can run in third-person avatar control or first-person walking. Use `Walk 3rd` / `Walk 1st` to switch the selected view before or during walking.
+
 Walk mode controls:
 
 - `W` / `ArrowUp`: move forward
