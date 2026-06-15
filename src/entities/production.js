@@ -198,6 +198,12 @@ export function createMassSpringCable(parent, position) {
   cable.userData.damping = 1.7;
   cable.userData.mass = 0.18;
   cable.userData.floorY = -1.82;
+  cable.userData.temp = {
+    deltaVector: new THREE.Vector3(),
+    relativeVelocity: new THREE.Vector3(),
+    gravity: new THREE.Vector3(0, -3.4, 0),
+    wind: new THREE.Vector3(),
+  };
 
   return cable;
 }
@@ -208,8 +214,8 @@ export function updateMassSpringCable(cable, delta, time) {
   const particles = cable.userData.particles;
   const substeps = 3;
   const step = Math.min(delta, 1 / 30) / substeps;
-  const gravity = new THREE.Vector3(0, -3.4, 0);
-  const wind = new THREE.Vector3(Math.sin(time * 1.7) * 0.85, 0, Math.cos(time * 1.1) * 0.45);
+  const { deltaVector, relativeVelocity, gravity, wind } = cable.userData.temp;
+  wind.set(Math.sin(time * 1.7) * 0.85, 0, Math.cos(time * 1.1) * 0.45);
 
   for (let substep = 0; substep < substeps; substep += 1) {
     particles[0].position.set(Math.sin(time * 1.2) * 0.08, -0.18 + Math.sin(time * 1.7) * 0.025, 0);
@@ -226,11 +232,11 @@ export function updateMassSpringCable(cable, delta, time) {
     for (let i = 0; i < particles.length - 1; i += 1) {
       const a = particles[i];
       const b = particles[i + 1];
-      const deltaVector = new THREE.Vector3().subVectors(b.position, a.position);
+      deltaVector.subVectors(b.position, a.position);
       const length = Math.max(deltaVector.length(), 0.0001);
       const direction = deltaVector.multiplyScalar(1 / length);
       const stretch = length - cable.userData.restLength;
-      const relativeVelocity = new THREE.Vector3().subVectors(b.velocity, a.velocity);
+      relativeVelocity.subVectors(b.velocity, a.velocity);
       const dampingForce = cable.userData.damping * relativeVelocity.dot(direction);
       const force = direction.multiplyScalar(cable.userData.stiffness * stretch + dampingForce);
 

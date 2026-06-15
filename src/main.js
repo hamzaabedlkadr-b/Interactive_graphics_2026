@@ -2,8 +2,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const canvas = document.querySelector("#factory-canvas");
+const MAX_RENDER_PIXEL_RATIO = 1.5;
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_RENDER_PIXEL_RATIO));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -24,6 +25,7 @@ controls.minDistance = 4;
 controls.maxDistance = 22;
 
 const clock = new THREE.Clock();
+const MAX_FRAME_DELTA = 1 / 30;
 
 import {
   state,
@@ -45,6 +47,14 @@ import { createWarningPanel, createBarrel, createStorageRack, createPallet, crea
 import { createTechnician, animateTechnician, createWalkAvatar, animateWalkAvatar } from "./entities/characters.js";
 import { createCargoCrate, createProductionItem, createHandledPart, createTriangulatedPrototype, createMassSpringCable, updateMassSpringCable } from "./entities/production.js";
 import { createAgv, createParallelGripper, createRobot } from "./entities/machines.js";
+
+function tuneAnimatedObjectForPerformance(object) {
+  object.traverse((child) => {
+    if (!child.isMesh) return;
+    child.castShadow = false;
+    child.receiveShadow = true;
+  });
+}
 
 const factory = new THREE.Group();
 scene.add(factory);
@@ -280,6 +290,9 @@ createFloorLabel(factory, "AGV DROP", [10.85, 0.073, 8.62], [1.35, 0.36], 0, "#3
 const agvLoadCrate = createCargoCrate(scene, [-10.85, 0.62, 7.82], materials.crate);
 const agvDropCrate = createCargoCrate(scene, [10.85, 0.62, 7.82], materials.productShell);
 agvDropCrate.visible = false;
+tuneAnimatedObjectForPerformance(agv);
+tuneAnimatedObjectForPerformance(agvLoadCrate);
+tuneAnimatedObjectForPerformance(agvDropCrate);
 const agvSegments = agvPath.map((point, index) => {
   const next = agvPath[(index + 1) % agvPath.length];
   return point.distanceTo(next);
@@ -316,9 +329,7 @@ const ceilingLights = [];
   addBox(factory, [1.7, 0.08, 0.28], [x, y, z], materials.lampGlow);
   const light = new THREE.PointLight(0xfff1cb, 9.0, 12.5, 1.58);
   light.position.set(x, y - 0.15, z);
-  light.castShadow = true;
-  light.shadow.bias = -0.00012;
-  light.shadow.radius = 3;
+  light.castShadow = false;
   ceilingLights.push(light);
   scene.add(light);
 });
@@ -394,6 +405,7 @@ const productionKinds = ["crate", "battery", "chassis", "finished", "reject", "b
 for (let i = 0; i < productionKinds.length; i += 1) {
   const item = createProductionItem(scene, productionKinds[i], i);
   item.position.set(-7.4 + i * 2.05, 1.15, 0.2);
+  tuneAnimatedObjectForPerformance(item);
   productionItems.push(item);
 }
 
@@ -534,6 +546,11 @@ dronePickupSample.scale.setScalar(0.72);
 const droneReturnSample = createHandledPart(scene, droneReturnPosition.toArray(), materials.productShell);
 droneReturnSample.scale.setScalar(0.72);
 droneReturnSample.visible = false;
+tuneAnimatedObjectForPerformance(drone);
+tuneAnimatedObjectForPerformance(dronePickupSample);
+tuneAnimatedObjectForPerformance(droneReturnSample);
+tuneAnimatedObjectForPerformance(robotPickupPart);
+tuneAnimatedObjectForPerformance(robotPlacedPart);
 
 const springCable = createMassSpringCable(scene, [-2.85, 3.1, -5.05]);
 createFloorLabel(scene, "SPRING SIM", [-2.85, 0.073, -6.22], [1.55, 0.34], 0, "#f6c453");
@@ -1304,7 +1321,7 @@ let robotElapsed = 0;
 
 function animate() {
   requestAnimationFrame(animate);
-  const delta = clock.getDelta();
+  const delta = Math.min(clock.getDelta(), MAX_FRAME_DELTA);
   if (state.running) {
     elapsed += delta * state.speed;
     if (state.machinesOn) {
