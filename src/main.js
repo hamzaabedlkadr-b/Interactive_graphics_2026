@@ -487,20 +487,33 @@ scene.add(lampLight, lampLight.target);
 const belt = new THREE.Group();
 belt.position.z = 0.2;
 scene.add(belt);
-addBox(belt, [15.6, 0.34, 2.8], [0, 0.6, 0], materials.belt);
-addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, -1.55], materials.brushed);
-addBox(belt, [16.2, 0.22, 0.12], [0, 0.84, 1.55], materials.brushed);
-addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, -1.76], materials.darkSteel);
-addBox(belt, [16.5, 0.12, 0.42], [0, 0.34, 1.76], materials.darkSteel);
+addBox(belt, [16.1, 0.18, 2.72], [0, 0.62, 0], materials.darkSteel);
+addBox(belt, [15.75, 0.08, 2.28], [0, 0.92, 0], materials.belt);
+addBox(belt, [16.15, 0.14, 0.16], [0, 1.04, -1.3], materials.brushed);
+addBox(belt, [16.15, 0.14, 0.16], [0, 1.04, 1.3], materials.brushed);
+addBox(belt, [16.4, 0.2, 0.16], [0, 0.78, -1.47], materials.darkSteel);
+addBox(belt, [16.4, 0.2, 0.16], [0, 0.78, 1.47], materials.darkSteel);
+addBox(belt, [15.7, 0.035, 0.045], [0, 0.975, -0.72], materials.brushed);
+addBox(belt, [15.7, 0.035, 0.045], [0, 0.976, 0.72], materials.brushed);
 
-for (let x = -7.6; x <= 7.6; x += 0.8) {
-  const roller = addCylinder(belt, 0.17, 0.17, 3.1, [x, 0.82, 0], materials.darkSteel, 24);
-  roller.rotation.z = Math.PI / 2;
+for (let x = -7.65; x <= 7.65; x += 0.85) {
+  const roller = addCylinder(belt, 0.105, 0.105, 2.38, [x, 0.8, 0], materials.brushed, 24);
+  roller.rotation.x = Math.PI / 2;
+  addBox(belt, [0.055, 0.035, 2.12], [x, 0.985, 0], materials.safetyWhite);
 }
 
+[-7.95, 7.95].forEach((x) => {
+  const endDrum = addCylinder(belt, 0.22, 0.22, 2.52, [x, 0.88, 0], materials.darkSteel, 32);
+  endDrum.rotation.x = Math.PI / 2;
+  addBox(belt, [0.12, 0.42, 0.18], [x, 0.72, -1.38], materials.brushed);
+  addBox(belt, [0.12, 0.42, 0.18], [x, 0.72, 1.38], materials.brushed);
+});
+
 for (let x = -7.8; x <= 7.8; x += 2.6) {
-  addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, -1.58], materials.darkSteel);
-  addBox(belt, [0.16, 1.0, 0.16], [x, 0.05, 1.58], materials.darkSteel);
+  addBox(belt, [0.16, 0.78, 0.16], [x, 0.28, -1.47], materials.darkSteel);
+  addBox(belt, [0.16, 0.78, 0.16], [x, 0.28, 1.47], materials.darkSteel);
+  addBox(belt, [0.7, 0.08, 0.16], [x, 0.3, -1.47], materials.brushed);
+  addBox(belt, [0.7, 0.08, 0.16], [x, 0.3, 1.47], materials.brushed);
 }
 
 const hazardFront = addBox(factory, [16.4, 0.04, 0.42], [0, 0.025, 1.82], materials.hazard);
